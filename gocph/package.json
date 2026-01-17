@@ -3,7 +3,6 @@
     "displayName": "GoCPH - Go Test Runner",
     "description": "Go 程序测试运行器，支持输入输出对比测试",
     "license": "GPL-3.0-or-later",
-    "icon": "icon.png",
     "publisher": "LocalDev",
     "version": "1.0.0",
     "engines": {
