@@ -61,7 +61,7 @@ export function generateTestGo(data: ProblemData): string {
 import (
 	"testing"
 
-	. "github.com/funcdfs/algo/tool/testutil"
+	. "github.com/funcdfs/gocph/tool/testutil"
 )
 
 // Contest: ${data.group} ${data.name}

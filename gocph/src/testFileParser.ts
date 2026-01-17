@@ -210,7 +210,7 @@ function isValidTestFile(content: string): boolean {
     // 必须包含 Run(t, []Case{ 结构
     const hasRunCase = /Run\(t,\s*\[\]Case\{/.test(content);
     // 必须包含 testutil 导入
-    const hasTestutil = /github\.com\/funcdfs\/algo\/tool\/testutil/.test(content);
+    const hasTestutil = /github\.com\/funcdfs\/gocph\/tool\/testutil/.test(content);
     
     return hasContest && hasUrl && hasRunCase && hasTestutil;
 }

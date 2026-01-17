@@ -9,7 +9,7 @@ describe('testFileParser', () => {
 import (
 	"testing"
 
-	. "github.com/funcdfs/algo/tool/testutil"
+	. "github.com/funcdfs/gocph/tool/testutil"
 )
 
 // Contest: Codeforces - Educational Codeforces Round 167 (Rated for Div. 2) A. Catch the Coin

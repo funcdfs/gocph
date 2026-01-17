@@ -1,8 +1,8 @@
 go 1.23.3
 
 replace (
-	 github.com/funcdfs/algo/tool/io  v0.0.0 => ./tool/io
-	 github.com/funcdfs/algo/tool/testutil v0.0.0 => ./tool/testutil
+	 github.com/funcdfs/gocph/tool/io  v0.0.0 => ./tool/io
+	 github.com/funcdfs/gocph/tool/testutil v0.0.0 => ./tool/testutil
 )
 
 use (

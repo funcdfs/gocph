@@ -146,7 +146,7 @@ func generateTestFile(problem Problem, currentTime string) string {
 	sb.WriteString("package main\n\n")
 	sb.WriteString("import (\n")
 	sb.WriteString("\t\"testing\"\n\n")
-	sb.WriteString("\t. \"github.com/funcdfs/algo/tool/testutil\"\n")
+	sb.WriteString("\t. \"github.com/funcdfs/gocph/tool/testutil\"\n")
 	sb.WriteString(")\n\n")
 	sb.WriteString(fmt.Sprintf("// Contest: %s %s\n", problem.Group, problem.Name))
 	sb.WriteString(fmt.Sprintf("// URL: %s\n", problem.URL))
