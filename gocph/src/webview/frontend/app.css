@@ -1,0 +1,1107 @@
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default !important;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+}
+
+.selectable {
+    -webkit-touch-callout: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    cursor: text !important;
+}
+
+body {
+    margin: 0 auto;
+    padding: 0px;
+    max-width: 800px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    overflow-x: hidden;
+}
+
+#app {
+    margin-bottom: 100px;
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 6px 12px;
+    background: #177bb4;
+    color: white;
+    outline: none;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    text-align: center;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer !important;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover {
+    filter: brightness(115%);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.btn-green {
+    background: #4a7c23;
+}
+
+.btn-red {
+    background: #a01d38;
+}
+
+.btn-orange {
+    background: #d4940d;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.btn:focus {
+    outline: 2px solid var(--vscode-focusBorder);
+    outline-offset: 1px;
+}
+
+button:disabled {
+    background: rgb(66, 66, 66) !important;
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+}
+
+/* 底部操作栏 */
+.actions {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    padding: 10px;
+    background: var(--vscode-menu-background);
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0px !important;
+}
+
+.actions .row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+/* 底部按钮 - label 风格 */
+.actions .btn {
+    margin: 0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    background: transparent;
+    border: 1.5px solid;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: none;
+    transition: all 0.15s ease;
+}
+
+.actions .btn:hover {
+    filter: none;
+    transform: scale(1.02);
+}
+
+.actions .btn:active {
+    transform: scale(0.98);
+}
+
+/* 全部运行 - 蓝色 */
+.actions .btn:first-child {
+    border-color: rgba(52, 152, 219, 0.5);
+    color: #5dade2;
+}
+
+.actions .btn:first-child:hover {
+    background: rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.7);
+}
+
+/* 新建 - 绿色 */
+.actions .btn.btn-green {
+    border-color: rgba(46, 204, 113, 0.5);
+    color: #58d68d;
+    background: transparent;
+}
+
+.actions .btn.btn-green:hover {
+    background: rgba(46, 204, 113, 0.15);
+    border-color: rgba(46, 204, 113, 0.7);
+}
+
+/* 停止 - 橙色 */
+.actions .btn.btn-orange {
+    border-color: rgba(243, 156, 18, 0.5);
+    color: #f5b041;
+    background: transparent;
+}
+
+.actions .btn.btn-orange:hover {
+    background: rgba(243, 156, 18, 0.15);
+    border-color: rgba(243, 156, 18, 0.7);
+}
+
+/* 删除 - 红色 */
+.actions .btn.btn-red {
+    border-color: rgba(231, 76, 60, 0.5);
+    color: #ec7063;
+    background: transparent;
+}
+
+.actions .btn.btn-red:hover {
+    background: rgba(231, 76, 60, 0.15);
+    border-color: rgba(231, 76, 60, 0.7);
+}
+
+.actions .btn.right {
+    float: none;
+}
+
+/* 中等宽度: 2x2 布局 */
+@media (max-width: 320px) {
+    .actions .row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 极小宽度: 单列布局 */
+@media (max-width: 200px) {
+    .actions .row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 测试用例卡片 */
+.case {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0;
+    margin: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.case-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 4px solid rgba(255, 255, 255, 0.2);
+    gap: 8px;
+}
+
+.case.running .case-header {
+    border-left-color: #f1c40f;
+}
+
+.case.passed .case-header {
+    border-left-color: #27ae60;
+}
+
+.case.failed .case-header {
+    border-left-color: #e74c3c;
+}
+
+.case-body {
+    padding: 12px;
+    animation: slideDown 0.2s ease-out;
+    transform-origin: top;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+        transform: translateY(0);
+    }
+}
+
+.case-title {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 8px;
+    cursor: pointer !important;
+}
+
+.case-title:hover {
+    opacity: 0.8;
+}
+
+/* 测试标签样式 */
+.case-label {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(52, 152, 219, 0.15);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    border-radius: 12px;
+    padding: 2px 10px;
+    gap: 4px;
+}
+
+.case-label-text {
+    font-weight: 600;
+    color: #5dade2;
+    font-size: 12px;
+}
+
+/* 状态标签样式 */
+.status-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-label.pass {
+    background: rgba(46, 204, 113, 0.15);
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    color: #2ecc71;
+}
+
+.status-label.fail {
+    background: rgba(231, 76, 60, 0.15);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    color: #e74c3c;
+}
+
+.status-label.running {
+    background: rgba(241, 196, 15, 0.15);
+    border: 1px solid rgba(241, 196, 15, 0.3);
+    color: #f1c40f;
+}
+
+.status-label svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* 时间标签 */
+.time-label {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 2px 8px;
+    font-size: 10px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.case-actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* 图标按钮样式 */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer !important;
+    transition: all 0.15s ease;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.95);
+    transform: scale(1.05);
+}
+
+.icon-btn:active {
+    transform: scale(0.95);
+}
+
+.icon-btn.run {
+    background: rgba(74, 124, 35, 0.3);
+    color: #7cb342;
+}
+
+.icon-btn.run:hover {
+    background: rgba(74, 124, 35, 0.5);
+    color: #9ccc65;
+}
+
+.icon-btn.delete {
+    background: rgba(160, 29, 56, 0.3);
+    color: #e57373;
+}
+
+.icon-btn.delete:hover {
+    background: rgba(160, 29, 56, 0.5);
+    color: #ef9a9a;
+}
+
+.icon-btn:disabled {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.2) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.icon-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease, color 0.15s;
+}
+
+.toggle-icon.collapsed {
+    transform: rotate(-90deg);
+}
+
+.case-title:hover .toggle-icon {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* 标签和编辑器容器 */
+.editor-section {
+    margin-bottom: 12px;
+}
+
+/* 输入区域 - 薰衣草紫色 */
+.input-section .editor-box {
+    border-color: rgba(180, 150, 200, 0.3);
+}
+
+.input-section .line-numbers {
+    color: rgba(180, 150, 200, 0.6);
+}
+
+.input-section .editor-content {
+    color: rgb(200, 180, 220);
+}
+
+.editor-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.editor-actions {
+    display: flex;
+    gap: 6px;
+}
+
+/* 操作按钮样式 */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border: none;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    cursor: pointer !important;
+    transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.action-btn:active {
+    transform: scale(0.96);
+}
+
+.action-btn.primary {
+    background: rgba(52, 152, 219, 0.15);
+    color: rgba(82, 182, 249, 0.85);
+}
+
+.action-btn.primary:hover {
+    background: rgba(52, 152, 219, 0.25);
+    color: #5dade2;
+}
+
+.action-btn svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+/* 编辑器框 - 无圆角 */
+.editor-box {
+    display: flex;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.editor-box:focus-within {
+    border-color: #3498db;
+}
+
+.line-numbers {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 0;
+    min-width: 28px;
+    width: 28px;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: 'SF Mono', Consolas, 'Ubuntu Mono', monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.35);
+    flex-shrink: 0;
+}
+
+.line-numbers .ln {
+    padding: 0 6px;
+    display: block;
+}
+
+.editor-content {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 10px;
+    font-family: 'SF Mono', Consolas, 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #d4d4d4;
+    resize: none;
+    outline: none !important;
+    min-height: 50px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Diff 显示 - 无圆角 */
+.diff-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+    overflow: hidden;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.diff-line {
+    display: flex;
+    font-family: 'SF Mono', Consolas, 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 0 !important;
+}
+
+.diff-line .ln {
+    min-width: 28px;
+    width: 28px;
+    padding: 0 6px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.35);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    font-size: 11px;
+}
+
+.diff-line .content {
+    flex: 1;
+    padding: 0 10px;
+    color: #d4d4d4;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Diff 高亮样式 - 与命令行 testutil 保持一致 */
+/* 匹配行 → 绿色 */
+.diff-line.match .ln,
+.diff-line.match .content {
+    color: #4ade80;
+}
+
+.diff-line.match .ln {
+    background: rgba(34, 197, 94, 0.15);
+}
+
+.diff-line.match .content {
+    background: rgba(34, 197, 94, 0.08);
+}
+
+/* Expected(期望) 不匹配行 → 蓝色 (提示正确答案) */
+.diff-box.expected .diff-line.mismatch .ln {
+    background: rgba(59, 130, 246, 0.25);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.diff-box.expected .diff-line.mismatch .content {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+/* Received(实际输出) 不匹配行 → 红色 (我输出错了) */
+.diff-box.received .diff-line.mismatch .ln {
+    background: rgba(239, 68, 68, 0.25);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.diff-box.received .diff-line.mismatch .content {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+/* 字符级别 diff */
+.diff-char-add {
+    background: rgba(34, 197, 94, 0.4);
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+.diff-char-del {
+    background: rgba(220, 38, 38, 0.4);
+    border-radius: 2px;
+    padding: 0 1px;
+    text-decoration: line-through;
+}
+
+/* 顶部信息栏 - 固定在顶部 */
+.meta {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 8px;
+    background: var(--vscode-sideBar-background);
+}
+
+.problem-name {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meta-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer !important;
+    transition: all 0.15s ease;
+}
+
+.expand-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.expand-btn:active {
+    transform: scale(0.95);
+}
+
+.pass-rate {
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.pass-rate.pass-all {
+    color: #2ecc71;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+/* 加载动画 */
+.loader {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* SVG 旋转动画 */
+svg.spin {
+    animation: spin 0.8s linear infinite;
+}
+
+.compiling {
+    color: #f39c12;
+}
+
+/* 通知 */
+.notification {
+    padding: 8px 16px;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(50, 50, 50, 0.95);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    font-size: 12px;
+}
+
+/* 超时提示 */
+.timeout-suggestion {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    margin-top: 10px;
+    background: rgba(231, 76, 60, 0.1);
+    font-size: 12px;
+}
+
+.timeout-suggestion h5 {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    color: #e74c3c;
+}
+
+.timeout-suggestion p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+}
+
+/* 工具类 */
+.p10 {
+    padding: 10px;
+}
+
+.margin-10 {
+    margin: 10px;
+}
+
+/* 新建测试按钮 - 与底部按钮风格一致 */
+.new-test-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1.5px solid rgba(46, 204, 113, 0.5);
+    border-radius: 20px;
+    background: transparent;
+    color: #58d68d;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer !important;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.new-test-btn:hover {
+    background: rgba(46, 204, 113, 0.15);
+    border-color: rgba(46, 204, 113, 0.7);
+    transform: scale(1.02);
+}
+
+.new-test-btn:active {
+    transform: scale(0.98);
+}
+
+.new-test-btn .codicon {
+    font-size: 14px;
+}
+
+/* 亮色主题 - 新建测试按钮 */
+body.vscode-light .new-test-btn {
+    border-color: rgba(22, 163, 74, 0.4);
+    color: #16a34a;
+}
+
+body.vscode-light .new-test-btn:hover {
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(22, 163, 74, 0.6);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.right {
+    float: right;
+}
+
+a,
+a:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+a[href]:hover {
+    text-decoration: underline;
+    cursor: pointer !important;
+}
+
+.icon,
+.codicon {
+    vertical-align: middle;
+}
+
+.row {
+    display: flex;
+    gap: 6px;
+}
+
+/* 亮色主题适配 */
+body.vscode-light .case {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.vscode-light .case-header {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+body.vscode-light .case-number {
+    color: #2563eb;
+}
+
+body.vscode-light .case-label {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.25);
+}
+
+body.vscode-light .case-label-text {
+    color: #2563eb;
+}
+
+body.vscode-light .status-label.pass {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.25);
+    color: #16a34a;
+}
+
+body.vscode-light .status-label.fail {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.25);
+    color: #dc2626;
+}
+
+body.vscode-light .status-label.running {
+    background: rgba(234, 179, 8, 0.1);
+    border-color: rgba(234, 179, 8, 0.25);
+    color: #ca8a04;
+}
+
+body.vscode-light .time-label {
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.5);
+}
+
+body.vscode-light .icon-btn {
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.6);
+}
+
+body.vscode-light .icon-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.85);
+}
+
+body.vscode-light .icon-btn.run {
+    background: rgba(74, 124, 35, 0.15);
+    color: #4a7c23;
+}
+
+body.vscode-light .icon-btn.delete {
+    background: rgba(160, 29, 56, 0.15);
+    color: #a01d38;
+}
+
+body.vscode-light .action-btn {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.55);
+}
+
+body.vscode-light .action-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.85);
+}
+
+body.vscode-light .action-btn.primary {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+body.vscode-light .toggle-icon {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+body.vscode-light .case-title:hover .toggle-icon {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+body.vscode-light .expand-btn {
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.5);
+}
+
+body.vscode-light .expand-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.8);
+}
+
+body.vscode-light .editor-box,
+body.vscode-light .diff-box {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.vscode-light .line-numbers {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.3);
+}
+
+body.vscode-light .editor-content,
+body.vscode-light .diff-line .content {
+    color: #333;
+}
+
+body.vscode-light .editor-label,
+body.vscode-light .editor-action {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+body.vscode-light .line-numbers {
+    background: rgba(0, 0, 0, 0.04);
+    color: rgba(0, 0, 0, 0.35);
+}
+
+body.vscode-light .diff-line .ln {
+    background: rgba(0, 0, 0, 0.04);
+    color: rgba(0, 0, 0, 0.35);
+}
+
+body.vscode-light .diff-box.expected .diff-line.mismatch .content {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+body.vscode-light .diff-box.received .diff-line.mismatch .content {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+body.vscode-light .diff-line.match .content {
+    background: rgba(34, 197, 94, 0.08);
+    color: #16a34a;
+}
+
+body.vscode-light .diff-line.match .ln {
+    background: rgba(34, 197, 94, 0.12);
+    color: rgba(0, 0, 0, 0.4);
+}
+
+body.vscode-light .diff-box.expected .diff-line.mismatch .ln {
+    background: rgba(59, 130, 246, 0.15);
+    color: rgba(0, 0, 0, 0.4);
+}
+
+body.vscode-light .diff-box.received .diff-line.mismatch .ln {
+    background: rgba(239, 68, 68, 0.15);
+    color: rgba(0, 0, 0, 0.4);
+}
+
+body.vscode-light .btn {
+    color: white;
+}
+
+/* 亮色主题 - 输入区域薰衣草紫色 */
+body.vscode-light .input-section .editor-box {
+    border-color: rgba(140, 100, 160, 0.3);
+}
+
+body.vscode-light .input-section .line-numbers {
+    color: rgba(140, 100, 160, 0.6);
+}
+
+body.vscode-light .input-section .editor-content {
+    color: rgb(120, 80, 140);
+}
+
+/* 亮色主题 - 底部按钮 */
+body.vscode-light .actions .btn:first-child {
+    border-color: rgba(37, 99, 235, 0.4);
+    color: #2563eb;
+}
+
+body.vscode-light .actions .btn:first-child:hover {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.6);
+}
+
+body.vscode-light .actions .btn.btn-green {
+    border-color: rgba(22, 163, 74, 0.4);
+    color: #16a34a;
+}
+
+body.vscode-light .actions .btn.btn-green:hover {
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(22, 163, 74, 0.6);
+}
+
+body.vscode-light .actions .btn.btn-orange {
+    border-color: rgba(202, 138, 4, 0.4);
+    color: #ca8a04;
+}
+
+body.vscode-light .actions .btn.btn-orange:hover {
+    background: rgba(202, 138, 4, 0.1);
+    border-color: rgba(202, 138, 4, 0.6);
+}
+
+body.vscode-light .actions .btn.btn-red {
+    border-color: rgba(220, 38, 38, 0.4);
+    color: #dc2626;
+}
+
+body.vscode-light .actions .btn.btn-red:hover {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.6);
+}
+
+
+/* 文件链接样式 */
+.meta-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.file-links {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.file-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border: none;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+    cursor: pointer !important;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.file-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.file-link:active {
+    transform: scale(0.98);
+}
+
+.file-link .codicon {
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+/* 亮色主题 - 文件链接 */
+body.vscode-light .file-link {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.6);
+}
+
+body.vscode-light .file-link:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.85);
+}

@@ -1,0 +1,17 @@
+.vscode/
+node_modules/
+src/
+out/
+docs/
+screenshots/
+server/
+*.config.ts
+*.config.js
+tsconfig.json
+.gitignore
+.git/
+.github/
+.kiro/
+*.vsix
+package-lock.json
+eslint.config.js
