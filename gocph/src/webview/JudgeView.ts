@@ -93,10 +93,18 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                                     const document = await vscode.workspace.openTextDocument(problem.srcPath);
                                     const text = document.getText();
                                     await vscode.env.clipboard.writeText(text);
-                                    vscode.window.showInformationMessage('代码已复制到剪贴板');
+                                    this.extensionToJudgeViewMessage({
+                                        command: 'notification',
+                                        text: '代码已复制到剪贴板',
+                                        type: 'success',
+                                    });
                                 } catch (e) {
                                     globalThis.logger.error('复制 main.go 内容失败', e);
-                                    vscode.window.showErrorMessage('复制失败，请重试');
+                                    this.extensionToJudgeViewMessage({
+                                        command: 'notification',
+                                        text: '复制失败，请重试',
+                                        type: 'error',
+                                    });
                                 }
                             }
                             break;
@@ -107,6 +115,7 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                                 'Unknown event received from webview',
                                 message,
                             );
+                            break;
                         }
                     }
                 } catch (error) {

@@ -2,7 +2,7 @@ import { Language, Run } from './types';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import config from './config';
 import { getTimeOutPref } from './preferences';
-import * as vscode from 'vscode';
+import { getJudgeViewProvider } from './extension';
 
 const runningBinaries: ChildProcessWithoutNullStreams[] = [];
 let isCancellationRequested = false;
@@ -56,9 +56,11 @@ export const runTestCase = (
 
     process.on('error', (err) => {
         globalThis.logger.error(err);
-        vscode.window.showErrorMessage(
-            `Could not launch testcase process. Is Go installed?`,
-        );
+        getJudgeViewProvider().extensionToJudgeViewMessage({
+            command: 'notification',
+            text: 'Could not launch testcase process. Is Go installed?',
+            type: 'error',
+        });
     });
 
     const begin = Date.now();

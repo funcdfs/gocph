@@ -12,6 +12,10 @@ import {
 } from '../../types';
 import CaseView from './CaseView';
 
+// 通知类型
+type NotificationType = 'info' | 'success' | 'error' | 'warning';
+type NotificationState = { text: string; type: NotificationType } | null;
+
 let notificationTimeout: NodeJS.Timeout | undefined = undefined;
 
 declare const vscodeApi: {
@@ -75,7 +79,7 @@ function Judge(props: {
     const [focusLast, setFocusLast] = useState<boolean>(false);
     const [forceRunning, setForceRunning] = useState<number | false>(false);
     const [compiling, setCompiling] = useState<boolean>(false);
-    const [notification, setNotification] = useState<string | null>(null);
+    const [notification, setNotification] = useState<NotificationState>(null);
 
     const numPassed = cases.filter((c) => c.result?.pass === true).length;
     const total = cases.length;
@@ -111,6 +115,9 @@ function Judge(props: {
                 case 'compiling-stop':
                     setCompiling(false);
                     break;
+                case 'notification':
+                    notify(data.text, data.type);
+                    break;
             }
         };
         window.addEventListener('message', handler);
@@ -138,14 +145,14 @@ function Judge(props: {
         setFocusLast(true);
     }, [cases, updateCases]);
 
-    const notify = useCallback((text: string) => {
+    const notify = useCallback((text: string, type: NotificationType = 'info') => {
         clearTimeout(notificationTimeout!);
-        setNotification(text);
-        notificationTimeout = setTimeout(() => setNotification(null), 1500);
+        setNotification({ text, type });
+        notificationTimeout = setTimeout(() => setNotification(null), 2500);
     }, []);
 
     const stop = useCallback(() => {
-        notify('已停止');
+        notify('已停止', 'warning');
         sendMessage({ command: 'kill-running', problem });
     }, [problem, sendMessage, notify]);
 
@@ -194,7 +201,15 @@ function Judge(props: {
 
     return (
         <div className="ui">
-            {notification && <div className="notification">{notification}</div>}
+            {notification && (
+                <div className={`notification notification-${notification.type}`}>
+                    {notification.type === 'success' && <i className="codicon codicon-check"></i>}
+                    {notification.type === 'error' && <i className="codicon codicon-error"></i>}
+                    {notification.type === 'warning' && <i className="codicon codicon-warning"></i>}
+                    {notification.type === 'info' && <i className="codicon codicon-info"></i>}
+                    <span>{notification.text}</span>
+                </div>
+            )}
 
             <div className="meta">
                 <div className="meta-left">

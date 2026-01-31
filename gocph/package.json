@@ -53,7 +53,7 @@
             },
             {
                 "command": "gocph.foldAllRegions",
-                "title": "GoCPH: 折叠所有 Region",
+                "title": "GoCPH: 切换折叠所有 Region",
                 "icon": "$(folding-expanded)"
             },
             {
@@ -64,28 +64,26 @@
         ],
         "keybindings": [
             {
-                "key": "ctrl+shift+r",
-                "mac": "cmd+shift+r",
-                "command": "gocph.runAllTests",
-                "when": "editorTextFocus"
-            },
-            {
                 "key": "alt+1",
+                "mac": "alt+1",
                 "command": "gocph.runAllTests",
                 "when": "editorTextFocus"
             },
             {
                 "key": "alt+2",
+                "mac": "alt+2",
                 "command": "gocph.stopTests",
                 "when": "editorTextFocus"
             },
             {
                 "key": "alt+3",
+                "mac": "alt+3",
                 "command": "gocph.foldAllRegions",
                 "when": "editorTextFocus"
             },
             {
                 "key": "alt+4",
+                "mac": "alt+4",
                 "command": "gocph.copyCode",
                 "when": "editorTextFocus"
             }

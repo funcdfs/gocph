@@ -146,6 +146,12 @@ export type NewProblemCommand = {
     testFilePath?: string;
 };
 
+export type NotificationCommand = {
+    command: 'notification';
+    text: string;
+    type: 'info' | 'success' | 'error' | 'warning';
+};
+
 export type VSToWebViewMessage =
     | ResultCommand
     | RunningCommand
@@ -153,7 +159,8 @@ export type VSToWebViewMessage =
     | CompilingStartCommand
     | CompilingStopCommand
     | NotRunningCommand
-    | NewProblemCommand;
+    | NewProblemCommand
+    | NotificationCommand;
 
 export type WebViewpersistenceState = {
     placeholder?: boolean;

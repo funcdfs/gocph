@@ -38,23 +38,31 @@ const getFlags = (language: Language, srcPath: string): string[] => {
  */
 export const compileFile = async (srcPath: string): Promise<boolean> => {
     globalThis.logger.log('开始编译', srcPath);
-    
+
     try {
         await vscode.workspace.openTextDocument(srcPath).then((doc) => doc.save());
     } catch (err) {
         globalThis.logger.error('保存文件失败', err);
-        vscode.window.showErrorMessage('保存文件失败，请手动保存后重试。');
+        getJudgeViewProvider().extensionToJudgeViewMessage({
+            command: 'notification',
+            text: '保存文件失败，请手动保存后重试。',
+            type: 'error',
+        });
         return false;
     }
-    
+
     ocHide();
-    
+
     let language: Language;
     try {
         language = getLanguage(srcPath);
     } catch (err) {
         globalThis.logger.error('获取语言配置失败', err);
-        vscode.window.showErrorMessage('不支持的文件类型，仅支持 .go 文件。');
+        getJudgeViewProvider().extensionToJudgeViewMessage({
+            command: 'notification',
+            text: '不支持的文件类型，仅支持 .go 文件。',
+            type: 'error',
+        });
         return false;
     }
 
@@ -75,9 +83,11 @@ export const compileFile = async (srcPath: string): Promise<boolean> => {
             compiler = spawn(language.compiler, flags, spawnOpts);
         } catch (err) {
             globalThis.logger.error('启动编译器失败', err);
-            vscode.window.showErrorMessage(
-                `无法启动编译器 ${language.compiler}。请确认 Go 已安装。`,
-            );
+            getJudgeViewProvider().extensionToJudgeViewMessage({
+                command: 'notification',
+                text: `无法启动编译器 ${language.compiler}。请确认 Go 已安装。`,
+                type: 'error',
+            });
             getJudgeViewProvider().extensionToJudgeViewMessage({
                 command: 'compiling-stop',
             });

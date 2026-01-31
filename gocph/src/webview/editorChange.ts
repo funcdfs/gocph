@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { existsSync } from 'fs';
-import { getJudgeViewProvider } from '../extension';
+import { getJudgeViewProvider, foldRegionsInActiveEditor } from '../extension';
 import { getProblemForDocument, getFileStatus, getMainFileFromTestFile } from '../utils';
 import { getAutoShowJudgePref } from '../preferences';
 import { getTestFilePath, getProblemFromTestFile } from '../testFileParser';
@@ -26,10 +26,10 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
 
     const srcPath = e.document.fileName;
     const fileStatus = getFileStatus(e.document);
-    
+
     let mainFilePath: string | undefined;
     let testFilePath: string | undefined;
-    
+
     if (fileStatus === 'is-test-file') {
         mainFilePath = getMainFileFromTestFile(srcPath);
         testFilePath = srcPath;
@@ -37,7 +37,7 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
         mainFilePath = srcPath;
         testFilePath = getTestFilePath(srcPath);
     }
-    
+
     const problem = getProblemForDocument(e.document);
 
     if (problem === undefined) {
@@ -66,6 +66,12 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
         mainFilePath,
         testFilePath,
     });
+
+    // 打开有效的 main.go 文件时，自动折叠 region
+    if (fileStatus === 'valid' && problem) {
+        // 延迟 100ms 确保编辑器完全加载
+        setTimeout(() => foldRegionsInActiveEditor(), 100);
+    }
 };
 
 export const editorClosed = (e: vscode.TextDocument) => {

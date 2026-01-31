@@ -713,17 +713,67 @@ svg.spin {
 
 /* 通知 */
 .notification {
-    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
     position: fixed;
-    top: 10px;
-    right: 10px;
-    background: rgba(50, 50, 50, 0.95);
+    top: 80%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(40, 40, 40, 0.95);
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     z-index: 1000;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    animation: notifySlideIn 0.2s ease-out;
+    backdrop-filter: blur(8px);
+}
+
+@keyframes notifySlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* 不同类型的通知颜色 */
+.notification-success {
+    border-left: 3px solid #2ecc71;
+}
+.notification-success .codicon {
+    color: #2ecc71;
+    font-size: 16px;
+}
+
+.notification-error {
+    border-left: 3px solid #e74c3c;
+}
+.notification-error .codicon {
+    color: #e74c3c;
+    font-size: 16px;
+}
+
+.notification-warning {
+    border-left: 3px solid #f39c12;
+}
+.notification-warning .codicon {
+    color: #f39c12;
+    font-size: 16px;
+}
+
+.notification-info {
+    border-left: 3px solid #3498db;
+}
+.notification-info .codicon {
+    color: #3498db;
+    font-size: 16px;
 }
 
 /* 超时提示 */

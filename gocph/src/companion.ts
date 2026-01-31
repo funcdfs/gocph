@@ -62,7 +62,7 @@ async function handleExistingFiles(paths: { dirPath: string; srcPath: string; te
     // 检查目录或文件是否存在
     const dirExists = fs.existsSync(paths.dirPath);
     const srcExists = fs.existsSync(paths.srcPath);
-    
+
     if (!dirExists && !srcExists) {
         return paths; // 不存在，直接使用
     }
@@ -102,7 +102,12 @@ async function handleProblem(data: CompanionProblem): Promise<void> {
 
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
-        vscode.window.showErrorMessage('请先打开一个工作区文件夹');
+        await vscode.commands.executeCommand('gocph.judgeView.focus');
+        getJudgeViewProvider().extensionToJudgeViewMessage({
+            command: 'notification',
+            text: '请先打开一个工作区文件夹',
+            type: 'error',
+        });
         return;
     }
 
@@ -110,7 +115,12 @@ async function handleProblem(data: CompanionProblem): Promise<void> {
     let paths = generatePaths(workspaceRoot, data.url, data.name);
 
     if (!paths) {
-        vscode.window.showErrorMessage('无法解析题目 URL');
+        await vscode.commands.executeCommand('gocph.judgeView.focus');
+        getJudgeViewProvider().extensionToJudgeViewMessage({
+            command: 'notification',
+            text: '无法解析题目 URL',
+            type: 'error',
+        });
         return;
     }
 
@@ -173,7 +183,11 @@ async function handleProblem(data: CompanionProblem): Promise<void> {
     });
 
     const folderName = path.basename(paths.dirPath);
-    vscode.window.showInformationMessage(`已加载: ${folderName}`);
+    getJudgeViewProvider().extensionToJudgeViewMessage({
+        command: 'notification',
+        text: `已加载: ${folderName}`,
+        type: 'success',
+    });
 }
 
 // ================================ Server ================================

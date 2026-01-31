@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { checkUnsupported, randomId } from './utils';
+import { checkUnsupported, randomId, isValidLanguage } from './utils';
 import { Problem } from './types';
 import { getProblem } from './parser';
 import { compileFile } from './compiler';
 import runAllAndSave from './webview/processRunAll';
 import path from 'path';
-import { getJudgeViewProvider } from './extension';
+import { getJudgeViewProvider, foldRegionsInActiveEditor } from './extension';
 import { getTestFilePath } from './testFileParser';
 import { generateTestGo } from './templateGenerator';
 
@@ -19,11 +19,15 @@ export default async () => {
     globalThis.logger.log('Running command "runTestCases"');
     const editor = vscode.window.activeTextEditor;
     if (editor === undefined) {
-        checkUnsupported('');
         return;
     }
     const srcPath = editor.document.fileName;
-    if (checkUnsupported(srcPath)) {
+    if (!isValidLanguage(srcPath)) {
+        getJudgeViewProvider().extensionToJudgeViewMessage({
+            command: 'notification',
+            text: '不支持的文件类型，仅支持 .go 文件',
+            type: 'error',
+        });
         return;
     }
 
@@ -43,7 +47,7 @@ export default async () => {
     }
 
     // 自动折叠 region
-    await vscode.commands.executeCommand('editor.foldAllMarkerRegions');
+    await foldRegionsInActiveEditor();
 
     await editor.document.save();
     getJudgeViewProvider().focus();
