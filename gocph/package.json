@@ -25,6 +25,12 @@
                 }
             ]
         },
+        "snippets": [
+            {
+                "language": "go",
+                "path": "./snippets/go.json"
+            }
+        ],
         "views": {
             "gocph-judge-view-container": [
                 {

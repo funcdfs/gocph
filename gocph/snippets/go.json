@@ -1,0 +1,659 @@
+{
+	"cp": {
+		"prefix": "cp",
+		"body": [
+			"// #region main",
+			"package main; import ( \"bufio\"; \"fmt\"; \"os\"; ); var _in, _out = new(bufio.Reader), new(bufio.Writer)",
+			"func _github_funcdfs[T any](sep, end string, arr ...T) { for idx := range arr { fmt.Fprint(_out, arr[idx]); if idx == len(arr)-1 { fmt.Fprint(_out, end); } else { fmt.Fprint(_out, sep) } } }",
+			"func main() { _in = bufio.NewReader(os.Stdin); _out = bufio.NewWriter(os.Stdout); defer _out.Flush(); solve() }",
+			"func input      [T any] ()           T { var value T; fmt.Fscan(_in, &value); return value }",
+			"func inputSlice [T any] (size int) []T { data := make([]T, size); for idx := 0; idx < size; idx++ { data[idx] = input[T](); }; return data }",
+			"func print      [T any] (arr ...T)     { _github_funcdfs(\"\", \"\", arr...) }",
+			"func println    [T any] (arr ...T)     { _github_funcdfs(\" \", \"\\n\", arr...) }",
+			"// #endregion main",
+			"",
+			"",
+			"// ----------------------------- /* Start of useful functions */ -----------------------------",
+			"",
+			"func solve() {",
+			"",
+			"\t$0",
+			"",
+			"}",
+			"",
+			"// ----------------------------- /* End of useful functions */ -------------------------------"
+		],
+		"description": "算法竞赛基础模板（单测试用例）。包含快速输入输出函数：input, inputSlice, print, println。"
+	},
+	"tt": {
+		"prefix": "tt",
+		"body": [
+			"// #region main",
+			"package main",
+			"",
+			"import (",
+			"\t\"bufio\"",
+			"\t\"fmt\"",
+			"\t\"os\"",
+			")",
+			"",
+			"var _in, _out = new(bufio.Reader), new(bufio.Writer)",
+			"",
+			"func _github_funcdfs[T any](sep, end string, arr ...T) {",
+			"\tfor idx := range arr {",
+			"\t\tfmt.Fprint(_out, arr[idx])",
+			"\t\tif idx == len(arr)-1 {",
+			"\t\t\tfmt.Fprint(_out, end)",
+			"\t\t} else {",
+			"\t\t\tfmt.Fprint(_out, sep)",
+			"\t\t}",
+			"\t}",
+			"}",
+			"func main() {",
+			"\t_in = bufio.NewReader(os.Stdin)",
+			"\t_out = bufio.NewWriter(os.Stdout)",
+			"\tdefer _out.Flush()",
+			"\ttestCaseCnt := input[int]()",
+			"\tfor i := 0; i < testCaseCnt; i++ {",
+			"\t\tsolve(i + 1)",
+			"\t}",
+			"}",
+			"func input[T any]() T { var value T; fmt.Fscan(_in, &value); return value }",
+			"func inputSlice[T any](size int) []T {",
+			"\tdata := make([]T, size)",
+			"\tfor idx := 0; idx < size; idx++ {",
+			"\t\tdata[idx] = input[T]()",
+			"\t}",
+			"\treturn data",
+			"}",
+			"func print[T any](arr ...T)   { _github_funcdfs(\"\", \"\", arr...) }",
+			"func println[T any](arr ...T) { _github_funcdfs(\" \", \"\\n\", arr...) }",
+			"",
+			"// #endregion main",
+			"",
+			"// ----------------------------- /* Start of useful functions */ -----------------------------",
+			"func solve(_case int) {",
+			"",
+			"\t$0",
+			"",
+			"}",
+			"",
+			"// ----------------------------- /* End of useful functions */ -------------------------------"
+		],
+		"description": "算法竞赛标准模板（多测试用例）。自动循环读取 testCaseCnt 并调用 solve(i+1)。"
+	},
+	"ttna": {
+		"prefix": "ttna",
+		"body": [
+			"// #region main",
+			"package main",
+			"",
+			"import (",
+			"\t\"bufio\"",
+			"\t\"fmt\"",
+			"\t\"os\"",
+			")",
+			"",
+			"var _in, _out = new(bufio.Reader), new(bufio.Writer)",
+			"",
+			"func _github_funcdfs[T any](sep, end string, arr ...T) {",
+			"\tfor idx := range arr {",
+			"\t\tfmt.Fprint(_out, arr[idx])",
+			"\t\tif idx == len(arr)-1 {",
+			"\t\t\tfmt.Fprint(_out, end)",
+			"\t\t} else {",
+			"\t\t\tfmt.Fprint(_out, sep)",
+			"\t\t}",
+			"\t}",
+			"}",
+			"func main() {",
+			"\t_in = bufio.NewReader(os.Stdin)",
+			"\t_out = bufio.NewWriter(os.Stdout)",
+			"\tdefer _out.Flush()",
+			"\ttestCaseCnt := input[int]()",
+			"\tfor i := 0; i < testCaseCnt; i++ {",
+			"\t\tsolve(i + 1)",
+			"\t}",
+			"}",
+			"func input[T any]() T { var value T; fmt.Fscan(_in, &value); return value }",
+			"func inputSlice[T any](size int) []T {",
+			"\tdata := make([]T, size)",
+			"\tfor idx := 0; idx < size; idx++ {",
+			"\t\tdata[idx] = input[T]()",
+			"\t}",
+			"\treturn data",
+			"}",
+			"func print[T any](arr ...T)   { _github_funcdfs(\"\", \"\", arr...) }",
+			"func println[T any](arr ...T) { _github_funcdfs(\" \", \"\\n\", arr...) }",
+			"",
+			"// #endregion main",
+			"",
+			"// ----------------------------- /* Start of useful functions */ -----------------------------",
+			"func solve(_case int) {",
+			"",
+			"\tn := input[int]()",
+			"\ta := inputSlice[int](n)",
+			"",
+			"\t$0",
+			"",
+			"}",
+			"",
+			"// ----------------------------- /* End of useful functions */ -------------------------------"
+		],
+		"description": "算法竞赛模板（多测试用例）。自动读取 n 和长度为 n 的切片 a，适用于最典型的竞赛场景。"
+	},
+	"ii": {
+		"prefix": "ii",
+		"body": [
+			"type ii int64"
+		],
+		"description": "int64 的简短类型定义。"
+	},
+	"mapii": {
+		"prefix": "mapii",
+		"body": [
+			"map[int]int"
+		],
+		"description": "基于 int 的映射类型缩写。"
+	},
+	"mapiiii": {
+		"prefix": "mapiiii",
+		"body": [
+			"map[int64]int64"
+		],
+		"description": "基于 int64 的映射类型缩写。"
+	},
+	"seti": {
+		"prefix": "seti",
+		"body": [
+			"map[int]struct{}"
+		],
+		"description": "使用 map[int]struct{} 模拟的 int 集合。"
+	},
+	"setii": {
+		"prefix": "setii",
+		"body": [
+			"map[int64]struct{}"
+		],
+		"description": "使用 map[int64]struct{} 模拟的 int64 集合。"
+	},
+	"dsu": {
+		"prefix": "dsu",
+		"body": [
+			"type dsu struct {",
+			"\tparent []int",
+			"\tsize   []int",
+			"}",
+			"func newDsu(n int) *dsu {",
+			"\tparent, size := make([]int, n), make([]int, n)",
+			"\tfor i := range parent { parent[i], size[i] = i, 1 }",
+			"\treturn &dsu{parent, size}",
+			"}",
+			"func (d *dsu) find(x int) int {",
+			"\tif d.parent[x] != x { d.parent[x] = d.find(d.parent[x]) }",
+			"\treturn d.parent[x]",
+			"}",
+			"func (d *dsu) merge(x, y int) bool {",
+			"\tx, y = d.find(x), d.find(y)",
+			"\tif x == y { return false }",
+			"\tif d.size[x] < d.size[y] { x, y = y, x }",
+			"\td.parent[y], d.size[x] = x, d.size[x]+d.size[y]",
+			"\treturn true",
+			"}",
+			"func (d *dsu) same(x, y int) bool { return d.find(x) == d.find(y) }",
+			"func (d *dsu) sizeOf(x int) int { return d.size[d.find(x)] }"
+		],
+		"description": "并查集（Disjoint Set Union）结构。支持路径压缩与按大小合并，O(α(n)) 复杂度。"
+	},
+	"minHeap": {
+		"prefix": "minHeap",
+		"body": [
+			"type minHeap []int",
+			"func (h minHeap) Len() int           { return len(h) }",
+			"func (h minHeap) Less(i, j int) bool { return h[i] < h[j] }",
+			"func (h minHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }",
+			"func (h *minHeap) Push(x any)        { *h = append(*h, x.(int)) }",
+			"func (h *minHeap) Pop() any          { old := *h; n := len(old); x := old[n-1]; *h = old[0 : n-1]; return x }"
+		],
+		"description": "最小堆实现。适配 container/heap 接口，用于弹出最小值。"
+	},
+	"maxHeap": {
+		"prefix": "maxHeap",
+		"body": [
+			"type maxHeap []int",
+			"func (h maxHeap) Len() int           { return len(h) }",
+			"func (h maxHeap) Less(i, j int) bool { return h[i] > h[j] }",
+			"func (h maxHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }",
+			"func (h *maxHeap) Push(x any)        { *h = append(*h, x.(int)) }",
+			"func (h *maxHeap) Pop() any          { old := *h; n := len(old); x := old[n-1]; *h = old[0 : n-1]; return x }"
+		],
+		"description": "最大堆实现。适配 container/heap 接口，用于弹出最大值。"
+	},
+	"unique": {
+		"prefix": "unique",
+		"body": [
+			"slices.Sort(${1:a})",
+			"${1:a} = slices.Compact(${1:a})"
+		],
+		"description": "对切片进行排序并去重（原地操作）。"
+	},
+	"reverse": {
+		"prefix": "reverse",
+		"body": [
+			"slices.Reverse(${1:a})"
+		],
+		"description": "反转切片。"
+	},
+	"sort": {
+		"prefix": "sort",
+		"body": [
+			"slices.Sort(${1:a})"
+		],
+		"description": "对切片进行升序排序。"
+	},
+	"sortFunc": {
+		"prefix": "sortFunc",
+		"body": [
+			"slices.SortFunc(${1:a}, func(x, y ${2:int}) int {",
+			"\treturn x - y",
+			"})"
+		],
+		"description": "使用自定义比较函数对切片进行排序。返回负数表示 x < y。"
+	},
+	"minElem": {
+		"prefix": "minElem",
+		"body": [
+			"slices.Min(${1:a})"
+		],
+		"description": "获取切片中的最小值。"
+	},
+	"maxElem": {
+		"prefix": "maxElem",
+		"body": [
+			"slices.Max(${1:a})"
+		],
+		"description": "获取切片中的最大值。"
+	},
+	"iota": {
+		"prefix": "iota",
+		"body": [
+			"for i := range ${1:a} { ${1:a}[i] = i }"
+		],
+		"description": "使用连续整数 [0, n) 填充切片。"
+	},
+	"fill": {
+		"prefix": "fill",
+		"body": [
+			"for i := range ${1:a} { ${1:a}[i] = ${2:0} }"
+		],
+		"description": "使用指定常量值填充切片。"
+	},
+	"lowerBound": {
+		"prefix": "lowerBound",
+		"body": [
+			"idx, _ := slices.BinarySearch(${1:a}, ${2:x})"
+		],
+		"description": "二分查找第一个大于等于指定值的元素索引。要求切片已排序。"
+	},
+	"upperBound": {
+		"prefix": "upperBound",
+		"body": [
+			"idx := sort.Search(len(${1:a}), func(i int) bool { return ${1:a}[i] > ${2:x} })"
+		],
+		"description": "二分查找第一个大于指定值的元素索引。要求切片已排序。"
+	},
+	"sum": {
+		"prefix": "sum",
+		"body": [
+			"sum := ${2:0}",
+			"for _, v := range ${1:a} { sum += v }"
+		],
+		"description": "计算切片中所有元素的总和。"
+	},
+	"maxInt64": {
+		"prefix": "maxInt64",
+		"body": [
+			"math.MaxInt64"
+		],
+		"description": "int64 类型的最大可能值。"
+	},
+	"maxInt32": {
+		"prefix": "maxInt32",
+		"body": [
+			"math.MaxInt32"
+		],
+		"description": "int32 类型的最大可能值。"
+	},
+	"minInt64": {
+		"prefix": "minInt64",
+		"body": [
+			"math.MinInt64"
+		],
+		"description": "int64 类型的最小可能值。"
+	},
+	"minInt32": {
+		"prefix": "minInt32",
+		"body": [
+			"math.MinInt32"
+		],
+		"description": "int32 类型的最小可能值。"
+	},
+	"dxdy4": {
+		"prefix": "dxdy4",
+		"body": [
+			"dx := []int{-1, 1, 0, 0}",
+			"dy := []int{0, 0, -1, 1}"
+		],
+		"description": "常用的四方向（上下左右）偏移量数组。"
+	},
+	"dxdy8": {
+		"prefix": "dxdy8",
+		"body": [
+			"dx := []int{0, 1, 1, 1, 0, -1, -1, -1}",
+			"dy := []int{1, 1, 0, -1, -1, -1, 0, 1}"
+		],
+		"description": "常用的八方向（含对角线）偏移量数组。"
+	},
+	"fori": {
+		"prefix": "fori",
+		"body": [
+			"for i := ${1:0}; i < ${2:n}; i++ {",
+			"\t$0",
+			"}"
+		],
+		"description": "标准的递增 for 循环缩写。"
+	},
+	"check": {
+		"prefix": "check",
+		"body": [
+			"check := func() bool {",
+			"\t$0",
+			"\treturn true",
+			"}",
+			"if check() { println(\"YES\") } else { println(\"NO\") }"
+		],
+		"description": "定义一个判定函数并根据结果输出 YES 或 NO。"
+	},
+	"func": {
+		"prefix": "func",
+		"body": [
+			"$1 := func($2) $3 {",
+			"\t$0",
+			"}"
+		],
+		"description": "匿名函数/闭包定义模板。"
+	},
+	"dfs": {
+		"prefix": "dfs",
+		"body": [
+			"var dfs func(int)",
+			"dfs = func(u int) {",
+			"\t$0",
+			"}",
+			"dfs(${1:0})"
+		],
+		"description": "递归深度优先搜索（DFS）模板。使用变量预声明以支持闭包递归。"
+	},
+	"printCase": {
+		"prefix": "printCase",
+		"body": [
+			"print(\"Case #\", ${1:_case}, \": \")"
+		],
+		"description": "用于 Kickstart 等比赛的 Case 编号输出。"
+	},
+	"coutYes": {
+		"prefix": "yes",
+		"body": [
+			"println(\"Yes\")"
+		],
+		"description": "快速输出 Yes 字符串并换行。"
+	},
+	"coutYES": {
+		"prefix": "YES",
+		"body": [
+			"println(\"YES\")"
+		],
+		"description": "快速输出 YES 字符串并换行。"
+	},
+	"coutNo": {
+		"prefix": "no",
+		"body": [
+			"println(\"No\")"
+		],
+		"description": "快速输出 No 字符串并换行。"
+	},
+	"coutNO": {
+		"prefix": "NO",
+		"body": [
+			"println(\"NO\")"
+		],
+		"description": "快速输出 NO 字符串并换行。"
+	},
+	"comb": {
+		"prefix": "comb",
+		"body": [
+			"comb := func(n, k int64) int64 {",
+			"\tif k > n { return 0 }",
+			"\tif k > n-k { k = n - k }",
+			"\tans := int64(1)",
+			"\tfor i, j := n, int64(1); j <= k; i, j = i-1, j+1 {",
+			"\t\tans = ans * i / j",
+			"\t}",
+			"\treturn ans",
+			"}"
+		],
+		"description": "计算组合数 C(n, k)。通过乘除交替防止溢出。"
+	},
+	"floorDiv": {
+		"prefix": "div",
+		"body": [
+			"floorDiv := func(x, y int64) int64 {",
+			"\tif y < 0 { x, y = -x, -y }",
+			"\tif x >= 0 { return x / y }",
+			"\treturn (x+1)/y - 1",
+			"}",
+			"ceilDiv := func(x, y int64) int64 {",
+			"\tif y < 0 { x, y = -x, -y }",
+			"\tif x <= 0 { return x / y }",
+			"\treturn (x-1)/y + 1",
+			"}"
+		],
+		"description": "包含上下取整的除法。正确处理负数的取整行为。"
+	},
+	"gcd": {
+		"prefix": "gcd",
+		"body": [
+			"gcd := func(a, b int64) int64 {",
+			"\tif a < 0 { a = -a }; if b < 0 { b = -b }",
+			"\tfor b != 0 { a, b = b, a%b }",
+			"\treturn a",
+			"}"
+		],
+		"description": "求两个整数的最大公约数（GCD）。"
+	},
+	"isPrime": {
+		"prefix": "isPrime",
+		"body": [
+			"isPrime := func(x int64) bool {",
+			"\tif x < 2 { return false }",
+			"\tfor i := int64(2); i*i <= x; i++ {",
+			"\t\tif x % i == 0 { return false }",
+			"\t}",
+			"\treturn true",
+			"}"
+		],
+		"description": "判定一个数是否为质数（试除法）。O(√n) 复杂度。"
+	},
+	"lucas": {
+		"prefix": "lucas",
+		"body": [
+			"powMod := func(a, k, p int64) int64 {",
+			"\tres := int64(1 % p)",
+			"\tfor k > 0 {",
+			"\t\tif k&1 == 1 { res = res * a % p }",
+			"\t\ta = a * a % p",
+			"\t\tk >>= 1",
+			"\t}",
+			"\treturn res",
+			"}",
+			"combMod := func(a, b, p int64) int64 {",
+			"\tif b > a { return 0 }",
+			"\tif b > a-b { b = a - b }",
+			"\tx, y := int64(1), int64(1)",
+			"\tfor i := int64(0); i < b; i++ {",
+			"\t\tx = x * (a - i) % p",
+			"\t\ty = y * (i + 1) % p",
+			"\t}",
+			"\treturn x * powMod(y, p-2, p) % p",
+			"}",
+			"var lucas func(n, k, p int64) int64",
+			"lucas = func(n, k, p int64) int64 {",
+			"\tif n < p && k < p { return combMod(n, k, p) }",
+			"\treturn combMod(n%p, k%p, p) * lucas(n/p, k/p, p) % p",
+			"}"
+		],
+		"description": "卢卡斯定理。用于在大模数下计算组合数取模。"
+	},
+	"modInt": {
+		"prefix": "modInt",
+		"body": [
+			"var mod int64 = 1e9 + 7",
+			"type mi int64",
+			"var ModInt = struct { Init func(int64) }{ Init: func(m int64) { mod = m } }",
+			"func modInt(v int64) mi {",
+			"\tv %= mod",
+			"\tif v < 0 { v += mod }",
+			"\treturn mi(v)",
+			"}",
+			"func (m mi) add(o mi) mi { res := m + o; if res >= mi(mod) { res -= mi(mod) }; return res }",
+			"func (m mi) sub(o mi) mi { res := m - o; if res < 0 { res += mi(mod) }; return res }",
+			"func (m mi) mul(o mi) mi { return mi(int64(m) * int64(o) % mod) }",
+			"func (m mi) pow(p int64) mi {",
+			"\tres, a := modInt(1), m",
+			"\tfor p > 0 {",
+			"\t\tif p&1 == 1 { res = res.mul(a) }",
+			"\t\ta, p = a.mul(a), p>>1",
+			"\t}",
+			"\treturn res",
+			"}",
+			"func (m mi) inv() mi { return m.pow(mod - 2) }",
+			"func (m mi) div(o mi) mi { return m.mul(o.inv()) }",
+			"func (m mi) val() int64 { return int64(m) }"
+		],
+		"description": "高性能自动取模整数类型。支持 modInt.Init(mod) 和 m := modInt(x)，提供平滑的算术运算 API。"
+	},
+	"bitCount": {
+		"prefix": "bitCount",
+		"body": [
+			"bitCount := func(a int64) int { return bits.OnesCount64(uint64(a)) }"
+		],
+		"description": "获取 64 位整数中 1 的个数（Population Count）。"
+	},
+	"bitAt": {
+		"prefix": "bitAt",
+		"body": [
+			"bitAt := func(x int64, i int) int { return int((x >> i) & 1) }"
+		],
+		"description": "获取 64 位整数第 i 位的值（0 或 1）。"
+	},
+	"log2": {
+		"prefix": "log2",
+		"body": [
+			"log2 := func(x int64) int { if x == 0 { return -1 }; return bits.Len64(uint64(x)) - 1 }"
+		],
+		"description": "计算以 2 为底的对数（即最高位 1 的索引）。"
+	},
+	"stringHash": {
+		"prefix": "stringHash",
+		"body": [
+			"const (",
+			"\thMod1, hBase1 = 1e9 + 7, 131",
+			"\thMod2, hBase2 = 1e9 + 9, 13331",
+			"\thMaxN = 1e6 + 10",
+			")",
+			"var p1, p2 [hMaxN]int64",
+			"func initHash() {",
+			"\tp1[0], p2[0] = 1, 1",
+			"\tfor i := 1; i < hMaxN; i++ {",
+			"\t\tp1[i], p2[i] = p1[i-1]*hBase1%hMod1, p2[i-1]*hBase2%hMod2",
+			"\t}",
+			"}",
+			"type strHash struct{ h1, h2 []int64 }",
+			"func newHash(s string) *strHash {",
+			"\th1, h2 := []int64{0}, []int64{0}",
+			"\tfor i := range s {",
+			"\t\th1 = append(h1, (h1[len(h1)-1]*hBase1+int64(s[i]))%hMod1)",
+			"\t\th2 = append(h2, (h2[len(h2)-1]*hBase2+int64(s[i]))%hMod2)",
+			"\t}",
+			"\treturn &strHash{h1, h2}",
+			"}",
+			"func (h *strHash) get(l, r int) (int64, int64) {",
+			"\ta := (h.h1[r+1] - h.h1[l]*p1[r-l+1]%hMod1 + hMod1) % hMod1",
+			"\tb := (h.h2[r+1] - h.h2[l]*p2[r-l+1]%hMod2 + hMod2) % hMod2",
+			"\treturn a, b",
+			"}"
+		],
+		"description": "字符串双哈希实现。使用两个不同模数以极大地降低碰撞概率，支持 O(1) 查询区间哈希值。"
+	},
+	"zFunc": {
+		"prefix": "zFunc",
+		"body": [
+			"zFunc := func(s string) []int {",
+			"\tn := len(s)",
+			"\tz := make([]int, n)",
+			"\tfor i, l, r := 1, 0, 0; i < n; i++ {",
+			"\t\tif i <= r { z[i] = min(r-i+1, z[i-l]) }",
+			"\t\tfor i+z[i] < n && s[z[i]] == s[i+z[i]] { z[i]++ }",
+			"\t\tif i+z[i]-1 > r { l, r = i, i+z[i]-1 }",
+			"\t}",
+			"\treturn z",
+			"}"
+		],
+		"description": "Z-algorithm（扩展 KMP）。计算每个后缀与前缀的最长公共前缀（LCP），O(n) 复杂度。"
+	},
+	"kmp": {
+		"prefix": "kmp",
+		"body": [
+			"prefixFunc := func(s string) []int {",
+			"\tn := len(s)",
+			"\tpi := make([]int, n)",
+			"\tfor i := 1; i < n; i++ {",
+			"\t\tj := pi[i-1]",
+			"\t\tfor j > 0 && s[i] != s[j] { j = pi[j-1] }",
+			"\t\tif s[i] == s[j] { j++ }",
+			"\t\tpi[i] = j",
+			"\t}",
+			"\treturn pi",
+			"}",
+			"findOccur := func(text, pattern string) []int {",
+			"\tcur := pattern + \"#\" + text",
+			"\tpi, m := prefixFunc(cur), len(pattern)",
+			"\tres := []int{}",
+			"\tfor i := m + 1; i < len(cur); i++ {",
+			"\t\tif pi[i] == m { res = append(res, i-2*m) }",
+			"\t}",
+			"\treturn res",
+			"}"
+		],
+		"description": "KMP 字符串匹配算法。计算前缀函数并支持快速查找所有匹配位置，O(n+m) 复杂度。"
+	},
+	"authorComment": {
+		"prefix": "author",
+		"body": [
+			"/**",
+			" * author: https://github.com/funcdfs",
+			" * created: $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE $CURRENT_HOUR:$CURRENT_MINUTE:$CURRENT_SECOND",
+			"**/"
+		],
+		"description": "包含个人 GitHub 链接和自动生成当前时间的作者代码头部注释。"
+	},
+	"int128": {
+		"prefix": "int128",
+		"body": [
+			"// import \"math/big\"",
+			"// Go 原生不支持 int128，竞赛中通常使用 math/big 库：",
+			"// n := new(big.Int).SetString(\"${1:123456789012345678901234567890}\", 10)"
+		],
+		"description": "Go 语言大整数处理（math/big）参考提示。"
+	}
+}
