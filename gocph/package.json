@@ -45,6 +45,21 @@
                 "command": "gocph.runAllTests",
                 "title": "GoCPH: 运行所有测试",
                 "icon": "dist/static/play.png"
+            },
+            {
+                "command": "gocph.stopTests",
+                "title": "GoCPH: 停止运行测试",
+                "icon": "$(debug-stop)"
+            },
+            {
+                "command": "gocph.foldAllRegions",
+                "title": "GoCPH: 折叠所有 Region",
+                "icon": "$(folding-expanded)"
+            },
+            {
+                "command": "gocph.copyCode",
+                "title": "GoCPH: 复制代码",
+                "icon": "$(copy)"
             }
         ],
         "keybindings": [
@@ -52,6 +67,26 @@
                 "key": "ctrl+shift+r",
                 "mac": "cmd+shift+r",
                 "command": "gocph.runAllTests",
+                "when": "editorTextFocus"
+            },
+            {
+                "key": "alt+1",
+                "command": "gocph.runAllTests",
+                "when": "editorTextFocus"
+            },
+            {
+                "key": "alt+2",
+                "command": "gocph.stopTests",
+                "when": "editorTextFocus"
+            },
+            {
+                "key": "alt+3",
+                "command": "gocph.foldAllRegions",
+                "when": "editorTextFocus"
+            },
+            {
+                "key": "alt+4",
+                "command": "gocph.copyCode",
                 "when": "editorTextFocus"
             }
         ],

@@ -93,6 +93,11 @@ export type OpenFileCommand = {
     filePath: string;
 };
 
+export type CopyMainGoCommand = {
+    command: 'copy-main-go';
+    problem: Problem;
+};
+
 export type WebviewToVSEvent =
     | RunAllCommand
     | GetInitialProblem
@@ -101,7 +106,8 @@ export type WebviewToVSEvent =
     | KillRunningCommand
     | SaveCommand
     | DeleteTcsCommand
-    | OpenFileCommand;
+    | OpenFileCommand
+    | CopyMainGoCommand;
 
 export type RunningCommand = {
     command: 'running';

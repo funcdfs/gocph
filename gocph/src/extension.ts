@@ -3,7 +3,7 @@
  */
 function initializeLogger() {
     globalThis.storedLogs = '';
-    
+
     function customLogger(
         originalMethod: (...args: unknown[]) => void,
         ...args: unknown[]
@@ -39,6 +39,7 @@ import {
 import JudgeViewProvider from './webview/JudgeView';
 import { getRetainWebviewContextPref } from './preferences';
 import { startCompanionServer, stopCompanionServer } from './companion';
+import { requestCancellation } from './executions';
 
 let judgeViewProvider: JudgeViewProvider;
 let statusBarItem: vscode.StatusBarItem | undefined;
@@ -72,6 +73,39 @@ const registerCommands = (context: vscode.ExtensionContext) => {
 
     context.subscriptions.push(webviewView);
     context.subscriptions.push(runAllDisposable);
+
+    // 注册停止测试命令
+    const stopDisposable = vscode.commands.registerCommand(
+        'gocph.stopTests',
+        () => {
+            requestCancellation();
+            vscode.window.showInformationMessage('GoCPH: 已请求停止运行测试');
+        },
+    );
+    context.subscriptions.push(stopDisposable);
+
+    // 注册折叠 Region 命令
+    const foldDisposable = vscode.commands.registerCommand(
+        'gocph.foldAllRegions',
+        () => {
+            vscode.commands.executeCommand('editor.foldAllMarkerRegions');
+        },
+    );
+    context.subscriptions.push(foldDisposable);
+
+    // 注册复制代码命令
+    const copyDisposable = vscode.commands.registerCommand(
+        'gocph.copyCode',
+        async () => {
+            const editor = vscode.window.activeTextEditor;
+            if (editor) {
+                const text = editor.document.getText();
+                await vscode.env.clipboard.writeText(text);
+                vscode.window.showInformationMessage('GoCPH: 代码已复制到剪贴板');
+            }
+        },
+    );
+    context.subscriptions.push(copyDisposable);
 };
 
 // This method is called when the extension is activated
@@ -123,15 +157,15 @@ export function activate(context: vscode.ExtensionContext) {
 // This method is called when the extension is deactivated
 export function deactivate() {
     globalThis.logger.log('gocph: deactivate() called');
-    
+
     // 停止 Competitive Companion 服务器
     stopCompanionServer();
-    
+
     // 清理状态栏项
     if (statusBarItem) {
         statusBarItem.dispose();
         statusBarItem = undefined;
     }
-    
+
     globalThis.logger.log('gocph: deactivate() completed');
 }

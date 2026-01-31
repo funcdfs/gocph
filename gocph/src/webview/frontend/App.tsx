@@ -26,20 +26,20 @@ function getFileName(filePath: string): string {
 }
 
 /** 文件链接按钮组件 */
-function FileLinks(props: { 
-    mainFilePath?: string; 
+function FileLinks(props: {
+    mainFilePath?: string;
     testFilePath?: string;
     openFile: (path: string) => void;
 }) {
     const { mainFilePath, testFilePath, openFile } = props;
-    
+
     if (!mainFilePath && !testFilePath) return null;
-    
+
     return (
         <div className="file-links">
             {mainFilePath && (
-                <button 
-                    className="file-link" 
+                <button
+                    className="file-link"
                     onClick={() => openFile(mainFilePath)}
                     title={mainFilePath}
                 >
@@ -48,8 +48,8 @@ function FileLinks(props: {
                 </button>
             )}
             {testFilePath && (
-                <button 
-                    className="file-link" 
+                <button
+                    className="file-link"
                     onClick={() => openFile(testFilePath)}
                     title={testFilePath}
                 >
@@ -153,6 +153,10 @@ function Judge(props: {
         sendMessage({ command: 'delete-tcs', problem });
     }, [problem, sendMessage]);
 
+    const copyMainGo = useCallback(() => {
+        sendMessage({ command: 'copy-main-go', problem });
+    }, [problem, sendMessage]);
+
     const getRunningProp = useCallback((c: Case) => {
         if (forceRunning === c.id) {
             setTimeout(() => setForceRunning(false), 100);
@@ -203,12 +207,12 @@ function Judge(props: {
                 <div className="meta-actions">
                     <button className="expand-btn" onClick={expandAll} title="全部展开">
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </button>
                     <button className="expand-btn" onClick={collapseAll} title="全部收起">
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path d="M3 9L7 5L11 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M3 9L7 5L11 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </button>
                 </div>
@@ -237,6 +241,9 @@ function Judge(props: {
             <div className="margin-10">
                 <button className="new-test-btn" onClick={newCase}>
                     <i className="codicon codicon-add"></i> 新建测试
+                </button>
+                <button className="copy-code-btn" onClick={copyMainGo}>
+                    <i className="codicon codicon-copy"></i> 复制代码
                 </button>
 
                 {hasTimeout && (
@@ -335,10 +342,10 @@ function App() {
             }
         };
         window.addEventListener('message', handler);
-        
+
         // Request initial problem data when React app mounts
         vscodeApi.postMessage({ command: 'get-initial-problem' });
-        
+
         return () => window.removeEventListener('message', handler);
     }, [handleRunSingleResult]);
 
@@ -373,10 +380,10 @@ function App() {
                         当前文件不在竞赛目录下
                     </p>
                     <p style={{ marginBottom: 16, opacity: 0.6, fontSize: '12px', lineHeight: 1.6 }}>
-                        请打开以下目录中的 .go 文件：<br/>
-                        <code style={{ 
-                            background: 'var(--vscode-textBlockQuote-background)', 
-                            padding: '2px 6px', 
+                        请打开以下目录中的 .go 文件：<br />
+                        <code style={{
+                            background: 'var(--vscode-textBlockQuote-background)',
+                            padding: '2px 6px',
                             borderRadius: '3px',
                             fontSize: '11px'
                         }}>

@@ -5,6 +5,18 @@ import { getTimeOutPref } from './preferences';
 import * as vscode from 'vscode';
 
 const runningBinaries: ChildProcessWithoutNullStreams[] = [];
+let isCancellationRequested = false;
+
+export const resetCancellation = () => {
+    isCancellationRequested = false;
+};
+
+export const requestCancellation = () => {
+    isCancellationRequested = true;
+    killRunning();
+};
+
+export const getIsCancellationRequested = () => isCancellationRequested;
 
 /**
  * Run a single testcase, and return the raw results, without judging.

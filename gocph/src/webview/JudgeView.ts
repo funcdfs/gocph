@@ -86,6 +86,22 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                             break;
                         }
 
+                        case 'copy-main-go': {
+                            const problem = message.problem;
+                            if (problem && problem.srcPath) {
+                                try {
+                                    const document = await vscode.workspace.openTextDocument(problem.srcPath);
+                                    const text = document.getText();
+                                    await vscode.env.clipboard.writeText(text);
+                                    vscode.window.showInformationMessage('代码已复制到剪贴板');
+                                } catch (e) {
+                                    globalThis.logger.error('复制 main.go 内容失败', e);
+                                    vscode.window.showErrorMessage('复制失败，请重试');
+                                }
+                            }
+                            break;
+                        }
+
                         default: {
                             globalThis.logger.error(
                                 'Unknown event received from webview',
@@ -107,10 +123,10 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
         const doc = vscode.window.activeTextEditor?.document;
         const fileStatus = getFileStatus(doc);
         const srcPath = doc?.fileName;
-        
+
         let mainFilePath: string | undefined;
         let testFilePath: string | undefined;
-        
+
         if (srcPath) {
             if (fileStatus === 'is-test-file') {
                 mainFilePath = getMainFileFromTestFile(srcPath);
@@ -120,7 +136,7 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                 testFilePath = getTestFilePath(srcPath);
             }
         }
-        
+
         this.extensionToJudgeViewMessage({
             command: 'new-problem',
             problem: getProblemForDocument(doc),

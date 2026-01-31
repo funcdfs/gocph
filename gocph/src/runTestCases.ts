@@ -41,6 +41,10 @@ export default async () => {
         globalThis.logger.error('Could not compile', srcPath);
         return;
     }
+
+    // 自动折叠 region
+    await vscode.commands.executeCommand('editor.foldAllMarkerRegions');
+
     await editor.document.save();
     getJudgeViewProvider().focus();
     getJudgeViewProvider().extensionToJudgeViewMessage({

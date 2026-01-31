@@ -800,6 +800,50 @@ body.vscode-light .new-test-btn:hover {
     border-color: rgba(22, 163, 74, 0.6);
 }
 
+/* 复制代码按钮 - 与新建测试按钮风格一致，但颜色改为蓝色/紫色系 */
+.copy-code-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1.5px solid rgba(52, 152, 219, 0.5);
+    border-radius: 20px;
+    background: transparent;
+    color: #5dade2;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer !important;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.copy-code-btn:hover {
+    background: rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.7);
+    transform: scale(1.02);
+}
+
+.copy-code-btn:active {
+    transform: scale(0.98);
+}
+
+.copy-code-btn .codicon {
+    font-size: 14px;
+}
+
+/* 亮色主题 - 复制代码按钮 */
+body.vscode-light .copy-code-btn {
+    border-color: rgba(37, 99, 235, 0.4);
+    color: #2563eb;
+}
+
+body.vscode-light .copy-code-btn:hover {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.6);
+}
+
 .text-center {
     text-align: center;
 }

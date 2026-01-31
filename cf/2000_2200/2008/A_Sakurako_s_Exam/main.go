@@ -53,7 +53,12 @@ func solve(_case int) {
 	// 不确定是否有可能解决这个问题，所以要确定是否有办法分配符号，使数组中所有元素的和等于 0
 
 	check := func() bool {
-		
+		if a%2 != 0 {
+			return false
+		}
+		if a == 0 && b%2 != 0 {
+			return false
+		}
 		return true
 	}
 	if check() { println("YES") } else { println("NO") }
@@ -61,4 +66,4 @@ func solve(_case int) {
 
 }
 
-// ----------------------------- /* End of useful functions */ -------------------------------
+// ----------------------------- /* End of useful functions */ -------------------------------¡™™¡™£¡¡£
