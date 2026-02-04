@@ -8,7 +8,7 @@ import (
 
 // Contest: Codeforces - Codeforces Round 970 (Div. 3) A. Sakurako's Exam
 // URL: https://codeforces.com/contest/2008/problem/A
-// Time: 2026-01-31 15:17:17
+// Time: 2026-02-05 00:25:09
 
 func TestSolution(t *testing.T) {
 	Run(t, []Case{
