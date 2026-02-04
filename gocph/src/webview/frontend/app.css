@@ -522,8 +522,6 @@ button:disabled {
     resize: none;
     outline: none !important;
     min-height: 50px;
-    max-height: 200px;
-    overflow-y: auto;
 }
 
 /* Diff 显示 - 无圆角 */
@@ -532,8 +530,6 @@ button:disabled {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 0;
     overflow: hidden;
-    max-height: 200px;
-    overflow-y: auto;
 }
 
 .diff-line {

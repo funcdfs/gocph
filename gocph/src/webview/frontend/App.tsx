@@ -264,7 +264,7 @@ function Judge(props: {
                 {hasTimeout && (
                     <div className="timeout-suggestion">
                         <h5><i className="codicon codicon-warning"></i> 超时或 SIGTERM？</h5>
-                        <p>可能是杀毒软件导致，尝试将当前文件夹添加到白名单。</p>
+                        <p>检查是否全部正确的读入所有的数据。</p>
                     </div>
                 )}
             </div>
