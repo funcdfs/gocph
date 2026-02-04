@@ -69,10 +69,25 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
 
     // 打开有效的 main.go 文件时，自动折叠 region
     if (fileStatus === 'valid' && problem) {
-        // 延迟 100ms 确保编辑器完全加载
-        setTimeout(() => foldRegionsInActiveEditor(), 100);
+        triggerAutoFold();
     }
 };
+
+let foldTimeout: NodeJS.Timeout | undefined;
+const AUTO_FOLD_DELAY = 2000; // 2s 延迟
+
+/**
+ * 自动折叠防抖处理
+ */
+function triggerAutoFold() {
+    if (foldTimeout) {
+        clearTimeout(foldTimeout);
+    }
+    foldTimeout = setTimeout(() => {
+        foldRegionsInActiveEditor();
+        foldTimeout = undefined;
+    }, AUTO_FOLD_DELAY);
+}
 
 export const editorClosed = (e: vscode.TextDocument) => {
     globalThis.logger.log('关闭编辑器:', e.uri.fsPath);

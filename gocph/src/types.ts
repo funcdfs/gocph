@@ -98,6 +98,10 @@ export type CopyMainGoCommand = {
     problem: Problem;
 };
 
+export type ToggleRegionsCommand = {
+    command: 'toggle-regions';
+};
+
 export type WebviewToVSEvent =
     | RunAllCommand
     | GetInitialProblem
@@ -107,7 +111,8 @@ export type WebviewToVSEvent =
     | SaveCommand
     | DeleteTcsCommand
     | OpenFileCommand
-    | CopyMainGoCommand;
+    | CopyMainGoCommand
+    | ToggleRegionsCommand;
 
 export type RunningCommand = {
     command: 'running';

@@ -8,6 +8,7 @@ import { runSingleAndSave } from './processRunSingle';
 import runAllAndSave from './processRunAll';
 import runTestCases from '../runTestCases';
 import { getAutoShowJudgePref, getRetainWebviewContextPref } from '../preferences';
+import { toggleRegionsInActiveEditor } from '../extension';
 
 class JudgeViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'gocph.judgeView';
@@ -107,6 +108,11 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                                     });
                                 }
                             }
+                            break;
+                        }
+
+                        case 'toggle-regions': {
+                            toggleRegionsInActiveEditor();
                             break;
                         }
 

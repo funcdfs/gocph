@@ -29,41 +29,6 @@ function getFileName(filePath: string): string {
     return filePath.split(/[/\\]/).pop() || filePath;
 }
 
-/** 文件链接按钮组件 */
-function FileLinks(props: {
-    mainFilePath?: string;
-    testFilePath?: string;
-    openFile: (path: string) => void;
-}) {
-    const { mainFilePath, testFilePath, openFile } = props;
-
-    if (!mainFilePath && !testFilePath) return null;
-
-    return (
-        <div className="file-links">
-            {mainFilePath && (
-                <button
-                    className="file-link"
-                    onClick={() => openFile(mainFilePath)}
-                    title={mainFilePath}
-                >
-                    <i className="codicon codicon-go-to-file"></i>
-                    {getFileName(mainFilePath)}
-                </button>
-            )}
-            {testFilePath && (
-                <button
-                    className="file-link"
-                    onClick={() => openFile(testFilePath)}
-                    title={testFilePath}
-                >
-                    <i className="codicon codicon-beaker"></i>
-                    {getFileName(testFilePath)}
-                </button>
-            )}
-        </div>
-    );
-}
 
 function Judge(props: {
     problem: Problem;
@@ -156,13 +121,13 @@ function Judge(props: {
         sendMessage({ command: 'kill-running', problem });
     }, [problem, sendMessage, notify]);
 
-    const deleteTcs = useCallback(() => {
-        sendMessage({ command: 'delete-tcs', problem });
-    }, [problem, sendMessage]);
-
     const copyMainGo = useCallback(() => {
         sendMessage({ command: 'copy-main-go', problem });
     }, [problem, sendMessage]);
+
+    const toggleRegions = useCallback(() => {
+        sendMessage({ command: 'toggle-regions' });
+    }, [sendMessage]);
 
     const getRunningProp = useCallback((c: Case) => {
         if (forceRunning === c.id) {
@@ -211,32 +176,60 @@ function Judge(props: {
                 </div>
             )}
 
-            <div className="meta">
-                <div className="meta-left">
-                    <span className="problem-name">
+            <div className="header-container sticky-top">
+                {/* Row 1: Management & Info (Formerly Row 2) */}
+                <div className="row-1">
+                    <div className="file-icons">
+                        {mainFilePath && (
+                            <i className="codicon codicon-go-to-file clickable-icon" onClick={() => openFile(mainFilePath)} title={`打开 ${getFileName(mainFilePath)}`}></i>
+                        )}
+                        {testFilePath && (
+                            <i className="codicon codicon-beaker clickable-icon" onClick={() => openFile(testFilePath)} title={`打开 ${getFileName(testFilePath)}`}></i>
+                        )}
+                    </div>
+                    <button className="header-btn copy-btn" onClick={copyMainGo}>
+                        <i className="codicon codicon-copy"></i> 复制代码
+                    </button>
+                    <span className="problem-name-text">
                         {problem.name}
                         {compiling && <span className="loader"></span>}
                     </span>
-                    <FileLinks mainFilePath={mainFilePath} testFilePath={testFilePath} openFile={openFile} />
                 </div>
-                <div className="meta-actions">
-                    <button className="expand-btn" onClick={expandAll} title="全部展开">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+
+                {/* Row 2: Execution Actions (Formerly Row 1) */}
+                <div className="row-2">
+                    <button className="header-btn run-btn" onClick={runAll} title="全部运行 (Alt+1)">
+                        <i className="codicon codicon-run-all"></i> 全部运行
                     </button>
-                    <button className="expand-btn" onClick={collapseAll} title="全部收起">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                            <path d="M3 9L7 5L11 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                    <div className="row-spacer-25"></div>
+                    <button className="header-btn stop-btn" onClick={stop} title="停止运行 (Alt+2)">
+                        <i className="codicon codicon-debug-stop"></i> 停止
                     </button>
                 </div>
-                <span className={`pass-rate ${numPassed === total && total > 0 ? 'pass-all' : ''}`}>
-                    {numPassed} / {total} 通过
-                </span>
+
+                {/* Row 3: Navigation & Status */}
+                <div className="row-3">
+                    <button className="header-btn new-btn" onClick={newCase}>
+                        <i className="codicon codicon-add"></i> 新建测试
+                    </button>
+                    <div className="row-spacer-flex"></div>
+                    <i className="codicon codicon-chevron-up header-icon-label" onClick={collapseAll} title="收起来"></i>
+                    <i className="codicon codicon-chevron-down header-icon-label" onClick={expandAll} title="全部展开"></i>
+                    <div className={`pass-rate-tag ${numPassed === total && total > 0 ? 'pass-all' : ''}`}>
+                        {numPassed} / {total} 通过
+                    </div>
+                </div>
+
+                {/* Row 4: Controls */}
+                <div className="row-4">
+                    <div className="row-spacer-flex"></div>
+                    <div className="toggle-fold-icon" onClick={toggleRegions} title="切换 Region 折叠 (Alt+3)">
+                        <i className="codicon codicon-folding-expanded"></i>
+                    </div>
+                </div>
             </div>
 
-            <div className="results">
+            <div className="results-container">
                 {cases.map((c, i) => (
                     <CaseView
                         key={c.id}
@@ -253,38 +246,12 @@ function Judge(props: {
                 ))}
             </div>
 
-            <div className="margin-10">
-                <button className="new-test-btn" onClick={newCase}>
-                    <i className="codicon codicon-add"></i> 新建测试
-                </button>
-                <button className="copy-code-btn" onClick={copyMainGo}>
-                    <i className="codicon codicon-copy"></i> 复制代码
-                </button>
-
-                {hasTimeout && (
-                    <div className="timeout-suggestion">
-                        <h5><i className="codicon codicon-warning"></i> 超时或 SIGTERM？</h5>
-                        <p>检查是否全部正确的读入所有的数据。</p>
-                    </div>
-                )}
-            </div>
-
-            <div className="actions">
-                <div className="row">
-                    <button className="btn" onClick={runAll}>
-                        <i className="codicon codicon-run-above"></i> 全部运行
-                    </button>
-                    <button className="btn btn-green" onClick={newCase}>
-                        <i className="codicon codicon-add"></i> 新建
-                    </button>
-                    <button className="btn btn-orange" onClick={stop}>
-                        <i className="codicon codicon-circle-slash"></i> 停止
-                    </button>
-                    <button className="btn btn-red right" onClick={deleteTcs}>
-                        <i className="codicon codicon-trash"></i> 删除
-                    </button>
+            {hasTimeout && (
+                <div className="timeout-suggestion margin-10">
+                    <h5><i className="codicon codicon-warning"></i> 超时或 SIGTERM？</h5>
+                    <p>检查是否全部正确的读入所有的数据。</p>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

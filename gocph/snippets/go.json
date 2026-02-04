@@ -214,7 +214,7 @@
 	"float64()": {
 		"prefix": "ff",
 		"body": [
-			"float64($0)",
+			"float64($0)"
 		],
 		"description": "浮点数"
 	},
@@ -585,16 +585,172 @@
 		],
 		"description": "包含上下取整的除法。正确处理负数的取整行为。"
 	},
-	"gcd": {
-		"prefix": "gcd",
+	"fgcd": {
+		"prefix": "fgcd",
 		"body": [
-			"gcd := func(a, b int64) int64 {",
-			"\tif a < 0 { a = -a }; if b < 0 { b = -b }",
+			"func gcd[T int | int64](a, b T) T {",
 			"\tfor b != 0 { a, b = b, a%b }",
+			"\tif a < 0 { return -a }",
 			"\treturn a",
 			"}"
 		],
-		"description": "求两个整数的最大公约数（GCD）。"
+		"description": "定义泛型 gcd 函数，支持 int 和 int64 类型。"
+	},
+	"gcdint": {
+		"prefix": "gcdint",
+		"body": [
+			"gcd[int]($1, $2)$0"
+		],
+		"description": "调用 gcd[int](a, b)。"
+	},
+	"gcdint64": {
+		"prefix": "gcdint64",
+		"body": [
+			"gcd[int64]($1, $2)$0"
+		],
+		"description": "调用 gcd[int64](a, b)。"
+	},
+	"gcdfloat64": {
+		"prefix": "gcdfloat64",
+		"body": [
+			"gcd[float64]($1, $2)$0"
+		],
+		"description": "调用 gcd[float64](a, b)。"
+	},
+	"fabs": {
+		"prefix": "fabs",
+		"body": [
+			"func abs[T int | int64 | float64](x T) T {",
+			"\tif x < 0 { return -x }",
+			"\treturn x",
+			"}"
+		],
+		"description": "定义泛型 abs 函数，支持 int、int64 和 float64 类型。"
+	},
+	"absint": {
+		"prefix": "absint",
+		"body": [
+			"abs[int]($1)$0"
+		],
+		"description": "调用 abs[int](x)。"
+	},
+	"absint64": {
+		"prefix": "absint64",
+		"body": [
+			"abs[int64]($1)$0"
+		],
+		"description": "调用 abs[int64](x)。"
+	},
+	"absfloat64": {
+		"prefix": "absfloat64",
+		"body": [
+			"abs[float64]($1)$0"
+		],
+		"description": "调用 abs[float64](x)。"
+	},
+	"fmin": {
+		"prefix": "fmin",
+		"body": [
+			"func min[T int | int64 | float64](vals ...T) T {",
+			"\tres := vals[0]",
+			"\tfor _, v := range vals[1:] { if v < res { res = v } }",
+			"\treturn res",
+			"}"
+		],
+		"description": "定义泛型 min 函数，支持 int、int64 和 float64 类型。"
+	},
+	"minint": {
+		"prefix": "minint",
+		"body": [
+			"min[int]($1)$0"
+		],
+		"description": "调用 min[int](vals...)。"
+	},
+	"minint64": {
+		"prefix": "minint64",
+		"body": [
+			"min[int64]($1)$0"
+		],
+		"description": "调用 min[int64](vals...)。"
+	},
+	"minfloat64": {
+		"prefix": "minfloat64",
+		"body": [
+			"min[float64]($1)$0"
+		],
+		"description": "调用 min[float64](vals...)。"
+	},
+	"fmax": {
+		"prefix": "fmax",
+		"body": [
+			"func max[T int | int64 | float64](vals ...T) T {",
+			"\tres := vals[0]",
+			"\tfor _, v := range vals[1:] { if v > res { res = v } }",
+			"\treturn res",
+			"}"
+		],
+		"description": "定义泛型 max 函数，支持 int、int64 和 float64 类型。"
+	},
+	"maxint": {
+		"prefix": "maxint",
+		"body": [
+			"max[int]($1)$0"
+		],
+		"description": "调用 max[int](vals...)。"
+	},
+	"maxint64": {
+		"prefix": "maxint64",
+		"body": [
+			"max[int64]($1)$0"
+		],
+		"description": "调用 max[int64](vals...)。"
+	},
+	"maxfloat64": {
+		"prefix": "maxfloat64",
+		"body": [
+			"max[float64]($1)$0"
+		],
+		"description": "调用 max[float64](vals...)。"
+	},
+	"flcm": {
+		"prefix": "flcm",
+		"body": [
+			"func gcd[T int | int64](a, b T) T {",
+			"\tfor b != 0 { a, b = b, a%b }",
+			"\tif a < 0 { return -a }",
+			"\treturn a",
+			"}",
+			"func lcm[T int | int64](vals ...T) T {",
+			"\tres := vals[0]",
+			"\tfor _, v := range vals[1:] {",
+			"\t\tif v == 0 { return 0 }",
+			"\t\tres = res / gcd(res, v) * v",
+			"\t}",
+			"\treturn res",
+			"}"
+		],
+		"description": "定义泛型 lcm 函数（依赖 gcd），支持 int 和 int64 类型。"
+	},
+	"lcmint": {
+		"prefix": "lcmint",
+		"body": [
+			"lcm[int]($1)$0"
+		],
+		"description": "调用 lcm[int](vals...)。"
+	},
+	"lcmint64": {
+		"prefix": "lcmint64",
+		"body": [
+			"lcm[int64]($1)$0"
+		],
+		"description": "调用 lcm[int64](vals...)。"
+	},
+	"lcmfloat64": {
+		"prefix": "lcmfloat64",
+		"body": [
+			"lcm[float64]($1)$0"
+		],
+		"description": "调用 lcm[float64](vals...)。"
 	},
 	"isPrime": {
 		"prefix": "isPrime",

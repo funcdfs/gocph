@@ -92,7 +92,7 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     const foldDisposable = vscode.commands.registerCommand(
         'gocph.foldAllRegions',
         async () => {
-            const foldedCount = await foldRegionsInActiveEditor();
+            const foldedCount = await toggleRegionsInActiveEditor();
 
             if (foldedCount === 0) {
                 judgeViewProvider.extensionToJudgeViewMessage({
@@ -131,48 +131,86 @@ const registerCommands = (context: vscode.ExtensionContext) => {
 };
 
 // 公共折叠函数，供内外部调用
+// 折叠状态缓存 (LRU 策略，最大 5 个)
+const foldedCache = new Map<string, number>();
+const MAX_CACHE_SIZE = 5;
+
+function updateFoldCache(filePath: string) {
+    if (foldedCache.has(filePath)) {
+        foldedCache.delete(filePath);
+    }
+    foldedCache.set(filePath, Date.now());
+    if (foldedCache.size > MAX_CACHE_SIZE) {
+        const oldestKey = foldedCache.keys().next().value;
+        if (oldestKey) foldedCache.delete(oldestKey);
+    }
+}
+
+/**
+ * 切换折叠状态 (用于手动和快捷键)
+ */
+export async function toggleRegionsInActiveEditor(): Promise<number> {
+    return await processFolding(true);
+}
+
+/**
+ * 仅执行折叠 (用于自动触发)
+ */
 export async function foldRegionsInActiveEditor(): Promise<number> {
     const editor = vscode.window.activeTextEditor;
-    if (!editor) {
+    if (!editor) return 0;
+    const filePath = editor.document.uri.fsPath;
+
+    // 如果已经在缓存中，说明已折叠过，跳过自动折叠以避免 toggle 导致展开
+    if (foldedCache.has(filePath)) {
         return 0;
     }
 
-    const document = editor.document;
-    const text = document.getText();
-    const lines = text.split('\n');
+    const count = await processFolding(false);
+    if (count > 0) {
+        updateFoldCache(filePath);
+    }
+    return count;
+}
 
-    // 只在前 10 行中查找 #region 开始行（优化：代码格式固定）
+/**
+ * 统一处理折叠/切换逻辑
+ * @param toggle 是否为切换模式。false 则仅执行折叠
+ */
+async function processFolding(toggle: boolean): Promise<number> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) return 0;
+
+    const document = editor.document;
     const regionStartLines: number[] = [];
-    const searchLimit = Math.min(20, lines.length); // 稍微增加搜索范围
+
+    // 性能优化：只在前 10 行中查找 #region 开始行
+    const searchLimit = Math.min(10, document.lineCount);
     for (let i = 0; i < searchLimit; i++) {
-        const line = lines[i].trim();
-        if (line.startsWith('// #region') || line.startsWith('//#region')) {
+        const lineText = document.lineAt(i).text.trim();
+        if (lineText.startsWith('// #region') || lineText.startsWith('//#region')) {
             regionStartLines.push(i);
         }
     }
 
-    if (regionStartLines.length === 0) {
-        return 0;
-    }
+    if (regionStartLines.length === 0) return 0;
 
-    // 为每个 region 起始行创建 Selection，然后折叠
-    // 使用 editor.fold 命令，它会折叠光标所在行的代码块
     const originalSelections = editor.selections;
-
-    // 创建所有 region 起始行的 selections
-    const regionSelections = regionStartLines.map(
+    editor.selections = regionStartLines.map(
         (line) => new vscode.Selection(line, 0, line, 0)
     );
 
-    // 设置光标到所有 region 起始行
-    editor.selections = regionSelections;
+    // 执行命令
+    if (toggle) {
+        await vscode.commands.executeCommand('editor.toggleFold');
+    } else {
+        // 强制收起：先展开再收起确保状态一致，或者直接调用 fold
+        // VS Code 没有直接的 "fold if expanded" 命令能完美匹配这里
+        // 我们使用 editor.fold 命令，它在已收起时通常无副作用
+        await vscode.commands.executeCommand('editor.fold');
+    }
 
-    // 执行折叠/展开命令
-    await vscode.commands.executeCommand('editor.toggleFold');
-
-    // 恢复原始光标位置
     editor.selections = originalSelections;
-
     return regionStartLines.length;
 }
 
