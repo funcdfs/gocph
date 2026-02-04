@@ -45,20 +45,23 @@ echo "🔨 构建项目..."
 npm run build
 
 echo "📦 打包 VSIX..."
-npx @vscode/vsce package --no-git-tag-version 2>/dev/null || npx @vscode/vsce package
+VSIX_TEMP="gocph-latest.vsix"
+npx @vscode/vsce package --no-git-tag-version --out "$VSIX_TEMP" >/dev/null 2>&1
+
+echo "🚚 移动 VSIX 到根目录..."
+DEST_VSIX="../gocph-1.0.0.vsix"
+mv -f "$VSIX_TEMP" "$DEST_VSIX"
 
 echo ""
 echo "✅ 打包完成！"
 echo ""
-echo "生成的文件："
-ls -lh *.vsix | tail -1
-
-VSIX_FILE=$(ls -t *.vsix | head -1)
+echo "文件位置：$DEST_VSIX"
+ls -lh "$DEST_VSIX"
 
 if [ "$INSTALL" = true ]; then
     echo ""
     echo "📥 正在安装到 VSCode..."
-    code --install-extension "$VSIX_FILE" --force
+    code --install-extension "$DEST_VSIX" --force
     echo "✅ 安装完成！请重新加载 VSCode 窗口。"
 fi
 
@@ -67,10 +70,10 @@ cd ..
 
 echo ""
 echo "💡 手动安装方式："
-echo "   code --install-extension gocph/$VSIX_FILE"
+echo "   code --install-extension gocph-1.0.0.vsix"
 echo ""
 echo "💡 或者在 VSCode 中："
 echo "   1. 打开扩展面板 (Cmd+Shift+X)"
 echo "   2. 点击 '...' 菜单"
 echo "   3. 选择 '从 VSIX 安装...'"
-echo "   4. 选择 gocph/$VSIX_FILE"
+echo "   4. 选择 gocph-1.0.0.vsix"

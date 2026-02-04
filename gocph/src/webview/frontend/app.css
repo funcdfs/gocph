@@ -23,14 +23,48 @@
 body {
     margin: 0 auto;
     padding: 0px;
-    max-width: 800px;
+    max-width: 1400px;
+    /* 增加最大宽度以支持横向布局 */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 13px;
     overflow-x: hidden;
 }
 
+/* 自定义滚动条样式 */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* 亮色主题滚动条 */
+body.vscode-light *::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+body.vscode-light *::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
 #app {
-    margin-bottom: 100px;
+    margin-bottom: 20px;
 }
 
 /* 按钮样式 */
@@ -97,6 +131,18 @@ button:disabled {
     padding-top: 5px;
 }
 
+/* 新建测试按钮行 */
+.new-test-row {
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.new-test-row .new-btn {
+    width: auto;
+}
+
 /* 测试用例卡片 */
 .case {
     background: rgba(255, 255, 255, 0.03);
@@ -132,6 +178,55 @@ button:disabled {
     padding: 12px;
     animation: slideDown 0.2s ease-out;
     transform-origin: top;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 编辑器行 - 水平布局 */
+.editor-row {
+    display: flex;
+    width: 100%;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.editor-row>.editor-section {
+    flex: 1;
+    min-width: 240px;
+    /* 保证宏观显示宽度的最短值 */
+    margin-bottom: 0;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-row>.editor-section.input-section,
+.editor-row>.editor-section.expected-section {
+    flex: 0.8;
+}
+
+.editor-row>.editor-section.actual-section {
+    flex: 1.65;
+    /* 增加 10% 左右的权重 (1.5 * 1.1) */
+}
+
+.editor-row>.editor-section:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 全宽行 - 用于 stderr 和 void 独占 */
+.editor-row-full {
+    display: flex;
+    width: 100%;
+}
+
+.editor-row-full>.editor-section {
+    flex: 1;
+    margin-bottom: 0;
 }
 
 @keyframes slideDown {
@@ -304,6 +399,33 @@ button:disabled {
 /* 标签和编辑器容器 */
 .editor-section {
     margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Void 区域样式 */
+.void-section {
+    flex: 1;
+}
+
+.void-placeholder {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    padding: 40px 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+}
+
+.void-placeholder svg {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 4px;
 }
 
 /* 输入区域 - 薰衣草紫色 */
@@ -326,11 +448,23 @@ button:disabled {
     margin-bottom: 6px;
     font-size: 12px;
     color: rgba(255, 255, 255, 0.6);
+    min-height: 24px;
+    /* 确保有足够高度 */
+}
+
+.editor-label>span:first-child {
+    flex-shrink: 0;
+    /* 标签文字不压缩 */
+    margin-right: 8px;
 }
 
 .editor-actions {
     display: flex;
     gap: 6px;
+    flex-shrink: 0;
+    /* 操作按钮区域不压缩 */
+    flex-wrap: nowrap;
+    /* 不换行 */
 }
 
 /* 操作按钮样式 */
@@ -346,6 +480,8 @@ button:disabled {
     font-size: 11px;
     cursor: pointer !important;
     transition: all 0.15s ease;
+    white-space: nowrap;
+    /* 防止文字换行 */
 }
 
 .action-btn:hover {
@@ -371,6 +507,11 @@ button:disabled {
     width: 12px;
     height: 12px;
     flex-shrink: 0;
+}
+
+.action-btn span {
+    flex-shrink: 0;
+    /* 防止文字被压缩 */
 }
 
 /* 编辑器框 - 无圆角 */
@@ -417,14 +558,16 @@ button:disabled {
     resize: none;
     outline: none !important;
     min-height: 50px;
+    white-space: pre;
+    overflow-x: auto;
 }
 
 /* Diff 显示 - 无圆角 */
 .diff-box {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0;
-    overflow: hidden;
+    border-radius: 4px;
+    overflow-x: auto;
 }
 
 .diff-line {
@@ -451,8 +594,8 @@ button:disabled {
     flex: 1;
     padding: 0 10px;
     color: #d4d4d4;
-    white-space: pre-wrap;
-    word-break: break-all;
+    white-space: pre;
+    word-break: normal;
 }
 
 /* Diff 高亮样式 - 与命令行 testutil 保持一致 */
@@ -524,9 +667,7 @@ button:disabled {
 
 /* Action Rows */
 .row-1,
-.row-2,
-.row-3,
-.row-4 {
+.row-2 {
     display: flex;
     align-items: center;
     width: 100%;
@@ -538,15 +679,6 @@ button:disabled {
 
 .row-2 {
     gap: 8px;
-}
-
-.row-3 {
-    justify-content: flex-start;
-    gap: 0;
-}
-
-.row-4 {
-    justify-content: space-between;
 }
 
 /* Header Buttons */
@@ -603,26 +735,41 @@ button:disabled {
 
 /* Specific Button Colors */
 .run-btn {
-    background: rgba(52, 152, 219, 0.15);
-    color: #5dade2;
-    border-color: rgba(52, 152, 219, 0.3);
+    background: rgba(46, 204, 113, 0.15);
+    /* Green-ish */
+    color: #2ecc71;
+    border-color: rgba(46, 204, 113, 0.3);
     width: 50%;
 }
 
 .run-btn:hover {
-    background: rgba(52, 152, 219, 0.25);
-    border-color: rgba(52, 152, 219, 0.5);
+    background: rgba(46, 204, 113, 0.25);
+    border-color: rgba(46, 204, 113, 0.5);
 }
 
 .stop-btn {
-    background: rgba(231, 76, 60, 0.1);
-    color: #ec7063;
-    border-color: rgba(231, 76, 60, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
     flex: 1;
 }
 
-.stop-btn:hover {
+.stop-btn:not(:disabled) {
     background: rgba(231, 76, 60, 0.2);
+    color: #f1948a;
+    border-color: rgba(231, 76, 60, 0.4);
+}
+
+.stop-btn:hover:not(:disabled) {
+    background: rgba(231, 76, 60, 0.3);
+    color: #ff8a80;
+}
+
+.stop-btn:disabled {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    cursor: not-allowed !important;
 }
 
 .toggle-btn {
@@ -633,10 +780,15 @@ button:disabled {
 }
 
 .new-btn {
-    background: rgba(46, 204, 113, 0.1);
-    color: #58d68d;
-    border-color: rgba(46, 204, 113, 0.2);
-    width: 40%;
+    background: rgba(52, 152, 219, 0.15);
+    /* Blue-ish */
+    color: #5dade2;
+    border-color: rgba(52, 152, 219, 0.3);
+}
+
+.new-btn:hover {
+    background: rgba(52, 152, 219, 0.25);
+    border-color: rgba(52, 152, 219, 0.5);
 }
 
 .copy-btn {
@@ -742,6 +894,12 @@ button:disabled {
     color: #f5b041;
 }
 
+.header-controls-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 /* 加载动画 */
 .loader {
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -781,29 +939,27 @@ svg.spin {
     gap: 8px;
     padding: 10px 16px;
     position: fixed;
-    top: 80%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(40, 40, 40, 0.95);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(30, 30, 30, 0.98);
     color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    z-index: 1000;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
     font-size: 13px;
     font-weight: 500;
-    animation: notifySlideIn 0.2s ease-out;
-    backdrop-filter: blur(8px);
+    animation: notifySlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px);
 }
 
-@keyframes notifySlideIn {
+@keyframes notifySlideUp {
     from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(10px);
+        transform: translateY(100%);
     }
 
     to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
+        transform: translateY(0);
     }
 }
 
@@ -1082,6 +1238,13 @@ body.vscode-light .input-section .editor-content {
     color: rgb(120, 80, 140);
 }
 
+/* 亮色主题 - Void 区域 */
+body.vscode-light .void-placeholder {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.4);
+}
+
 /* 亮色主题 - 底部按钮 */
 body.vscode-light .actions .btn:first-child {
     border-color: rgba(37, 99, 235, 0.4);
@@ -1093,14 +1256,15 @@ body.vscode-light .actions .btn:first-child:hover {
     border-color: rgba(37, 99, 235, 0.6);
 }
 
-body.vscode-light .actions .btn.btn-green {
+body.vscode-light .actions .btn.btn-green,
+body.vscode-light .run-btn {
     border-color: rgba(22, 163, 74, 0.4);
     color: #16a34a;
+    background: rgba(22, 163, 74, 0.05);
 }
 
-body.vscode-light .actions .btn.btn-green:hover {
+body.vscode-light .run-btn:hover {
     background: rgba(22, 163, 74, 0.1);
-    border-color: rgba(22, 163, 74, 0.6);
 }
 
 body.vscode-light .actions .btn.btn-orange {
@@ -1113,14 +1277,31 @@ body.vscode-light .actions .btn.btn-orange:hover {
     border-color: rgba(202, 138, 4, 0.6);
 }
 
-body.vscode-light .actions .btn.btn-red {
+body.vscode-light .actions .btn.btn-red,
+body.vscode-light .stop-btn {
     border-color: rgba(220, 38, 38, 0.4);
     color: #dc2626;
+    background: rgba(220, 38, 38, 0.05);
 }
 
-body.vscode-light .actions .btn.btn-red:hover {
+body.vscode-light .stop-btn:hover:not(:disabled) {
     background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.6);
+}
+
+body.vscode-light .stop-btn:disabled {
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: rgba(0, 0, 0, 0.3) !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+body.vscode-light .new-btn {
+    border-color: rgba(37, 99, 235, 0.4);
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.05);
+}
+
+body.vscode-light .new-btn:hover {
+    background: rgba(37, 99, 235, 0.1);
 }
 
 

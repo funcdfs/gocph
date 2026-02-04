@@ -240,10 +240,10 @@ function setupSnippetListener(context: vscode.ExtensionContext) {
                 if (foldTimeout) {
                     clearTimeout(foldTimeout);
                 }
-                // 延迟 1s 折叠
+                // 延迟 300ms 折叠（减少延迟以提高响应速度）
                 foldTimeout = setTimeout(() => {
                     foldRegionsInActiveEditor();
-                }, 1000);
+                }, 300);
                 break;
             }
         }

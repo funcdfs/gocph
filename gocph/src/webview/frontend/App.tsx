@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
+import confetti from 'canvas-confetti';
 import {
     Problem,
     WebviewToVSEvent,
@@ -34,7 +35,7 @@ function Judge(props: {
     problem: Problem;
     updateProblem: (problem: Problem) => void;
     cases: Case[];
-    updateCases: (cases: Case[]) => void;
+    updateCases: React.Dispatch<React.SetStateAction<Case[]>>;
     mainFilePath?: string;
     testFilePath?: string;
     openFile: (path: string) => void;
@@ -44,58 +45,92 @@ function Judge(props: {
     const [focusLast, setFocusLast] = useState<boolean>(false);
     const [forceRunning, setForceRunning] = useState<number | false>(false);
     const [compiling, setCompiling] = useState<boolean>(false);
+    const [executing, setExecuting] = useState<boolean>(false);
     const [notification, setNotification] = useState<NotificationState>(null);
 
     const numPassed = cases.filter((c) => c.result?.pass === true).length;
     const total = cases.length;
 
-    // 同步 cases 到 problem.tests
+
+    const fireConfetti = useCallback(() => {
+        const count = 200;
+        const defaults = {
+            origin: { y: 0.7 },
+            gravity: 2.5, // 再次增加重力
+            ticks: 100,   // 减少存在时间
+            decay: 0.85   // 进一步减少空气阻力
+        };
+
+        function fire(particleRatio: number, opts: confetti.Options) {
+            confetti({
+                ...defaults,
+                ...opts,
+                particleCount: Math.floor(count * particleRatio)
+            });
+        }
+
+        fire(0.25, {
+            spread: 26,
+            startVelocity: 55,
+        });
+        fire(0.2, {
+            spread: 60,
+        });
+        fire(0.35, {
+            spread: 100,
+            decay: 0.91,
+            scalar: 0.8
+        });
+        fire(0.1, {
+            spread: 120,
+            startVelocity: 25,
+            decay: 0.92,
+            scalar: 1.2
+        });
+        fire(0.1, {
+            spread: 120,
+            startVelocity: 45,
+        });
+    }, []);
+
+    const isRunning = compiling || executing;
+    const wasRunning = useRef<boolean>(false);
+
     useEffect(() => {
-        const testCases: TestCase[] = cases.map((c) => c.testcase);
-        updateProblem({ ...problem, tests: testCases });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [cases]);
+        // 当从运行中转为停止运行，且全部通过时触发
+        if (wasRunning.current && !isRunning && total > 0 && numPassed === total) {
+            fireConfetti();
+        }
+        wasRunning.current = isRunning;
+    }, [isRunning, numPassed, total, fireConfetti]);
 
     const sendMessage = useCallback((message: WebviewToVSEvent) => {
         vscodeApi.postMessage(message);
     }, []);
 
-    const runAll = useCallback(() => {
-        sendMessage({ command: 'run-all-and-save', problem });
-    }, [problem, sendMessage]);
+    const notify = useCallback((text: string, type: NotificationType = 'info') => {
+        clearTimeout(notificationTimeout!);
+        setNotification({ text, type });
+        notificationTimeout = setTimeout(() => setNotification(null), 2500);
+    }, []);
 
-    useEffect(() => {
-        const handler = (event: MessageEvent) => {
-            const data: VSToWebViewMessage = event.data;
-            switch (data.command) {
-                case 'running':
-                    setForceRunning((data as RunningCommand).id);
-                    break;
-                case 'run-all':
-                    runAll();
-                    break;
-                case 'compiling-start':
-                    setCompiling(true);
-                    break;
-                case 'compiling-stop':
-                    setCompiling(false);
-                    break;
-                case 'notification':
-                    notify(data.text, data.type);
-                    break;
-            }
-        };
-        window.addEventListener('message', handler);
-        return () => window.removeEventListener('message', handler);
-    }, [runAll]);
+    const runAll = useCallback(() => {
+        // 开始运行时立即清除所有结果状态，避免旧状态导致提前触发烟花
+        updateCases(prev => prev.map(c => ({ ...c, result: null })));
+        sendMessage({ command: 'run-all-and-save', problem });
+    }, [problem, sendMessage, updateCases]);
 
     const rerun = useCallback((id: number, input: string, output: string) => {
         const idx = problem.tests.findIndex((t) => t.id === id);
         if (idx === -1) return;
         problem.tests[idx].input = input;
         problem.tests[idx].output = output;
+
+        // 清除当前用例的结果状态
+        updateCases(prev => prev.map(c => c.id === id ? { ...c, result: null } : c));
+
         sendMessage({ command: 'run-single-and-save', problem, id });
-    }, [problem, sendMessage]);
+    }, [problem, sendMessage, updateCases]);
 
     const remove = useCallback((id: number) => {
         updateCases(cases.filter((c) => c.id !== id));
@@ -110,13 +145,9 @@ function Judge(props: {
         setFocusLast(true);
     }, [cases, updateCases]);
 
-    const notify = useCallback((text: string, type: NotificationType = 'info') => {
-        clearTimeout(notificationTimeout!);
-        setNotification({ text, type });
-        notificationTimeout = setTimeout(() => setNotification(null), 2500);
-    }, []);
-
     const stop = useCallback(() => {
+        setExecuting(false);
+        setCompiling(false);
         notify('已停止', 'warning');
         sendMessage({ command: 'kill-running', problem });
     }, [problem, sendMessage, notify]);
@@ -146,6 +177,45 @@ function Judge(props: {
             )
         );
     }, [cases, updateCases]);
+
+    // 同步 cases 到 problem.tests
+    useEffect(() => {
+        const testCases: TestCase[] = cases.map((c) => c.testcase);
+        updateProblem({ ...problem, tests: testCases });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [cases]);
+
+    useEffect(() => {
+        const handler = (event: MessageEvent) => {
+            const data: VSToWebViewMessage = event.data;
+            switch (data.command) {
+                case 'running':
+                    setForceRunning((data as RunningCommand).id);
+                    setExecuting(true);
+                    break;
+                case 'not-running':
+                    setExecuting(false);
+                    setForceRunning(false);
+                    break;
+                case 'run-all':
+                    runAll();
+                    break;
+                case 'compiling-start':
+                    setCompiling(true);
+                    // 编译开始时也尝试清除结果，并使用函数式更新避免闭包陷阱
+                    updateCases(prev => prev.map(c => ({ ...c, result: null })));
+                    break;
+                case 'compiling-stop':
+                    setCompiling(false);
+                    break;
+                case 'notification':
+                    notify(data.text, data.type);
+                    break;
+            }
+        };
+        window.addEventListener('message', handler);
+        return () => window.removeEventListener('message', handler);
+    }, [runAll, notify]);
 
     const hasTimeout = cases.some(
         (c) => c.result?.timeOut || c.result?.signal === 'SIGTERM'
@@ -177,7 +247,7 @@ function Judge(props: {
             )}
 
             <div className="header-container sticky-top">
-                {/* Row 1: Management & Info (Formerly Row 2) */}
+                {/* Row 1: Management & Info */}
                 <div className="row-1">
                     <div className="file-icons">
                         {mainFilePath && (
@@ -196,40 +266,40 @@ function Judge(props: {
                     </span>
                 </div>
 
-                {/* Row 2: Execution Actions (Formerly Row 1) */}
+                {/* Row 2: Execution Actions */}
                 <div className="row-2">
                     <button className="header-btn run-btn" onClick={runAll} title="全部运行 (Alt+1)">
                         <i className="codicon codicon-run-all"></i> 全部运行
                     </button>
                     <div className="row-spacer-25"></div>
-                    <button className="header-btn stop-btn" onClick={stop} title="停止运行 (Alt+2)">
+                    <button
+                        className="header-btn stop-btn"
+                        onClick={stop}
+                        title="停止运行 (Alt+2)"
+                        disabled={!compiling && !executing}
+                    >
                         <i className="codicon codicon-debug-stop"></i> 停止
                     </button>
-                </div>
-
-                {/* Row 3: Navigation & Status */}
-                <div className="row-3">
-                    <button className="header-btn new-btn" onClick={newCase}>
-                        <i className="codicon codicon-add"></i> 新建测试
-                    </button>
-                    <div className="row-spacer-flex"></div>
-                    <i className="codicon codicon-chevron-up header-icon-label" onClick={collapseAll} title="收起来"></i>
-                    <i className="codicon codicon-chevron-down header-icon-label" onClick={expandAll} title="全部展开"></i>
-                    <div className={`pass-rate-tag ${numPassed === total && total > 0 ? 'pass-all' : ''}`}>
-                        {numPassed} / {total} 通过
-                    </div>
-                </div>
-
-                {/* Row 4: Controls */}
-                <div className="row-4">
-                    <div className="row-spacer-flex"></div>
-                    <div className="toggle-fold-icon" onClick={toggleRegions} title="切换 Region 折叠 (Alt+3)">
-                        <i className="codicon codicon-folding-expanded"></i>
-                    </div>
                 </div>
             </div>
 
             <div className="results-container">
+                <div className="new-test-row">
+                    <button className="header-btn new-btn" onClick={newCase}>
+                        <i className="codicon codicon-add"></i> 新建测试
+                    </button>
+                    <div className="row-spacer-flex"></div>
+                    <div className="header-controls-group">
+                        <i className="codicon codicon-chevron-up header-icon-label" onClick={collapseAll} title="收起来"></i>
+                        <i className="codicon codicon-chevron-down header-icon-label" onClick={expandAll} title="全部展开"></i>
+                        <div className="toggle-fold-icon" onClick={toggleRegions} title="切换 Region 折叠 (Alt+3)">
+                            <i className="codicon codicon-folding-expanded"></i>
+                        </div>
+                        <div className={`pass-rate-tag ${numPassed === total && total > 0 ? 'pass-all' : ''}`}>
+                            {numPassed} / {total} 通过
+                        </div>
+                    </div>
+                </div>
                 {cases.map((c, i) => (
                     <CaseView
                         key={c.id}

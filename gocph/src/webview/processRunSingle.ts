@@ -20,6 +20,14 @@ export const runSingleAndSave = async (
     const idx = problem.tests.findIndex((value) => value.id === id);
     const testCase = problem.tests[idx];
 
+    if (!skipCompile) {
+        getJudgeViewProvider().extensionToJudgeViewMessage({
+            command: 'running',
+            id: id,
+            problem: problem,
+        });
+    }
+
     const textEditor = await vscode.workspace.openTextDocument(srcPath);
     await vscode.window.showTextDocument(textEditor, vscode.ViewColumn.One);
     await textEditor.save();
@@ -62,4 +70,10 @@ export const runSingleAndSave = async (
         result,
         problem,
     });
+
+    if (!skipCompile) {
+        getJudgeViewProvider().extensionToJudgeViewMessage({
+            command: 'not-running',
+        });
+    }
 };

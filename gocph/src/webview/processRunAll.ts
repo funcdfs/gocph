@@ -29,6 +29,9 @@ export default async (problem: Problem) => {
         await runSingleAndSave(problem, testCase.id, true);
     }
     globalThis.logger.log('Run all finished');
+    getJudgeViewProvider().extensionToJudgeViewMessage({
+        command: 'not-running',
+    });
     deleteBinary(
         getLanguage(problem.srcPath),
         getBinSaveLocation(problem.srcPath),

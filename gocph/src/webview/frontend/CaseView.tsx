@@ -36,10 +36,16 @@ const Icons = {
             <path d="M8.5 3.5V2.5C8.5 2 8 1.5 7.5 1.5H3C2.5 1.5 2 2 2 2.5V8C2 8.5 2.5 9 3 9H3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     ),
-    // 设为期望 - 圆润对勾
+    // 设为期望 - 向左箭头
     setExpected: (
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M9 6H3M3 6L5.5 3.5M3 6L5.5 8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    ),
+    // 全屏 - 圆润扩展图标
+    expand: (
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.5 4.5V2.5C1.5 2 2 1.5 2.5 1.5H4.5M7.5 1.5H9.5C10 1.5 10.5 2 10.5 2.5V4.5M10.5 7.5V9.5C10.5 10 10 10.5 9.5 10.5H7.5M4.5 10.5H2.5C2 10.5 1.5 10 1.5 9.5V7.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     ),
     // 通过状态 - 圆润勾选
@@ -140,7 +146,7 @@ const DiffView = ({
             {lines.map((line, i) => (
                 <div key={i} className={`diff-line ${line.isMatch ? 'match' : 'mismatch'}`}>
                     <span className="ln">{i + 1}</span>
-                    <span className="content">{line.text || ' '}</span>
+                    <span className="content selectable">{line.text || ' '}</span>
                 </div>
             ))}
         </div>
@@ -168,6 +174,8 @@ export default function CaseView(props: {
     const [minimized, setMinimized] = useState<boolean>(
         props.case.result?.pass === true,
     );
+    const [voidContent, setVoidContent] = useState<string>('');
+    const [voidLabel, setVoidLabel] = useState<string>('');
     const inputBox = createRef<HTMLTextAreaElement>();
 
     // 响应全局展开/收起
@@ -204,6 +212,10 @@ export default function CaseView(props: {
         setOutput(e.target.value);
     }, []);
 
+    const handleVoidChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setVoidContent(e.target.value);
+    }, []);
+
     const rerun = useCallback(() => {
         setRunning(true);
         propsRerun(id, input, output);
@@ -214,6 +226,12 @@ export default function CaseView(props: {
     const copyToClipboard = useCallback((text: string) => {
         navigator.clipboard.writeText(text);
         notify('已复制');
+    }, [notify]);
+
+    const handleExpandToVoid = useCallback((content: string, label: string) => {
+        setVoidContent(content);
+        setVoidLabel(label);
+        notify(`已展开 ${label}`);
     }, [notify]);
 
     useEffect(() => {
@@ -238,6 +256,7 @@ export default function CaseView(props: {
         return () => window.removeEventListener('message', handler);
     }, []);
 
+    // 计算所有需要的值
     let resultText = '';
     const stderror = result?.stderr;
     if (result?.signal) {
@@ -257,10 +276,19 @@ export default function CaseView(props: {
     const showDiff = result && !result.pass && resultText;
     const diff = showDiff ? computeLineDiff(output, resultText) : null;
 
-    const handleSetExpected = useCallback(() => {
+    // 当 stderr 存在时，自动覆盖观察区
+    useEffect(() => {
+        if (stderror && stderror.length > 0) {
+            setVoidContent('');
+            setVoidLabel('');
+        }
+    }, [stderror]);
+
+    // 定义 handleSetExpected - 使用普通函数而不是 useCallback
+    const handleSetExpected = () => {
         setOutput(resultText);
         notify('已设为期望');
-    }, [resultText, notify]);
+    };
 
     return (
         <div className={caseClassName}>
@@ -309,77 +337,116 @@ export default function CaseView(props: {
 
             {!minimized && (
                 <div className="case-body">
-                    {/* 输入区域 - 薰衣草紫色 */}
-                    <div className="editor-section input-section">
-                        <div className="editor-label">
-                            <span>输入</span>
-                            <div className="editor-actions">
-                                <button className="action-btn" onClick={() => copyToClipboard(input)} title="复制">
-                                    {Icons.copy}
-                                    <span>复制</span>
-                                </button>
-                            </div>
-                        </div>
-                        <Editor
-                            value={input}
-                            onChange={handleInputChange}
-                            autoFocus={doFocus}
-                            inputRef={inputBox}
-                        />
-                    </div>
-
-                    <div className="editor-section">
-                        <div className="editor-label">
-                            <span>期望输出</span>
-                            <div className="editor-actions">
-                                <button className="action-btn" onClick={() => copyToClipboard(output)} title="复制">
-                                    {Icons.copy}
-                                    <span>复制</span>
-                                </button>
-                            </div>
-                        </div>
-                        {diff ? (
-                            <DiffView lines={diff.expectedLines} type="expected" />
-                        ) : (
-                            <Editor value={output} onChange={handleOutputChange} />
-                        )}
-                    </div>
-
-                    {result && (
-                        <div className="editor-section">
+                    {/* 第一行：输入 || 期望输出 || 实际输出 */}
+                    <div className="editor-row">
+                        {/* 输入区域 - 薰衣草紫色 */}
+                        <div className="editor-section input-section">
                             <div className="editor-label">
-                                <span>实际输出</span>
+                                <span>输入</span>
                                 <div className="editor-actions">
-                                    <button
-                                        className="action-btn primary"
-                                        onClick={handleSetExpected}
-                                        title="设为期望"
-                                    >
-                                        {Icons.setExpected}
-                                        <span>设为期望</span>
+                                    <button className="action-btn" onClick={() => handleExpandToVoid(input, '输入')} title="展开到观察区">
+                                        {Icons.expand}
                                     </button>
-                                    <button className="action-btn" onClick={() => copyToClipboard(resultText)} title="复制">
+                                    <button className="action-btn" onClick={() => copyToClipboard(input)} title="复制">
+                                        {Icons.copy}
+                                        <span>复制</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <Editor
+                                value={input}
+                                onChange={handleInputChange}
+                                autoFocus={doFocus}
+                                inputRef={inputBox}
+                            />
+                        </div>
+
+                        <div className="editor-section expected-section">
+                            <div className="editor-label">
+                                <span>期望输出</span>
+                                <div className="editor-actions">
+                                    <button className="action-btn" onClick={() => handleExpandToVoid(output, '期望输出')} title="展开到观察区">
+                                        {Icons.expand}
+                                    </button>
+                                    <button className="action-btn" onClick={() => copyToClipboard(output)} title="复制">
                                         {Icons.copy}
                                         <span>复制</span>
                                     </button>
                                 </div>
                             </div>
                             {diff ? (
-                                <DiffView lines={diff.receivedLines} type="received" />
+                                <DiffView lines={diff.expectedLines} type="expected" />
                             ) : (
-                                <Editor value={truncate(resultText)} readOnly />
+                                <Editor value={output} onChange={handleOutputChange} />
                             )}
                         </div>
-                    )}
 
-                    {stderror && stderror.length > 0 && (
-                        <div className="editor-section">
-                            <div className="editor-label">
-                                <span>标准错误</span>
+                        {result && (
+                            <div className="editor-section actual-section">
+                                <div className="editor-label">
+                                    <span>实际输出</span>
+                                    <div className="editor-actions">
+                                        <button
+                                            className="action-btn primary"
+                                            onClick={handleSetExpected}
+                                            title="设为期望"
+                                        >
+                                            {Icons.setExpected}
+                                            <span>设为期望</span>
+                                        </button>
+                                        <button className="action-btn" onClick={() => handleExpandToVoid(resultText, '实际输出')} title="展开到观察区">
+                                            {Icons.expand}
+                                        </button>
+                                        <button className="action-btn" onClick={() => copyToClipboard(resultText)} title="复制">
+                                            {Icons.copy}
+                                            <span>复制</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                {diff ? (
+                                    <DiffView lines={diff.receivedLines} type="received" />
+                                ) : (
+                                    <Editor value={truncate(resultText)} readOnly />
+                                )}
                             </div>
-                            <Editor value={truncate(stderror)} readOnly />
+                        )}
+                    </div>
+
+                    {/* 第二行：stderr 独占 或 void 独占 */}
+                    {stderror && stderror.length > 0 ? (
+                        <div className="editor-row-full">
+                            <div className="editor-section">
+                                <div className="editor-label">
+                                    <span>标准错误</span>
+                                    <div className="editor-actions">
+                                        <button className="action-btn" onClick={() => copyToClipboard(stderror)} title="复制">
+                                            {Icons.copy}
+                                            <span>复制</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <Editor value={truncate(stderror)} readOnly />
+                            </div>
                         </div>
-                    )}
+                    ) : voidContent ? (
+                        <div className="editor-row-full">
+                            <div className="editor-section void-section">
+                                <div className="editor-label">
+                                    <span>{voidLabel || '观察区'}</span>
+                                    <div className="editor-actions">
+                                        <button className="action-btn" onClick={() => { setVoidContent(''); setVoidLabel(''); }} title="清空">
+                                            <span>清空</span>
+                                        </button>
+                                        <button className="action-btn" onClick={() => copyToClipboard(voidContent)} title="复制">
+                                            {Icons.copy}
+                                            <span>复制</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <Editor value={voidContent} onChange={handleVoidChange} />
+                            </div>
+                        </div>
+                    ) : null}
                 </div>
             )}
         </div>
