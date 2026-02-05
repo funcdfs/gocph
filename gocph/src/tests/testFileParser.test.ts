@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseTestFile, updateTestFileContent } from '../testFileParser';
+import { parseTestFile, updateTestFileContent, isInAllowedDirectory, getTestFilePath } from '../testFileParser';
 
 describe('testFileParser', () => {
     describe('parseTestFile', () => {
@@ -126,5 +126,130 @@ func TestSolution(t *testing.T) {
             expect(result).not.toContain('old');
             expect(result).toContain('}, main)');
         });
+        
+        it('应该正确更新白板内容', () => {
+            const original = `package main
+
+func TestSolution(t *testing.T) {
+	Run(t, []Case{
+		C(\`input\`, \`output\`),
+	}, main)
+}
+
+/*
+
+old whiteboard content
+
+*/
+`;
+            const tests = [{ input: 'input\n', output: 'output\n', id: 1 }];
+            const whiteboard = 'new whiteboard content';
+
+            const result = updateTestFileContent(original, tests, whiteboard);
+
+            expect(result).toContain('new whiteboard content');
+            expect(result).not.toContain('old whiteboard content');
+            expect(result).toMatch(/\/\*\s*\n\nnew whiteboard content\n\n\*\/\n$/);
+        });
+        
+        it('应该添加空白板注释块', () => {
+            const original = `package main
+
+func TestSolution(t *testing.T) {
+	Run(t, []Case{
+		C(\`input\`, \`output\`),
+	}, main)
+}
+`;
+            const tests = [{ input: 'input\n', output: 'output\n', id: 1 }];
+            const whiteboard = '';
+
+            const result = updateTestFileContent(original, tests, whiteboard);
+
+            expect(result).toMatch(/\/\*\s*\n\n\*\/\n$/);
+        });
+    });
+    
+    describe('parseTestFile with whiteboard', () => {
+        it('应该正确解析白板内容', () => {
+            const content = `package main
+
+// Contest: Test Contest
+// URL: https://example.com
+
+func TestSolution(t *testing.T) {
+	Run(t, []Case{
+		C(\`input\`, \`output\`),
+	}, main)
+}
+
+/*
+
+这是白板内容
+可以有多行
+
+*/
+`;
+            const problem = parseTestFile(content, '/test/main.go');
+
+            expect(problem!.whiteboard).toBe('这是白板内容\n可以有多行');
+        });
+        
+        it('应该处理空白板', () => {
+            const content = `package main
+
+// Contest: Test Contest
+// URL: https://example.com
+
+func TestSolution(t *testing.T) {
+	Run(t, []Case{
+		C(\`input\`, \`output\`),
+	}, main)
+}
+`;
+            const problem = parseTestFile(content, '/test/main.go');
+
+            expect(problem!.whiteboard).toBe('');
+        });
+    });
+});
+
+describe('isInAllowedDirectory', () => {
+    it('应该识别允许的目录 - cf', () => {
+        expect(isInAllowedDirectory('/workspace/cf/1800_2000/1992/A/main.go')).toBe(true);
+        expect(isInAllowedDirectory('C:\\workspace\\cf\\1800_2000\\main.go')).toBe(true);
+    });
+
+    it('应该识别允许的目录 - atcoder', () => {
+        expect(isInAllowedDirectory('/workspace/atcoder/abc347/main.go')).toBe(true);
+    });
+
+    it('应该识别允许的目录 - void', () => {
+        expect(isInAllowedDirectory('/workspace/void/test/main.go')).toBe(true);
+    });
+
+    it('应该拒绝不允许的目录', () => {
+        expect(isInAllowedDirectory('/workspace/random/main.go')).toBe(false);
+        expect(isInAllowedDirectory('/workspace/src/main.go')).toBe(false);
+    });
+
+    it('应该处理根目录文件', () => {
+        expect(isInAllowedDirectory('/workspace/main.go')).toBe(false);
+    });
+});
+
+describe('getTestFilePath', () => {
+    it('应该生成正确的测试文件路径', () => {
+        expect(getTestFilePath('/path/to/main.go')).toBe('/path/to/main_test.go');
+        expect(getTestFilePath('/path/to/solution.go')).toBe('/path/to/solution_test.go');
+    });
+
+    it('应该处理 Windows 路径', () => {
+        const result = getTestFilePath('C:\\path\\to\\main.go');
+        expect(result).toContain('main_test.go');
+    });
+
+    it('应该处理没有扩展名的文件', () => {
+        expect(getTestFilePath('/path/to/main')).toBe('/path/to/main_test');
     });
 });

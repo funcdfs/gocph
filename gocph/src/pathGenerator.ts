@@ -100,8 +100,13 @@ function cfPath(workspaceRoot: string, url: string, name: string): string {
     let problemId = '';
 
     for (let i = 0; i < parts.length; i++) {
-        if (parts[i] === 'contest' && i + 1 < parts.length) {
-            contestId = parts[i + 1];
+        if ((parts[i] === 'contest' || parts[i] === 'problemset') && i + 1 < parts.length) {
+            // For problemset URLs, the next part is 'problem', so we need to skip it
+            if (parts[i] === 'problemset' && parts[i + 1] === 'problem' && i + 2 < parts.length) {
+                contestId = parts[i + 2];
+            } else if (parts[i] === 'contest') {
+                contestId = parts[i + 1];
+            }
         }
         if (parts[i] === 'problem' && i + 1 < parts.length) {
             problemId = parts[i + 1].toUpperCase();

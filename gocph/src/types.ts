@@ -33,6 +33,7 @@ export type Problem = {
     tests: TestCase[];
     srcPath: string;
     local?: boolean;
+    whiteboard?: string; // 白板内容
 };
 
 export type Case = {

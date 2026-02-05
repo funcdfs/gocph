@@ -67,6 +67,9 @@ export function parseTestFile(content: string, srcPath: string): Problem | null 
 
         // 解析测试用例
         const tests = parseTestCases(content);
+        
+        // 解析白板内容
+        const whiteboard = parseWhiteboard(content);
 
         return {
             name,
@@ -77,6 +80,7 @@ export function parseTestFile(content: string, srcPath: string): Problem | null 
             group,
             tests,
             srcPath,
+            whiteboard,
         };
     } catch (error) {
         globalThis.logger?.error('解析 test 文件失败', error);
@@ -124,6 +128,18 @@ function normalizeTestContent(content: string): string {
     return result;
 }
 
+/**
+ * 解析白板内容（从文件末尾的 /* ... *\/ 注释块中提取）
+ */
+function parseWhiteboard(content: string): string {
+    // 匹配文件末尾的 /* ... */ 注释块
+    const whiteboardMatch = content.match(/\/\*\s*([\s\S]*?)\s*\*\/\s*$/);
+    if (whiteboardMatch) {
+        return whiteboardMatch[1].trim();
+    }
+    return '';
+}
+
 // ================================ Serializer ================================
 
 /**
@@ -146,7 +162,7 @@ ${output}\`),`;
  * 更新 test 文件中的测试用例部分
  * 保留文件头部的元数据注释，只更新 Case 数组
  */
-export function updateTestFileContent(originalContent: string, tests: TestCase[]): string {
+export function updateTestFileContent(originalContent: string, tests: TestCase[], whiteboard?: string): string {
     // 找到 Run(t, []Case{ 和对应的 }, main) 之间的部分并替换
     const startPattern = /Run\(t,\s*\[\]Case\{/;
     const endPattern = /\},\s*main\)/;
@@ -163,9 +179,32 @@ export function updateTestFileContent(originalContent: string, tests: TestCase[]
     
     const newCases = formatTestCases(tests);
     
-    return originalContent.substring(0, startIndex) + 
+    let result = originalContent.substring(0, startIndex) + 
            newCases + '\n\t' +
            originalContent.substring(endIndex);
+    
+    // 更新或添加白板内容
+    if (whiteboard !== undefined) {
+        result = updateWhiteboardContent(result, whiteboard);
+    }
+    
+    return result;
+}
+
+/**
+ * 更新白板内容（在文件末尾的 /* ... *\/ 注释块）
+ */
+function updateWhiteboardContent(content: string, whiteboard: string): string {
+    // 移除现有的白板注释块
+    const withoutWhiteboard = content.replace(/\/\*\s*[\s\S]*?\*\/\s*$/, '').trimEnd();
+    
+    // 添加新的白板注释块
+    if (whiteboard.trim()) {
+        return `${withoutWhiteboard}\n\n/*\n\n${whiteboard}\n\n*/\n`;
+    } else {
+        // 如果白板为空，添加空注释块
+        return `${withoutWhiteboard}\n\n/*\n\n*/\n`;
+    }
 }
 
 // ================================ File Operations ================================
@@ -228,7 +267,7 @@ export function saveProblemToTestFile(srcPath: string, problem: Problem): void {
     
     try {
         const originalContent = fs.readFileSync(testPath, 'utf-8');
-        const newContent = updateTestFileContent(originalContent, problem.tests);
+        const newContent = updateTestFileContent(originalContent, problem.tests, problem.whiteboard);
         fs.writeFileSync(testPath, newContent);
     } catch (error) {
         globalThis.logger?.error('保存 test 文件失败', error);

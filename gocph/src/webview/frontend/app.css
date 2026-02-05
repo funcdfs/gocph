@@ -1415,3 +1415,322 @@ body.vscode-light .file-link:hover {
     background: rgba(0, 0, 0, 0.1);
     color: rgba(0, 0, 0, 0.85);
 }
+
+/* 亮色主题 - 可点击图标 */
+body.vscode-light .clickable-icon {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+body.vscode-light .clickable-icon:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #2563eb;
+}
+
+/* 亮色主题 - 头部图标标签 */
+body.vscode-light .header-icon-label {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+body.vscode-light .header-icon-label:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: rgba(0, 0, 0, 0.85);
+}
+
+/* 亮色主题 - 折叠切换图标 */
+body.vscode-light .toggle-fold-icon {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+body.vscode-light .toggle-fold-icon:hover {
+    color: #ca8a04;
+}
+
+/* 亮色主题 - 通知图标 */
+body.vscode-light .notification-success .codicon {
+    color: #16a34a;
+}
+
+body.vscode-light .notification-error .codicon {
+    color: #dc2626;
+}
+
+body.vscode-light .notification-warning .codicon {
+    color: #ca8a04;
+}
+
+body.vscode-light .notification-info .codicon {
+    color: #2563eb;
+}
+
+/* 亮色主题 - 头部按钮 */
+body.vscode-light .header-btn {
+    border-color: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.7);
+}
+
+body.vscode-light .header-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.9);
+    border-color: rgba(0, 0, 0, 0.25);
+}
+
+body.vscode-light .header-btn .codicon {
+    color: inherit;
+}
+
+/* 亮色主题 - 切换按钮 */
+body.vscode-light .toggle-btn {
+    background: rgba(234, 179, 8, 0.1);
+    color: #ca8a04;
+    border-color: rgba(234, 179, 8, 0.25);
+}
+
+body.vscode-light .toggle-btn:hover {
+    background: rgba(234, 179, 8, 0.15);
+    border-color: rgba(234, 179, 8, 0.4);
+}
+
+/* 亮色主题 - 复制按钮 */
+body.vscode-light .copy-btn {
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+    border-color: rgba(124, 58, 237, 0.25);
+}
+
+body.vscode-light .copy-btn:hover {
+    background: rgba(124, 58, 237, 0.15);
+    border-color: rgba(124, 58, 237, 0.4);
+}
+
+/* 亮色主题 - 通过率标签 */
+body.vscode-light .pass-rate-tag {
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.5);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.vscode-light .pass-rate-tag.pass-all {
+    color: #16a34a;
+    border-color: rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+/* 亮色主题 - 加载动画 */
+body.vscode-light .loader {
+    border-color: rgba(0, 0, 0, 0.15);
+    border-top-color: #2563eb;
+}
+
+/* 亮色主题 - 编译状态 */
+body.vscode-light .compiling {
+    color: #ca8a04;
+}
+
+/* 亮色主题 - 问题名称文本 */
+body.vscode-light .problem-name-text,
+body.vscode-light .problem-name-text-flex {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* 亮色主题 - 超时提示 */
+body.vscode-light .timeout-suggestion {
+    border-color: rgba(220, 38, 38, 0.3);
+    background: rgba(220, 38, 38, 0.08);
+}
+
+body.vscode-light .timeout-suggestion h5 {
+    color: #dc2626;
+}
+
+body.vscode-light .timeout-suggestion p {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+/* 亮色主题 - 通知基础样式 */
+body.vscode-light .notification {
+    background: rgba(255, 255, 255, 0.98);
+    color: rgba(0, 0, 0, 0.9);
+    border-top-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* ==================== 全局抽屉样式 ==================== */
+.global-drawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1500;
+    display: flex;
+    flex-direction: column;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--vscode-sideBar-background);
+    border-top: 1px solid rgba(180, 150, 200, 0.2);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.global-drawer.collapsed {
+    height: 40px;
+}
+
+.global-drawer.expanded {
+    height: 75vh;
+}
+
+/* 收起区域 - 点击收起 */
+.drawer-collapse-area {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    cursor: pointer !important;
+    background: transparent;
+    transition: background 0.2s ease;
+    z-index: 1;
+}
+
+.drawer-collapse-area:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+/* 抽屉内容区域 */
+.drawer-content-area {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 展开/收起手柄 - 精致简约设计 */
+.drawer-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    height: 40px;
+    cursor: pointer !important;
+    background: transparent;
+    transition: all 0.2s ease;
+    user-select: none;
+    position: relative;
+}
+
+.drawer-toggle::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: rgba(180, 150, 200, 0.5);
+    border-radius: 3px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drawer-toggle:hover::before {
+    background: rgba(180, 150, 200, 0.85);
+    width: 56px;
+    height: 4px;
+    top: 11.5px;
+    box-shadow: 0 2px 8px rgba(180, 150, 200, 0.3);
+}
+
+/* 编辑器容器 */
+.drawer-editor-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 操作按钮区域 */
+.drawer-actions {
+    display: flex;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(180, 150, 200, 0.15);
+}
+
+.drawer-editor-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    padding: 12px;
+}
+
+/* 编辑器 */
+.drawer-editor {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(180, 150, 200, 0.2);
+    border-radius: 6px;
+    padding: 12px;
+    font-family: 'SF Mono', Consolas, 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #d4d4d4;
+    resize: none;
+    outline: none !important;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.drawer-editor:focus {
+    border-color: rgba(180, 150, 200, 0.6);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.drawer-editor::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+}
+
+/* 亮色主题适配 */
+body.vscode-light .global-drawer {
+    background: var(--vscode-sideBar-background);
+    border-top-color: rgba(140, 100, 160, 0.3);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+}
+
+body.vscode-light .drawer-collapse-area:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+body.vscode-light .drawer-actions {
+    background: rgba(0, 0, 0, 0.06);
+    border-bottom-color: rgba(140, 100, 160, 0.2);
+}
+
+body.vscode-light .drawer-toggle::before {
+    background: rgba(120, 80, 140, 0.6);
+}
+
+body.vscode-light .drawer-toggle:hover::before {
+    background: rgba(120, 80, 140, 0.9);
+    box-shadow: 0 2px 8px rgba(120, 80, 140, 0.3);
+}
+
+body.vscode-light .drawer-editor {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(140, 100, 160, 0.3);
+    color: #2c2c2c;
+}
+
+body.vscode-light .drawer-editor:focus {
+    border-color: rgba(120, 80, 140, 0.65);
+    background: rgba(0, 0, 0, 0.06);
+}
+
+body.vscode-light .drawer-editor::placeholder {
+    color: rgba(0, 0, 0, 0.35);
+}
+
+body.vscode-light .drawer-editor-container {
+    background: rgba(0, 0, 0, 0.01);
+}

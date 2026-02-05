@@ -12,6 +12,7 @@ import {
     WebViewpersistenceState,
 } from '../../types';
 import CaseView from './CaseView';
+import GlobalDrawer from './GlobalDrawer';
 
 // 通知类型
 type NotificationType = 'info' | 'success' | 'error' | 'warning';
@@ -57,6 +58,11 @@ function Judge(props: {
 
     const numPassed = cases.filter((c) => c.result?.pass === true).length;
     const total = cases.length;
+
+    // 处理白板内容变化
+    const handleWhiteboardChange = useCallback((content: string) => {
+        updateProblem({ ...problem, whiteboard: content });
+    }, [problem, updateProblem]);
 
 
     const fireConfetti = useCallback(() => {
@@ -342,6 +348,11 @@ function Judge(props: {
                     <p>检查是否全部正确的读入所有的数据。</p>
                 </div>
             )}
+            
+            <GlobalDrawer 
+                whiteboard={problem.whiteboard} 
+                onWhiteboardChange={handleWhiteboardChange}
+            />
         </div>
     );
 }
@@ -538,15 +549,17 @@ function App() {
     }
 
     return (
-        <Judge
-            problem={problem}
-            updateProblem={setProblem}
-            cases={cases}
-            updateCases={setCases}
-            mainFilePath={mainFilePath}
-            testFilePath={testFilePath}
-            openFile={openFile}
-        />
+        <>
+            <Judge
+                problem={problem}
+                updateProblem={setProblem}
+                cases={cases}
+                updateCases={setCases}
+                mainFilePath={mainFilePath}
+                testFilePath={testFilePath}
+                openFile={openFile}
+            />
+        </>
     );
 }
 
