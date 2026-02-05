@@ -10,6 +10,7 @@ import {
     ResultCommand,
     RunningCommand,
     WebViewpersistenceState,
+    RecentFileInfo,
 } from '../../types';
 import CaseView from './CaseView';
 import GlobalDrawer from './GlobalDrawer';
@@ -36,6 +37,21 @@ function getRecentFileLabel(filePath: string): string {
     const fileName = parts.pop() || filePath;
     const parentDir = parts.pop();
     return parentDir ? `${fileName} ${parentDir}` : fileName;
+}
+
+/** 格式化相对时间 */
+function formatRelativeTime(timestamp: number): string {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}天前`;
+    if (hours > 0) return `${hours}小时前`;
+    if (minutes > 0) return `${minutes}分钟前`;
+    return '刚刚';
 }
 
 
@@ -367,7 +383,7 @@ function App() {
     const [cases, setCases] = useState<Case[]>([]);
     const [deferSaveTimer, setDeferSaveTimer] = useState<number | null>(null);
     const [showFallback, setShowFallback] = useState<boolean>(false);
-    const [recentFiles, setRecentFiles] = useState<string[]>([]);
+    const [recentFiles, setRecentFiles] = useState<RecentFileInfo[]>([]);
     const [fileStatus, setFileStatus] = useState<'valid' | 'not-allowed' | 'no-file' | 'is-test-file'>('no-file');
     const [mainFilePath, setMainFilePath] = useState<string | undefined>(undefined);
     const [testFilePath, setTestFilePath] = useState<string | undefined>(undefined);
@@ -436,11 +452,11 @@ function App() {
         return () => window.removeEventListener('message', handler);
     }, [handleRunSingleResult]);
 
-    const createProblem = () => {
-        vscodeApi.postMessage({ command: 'create-local-problem' });
-    };
+    const createVoid = useCallback(() => {
+        vscodeApi.postMessage({ command: 'create-void' });
+    }, []);
 
-    // 当前打开的是测试文件
+    // 当前打开的是测试文件 - 显示跳转到 main.go 的页面
     if (!problem && showFallback && fileStatus === 'is-test-file' && mainFilePath) {
         return (
             <div className="ui p10">
@@ -457,84 +473,73 @@ function App() {
         );
     }
 
-    // 不在允许目录下的提示
-    if (!problem && showFallback && fileStatus === 'not-allowed') {
+    // 其他所有情况 - 显示创建 Void 按钮 + 最近文件列表
+    if (!problem && showFallback) {
         const hasRecent = recentFiles && recentFiles.length > 0;
         return (
             <div className="ui p10">
                 <div className="text-center">
-                    <p style={{ marginBottom: 12, opacity: 0.8 }}>
-                        <i className="codicon codicon-info" style={{ marginRight: 6 }}></i>
-                        当前文件不在竞赛目录下
-                    </p>
-                    {hasRecent ? (
-                        <div style={{ textAlign: 'left', marginTop: '20px' }}>
-                            <p style={{ opacity: 0.7, fontSize: '12px', marginBottom: '8px' }}>最近编辑的文件：</p>
-                            <div className="recent-files-list">
-                                {recentFiles.map((path, i) => (
+                    {/* 创建 Void 按钮 - 置顶居中 */}
+                    <button 
+                        className="btn" 
+                        onClick={createVoid}
+                        style={{ 
+                            marginBottom: hasRecent ? '24px' : '0',
+                            fontSize: '13px',
+                            padding: '8px 16px'
+                        }}
+                    >
+                        <i className="codicon codicon-add"></i> 创建 Void
+                    </button>
+
+                    {/* 最近文件列表 */}
+                    {hasRecent && (
+                        <div style={{ marginTop: '24px' }}>
+                            <p style={{ opacity: 0.7, fontSize: '12px', marginBottom: '12px' }}>最近编辑：</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                {recentFiles.map((fileInfo, i) => (
                                     <div
                                         key={i}
-                                        className="recent-file-item"
-                                        onClick={() => openFile(path)}
+                                        onClick={() => openFile(fileInfo.path)}
                                         style={{
-                                            padding: '6px 8px',
+                                            padding: '8px 10px',
                                             cursor: 'pointer',
                                             borderRadius: '4px',
-                                            marginBottom: '4px',
                                             display: 'flex',
                                             alignItems: 'center',
+                                            justifyContent: 'space-between',
                                             fontSize: '12px',
                                             background: 'var(--vscode-editor-inactiveSelectionBackground)',
-                                            color: 'var(--vscode-editor-foreground)'
+                                            color: 'var(--vscode-editor-foreground)',
+                                            transition: 'background 0.15s ease'
                                         }}
-                                        title={path}
+                                        title={fileInfo.path}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = 'var(--vscode-list-hoverBackground)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = 'var(--vscode-editor-inactiveSelectionBackground)';
+                                        }}
                                     >
-                                        <i className="codicon codicon-file-code" style={{ marginRight: '6px', opacity: 0.8 }}></i>
-                                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {getRecentFileLabel(path)}
+                                        <div style={{ display: 'flex', alignItems: 'center', overflow: 'hidden', flex: 1 }}>
+                                            <i className="codicon codicon-file-code" style={{ marginRight: '8px', opacity: 0.8, flexShrink: 0 }}></i>
+                                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {getRecentFileLabel(fileInfo.path)}
+                                            </span>
+                                        </div>
+                                        <span style={{ 
+                                            opacity: 0.6, 
+                                            fontSize: '11px', 
+                                            marginLeft: '8px',
+                                            flexShrink: 0
+                                        }}>
+                                            {formatRelativeTime(fileInfo.modifiedTime)}
                                         </span>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                    ) : (
-                        <p style={{ marginBottom: 16, opacity: 0.6, fontSize: '12px', lineHeight: 1.6 }}>
-                            请打开以下目录中的 .go 文件：<br />
-                            <code style={{
-                                background: 'var(--vscode-textBlockQuote-background)',
-                                padding: '2px 6px',
-                                borderRadius: '3px',
-                                fontSize: '11px'
-                            }}>
-                                cf/ atcoder/ acwing/ luogu/ nowcoder/ others/
-                            </code>
-                        </p>
                     )}
-                </div>
-            </div>
-        );
-    }
-
-    // 在允许目录下但没有测试文件的提示
-    if (!problem && showFallback && fileStatus === 'valid') {
-        return (
-            <div className="ui p10">
-                <div className="text-center">
-                    <p style={{ marginBottom: 16, opacity: 0.7 }}>当前文档没有关联的测试</p>
-                    <button className="btn" onClick={createProblem}>
-                        <i className="codicon codicon-add"></i> 创建测试
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    // 没有打开文件
-    if (!problem && showFallback) {
-        return (
-            <div className="ui p10">
-                <div className="text-center">
-                    <p style={{ opacity: 0.6 }}>请打开一个 .go 文件</p>
                 </div>
             </div>
         );

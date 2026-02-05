@@ -151,6 +151,11 @@ export type RunAllInWebViewCommand = {
     command: 'run-all';
 };
 
+export type RecentFileInfo = {
+    path: string;
+    modifiedTime: number; // Unix timestamp in milliseconds
+};
+
 export type NewProblemCommand = {
     command: 'new-problem';
     problem: Problem | undefined;
@@ -160,8 +165,8 @@ export type NewProblemCommand = {
     mainFilePath?: string;
     /** 测试文件路径 */
     testFilePath?: string;
-    /** 最近使用的文件列表 */
-    recentFiles?: string[];
+    /** 最近使用的文件列表（包含路径和修改时间） */
+    recentFiles?: RecentFileInfo[];
 };
 
 export type NotificationCommand = {

@@ -151,14 +151,49 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                                 const mainContent = `// time: ${now.toISOString().replace('T', ' ').substring(0, 19)} https://github.com/funcdfs\n\n\n`;
                                 fs.writeFileSync(path.join(targetDir, 'main.go'), mainContent);
                                 
-                                // 创建 main_test.go
-                                const testContent = `package main\n\nimport (\n\t"testing"\n\n\t. "github.com/funcdfs/gocph/tool/testutil"\n)\n\n// Time: ${now.toISOString().replace('T', ' ').substring(0, 19)}\n\nfunc TestSolution(t *testing.T) {\n\tRun(t, []Case{\n\n\t\t// case 1\n\t\tC(\`\n\`, \`\n\`),\n\t}, main)\n}\n`;
+                                // 创建 main_test.go - 添加必需的 Contest 和 URL 注释
+                                const testContent = `package main
+
+import (
+\t"testing"
+
+\t. "github.com/funcdfs/gocph/tool/testutil"
+)
+
+// Contest: Void - ${timestamp}
+// URL: https://github.com/funcdfs
+// Time: ${now.toISOString().replace('T', ' ').substring(0, 19)}
+
+func TestSolution(t *testing.T) {
+\tRun(t, []Case{
+
+\t\t// case 1
+\t\tC(\`
+\`, \`
+\`),
+\t}, main)
+}
+
+/*
+
+*/
+`;
                                 fs.writeFileSync(path.join(targetDir, 'main_test.go'), testContent);
                                 
-                                // 打开 main.go
+                                // 打开 main.go 并手动触发 webview 更新
                                 const mainPath = path.join(targetDir, 'main.go');
                                 vscode.workspace.openTextDocument(mainPath).then(doc => {
-                                    vscode.window.showTextDocument(doc);
+                                    vscode.window.showTextDocument(doc).then(() => {
+                                        // 延迟一下确保文档完全加载后再触发更新
+                                        setTimeout(() => {
+                                            const editor = vscode.window.activeTextEditor;
+                                            if (editor && editor.document.uri.fsPath === mainPath) {
+                                                // 手动触发 editorChanged
+                                                const { editorChanged } = require('./webview/editorChange');
+                                                editorChanged(editor);
+                                            }
+                                        }, 100);
+                                    });
                                 });
                                 
                                 this.extensionToJudgeViewMessage({

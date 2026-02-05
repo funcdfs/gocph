@@ -1,15 +1,16 @@
 import * as vscode from 'vscode';
-import { existsSync } from 'fs';
+import { existsSync, statSync } from 'fs';
 import { getJudgeViewProvider, foldRegionsInActiveEditor } from '../extension';
 import { getProblemForDocument, getFileStatus, getMainFileFromTestFile } from '../utils';
 import { getAutoShowJudgePref } from '../preferences';
 import { getTestFilePath, getProblemFromTestFile } from '../testFileParser';
+import { RecentFileInfo } from '../types';
 
 /**
  * 当编辑器切换时，显示对应的问题详情
  */
 const RECENT_FILES_KEY = 'gocph.recentFiles';
-const MAX_RECENT_FILES = 5;
+const MAX_RECENT_FILES = 10;
 
 function updateRecentFiles(filePath: string) {
     if (!globalThis.context) return;
@@ -25,9 +26,26 @@ function updateRecentFiles(filePath: string) {
     globalThis.context.globalState.update(RECENT_FILES_KEY, recent);
 }
 
-function getRecentFiles(): string[] {
+function getRecentFiles(): RecentFileInfo[] {
     if (!globalThis.context) return [];
-    return globalThis.context.globalState.get<string[]>(RECENT_FILES_KEY, []);
+    const paths = globalThis.context.globalState.get<string[]>(RECENT_FILES_KEY, []);
+    
+    // 转换为包含修改时间的对象数组
+    return paths
+        .filter(path => existsSync(path)) // 过滤掉不存在的文件
+        .map(path => {
+            try {
+                const stats = statSync(path);
+                return {
+                    path,
+                    modifiedTime: stats.mtimeMs,
+                };
+            } catch (error) {
+                globalThis.logger?.error('获取文件状态失败', path, error);
+                return null;
+            }
+        })
+        .filter((item): item is RecentFileInfo => item !== null);
 }
 
 export const editorChanged = async (e: vscode.TextEditor | undefined) => {
