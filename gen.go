@@ -69,6 +69,7 @@ func runServer() {
 	problemChan := make(chan Problem)
 
 	go func() {
+		// 处理 Competitive Companion 的题目
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			if r.Method != http.MethodPost {
 				http.Error(w, "POST only", http.StatusMethodNotAllowed)
@@ -83,6 +84,21 @@ func runServer() {
 			}
 
 			problemChan <- problem
+			w.WriteHeader(http.StatusOK)
+		})
+
+		// 处理创建空白文件的请求
+		http.HandleFunc("/blank", func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				http.Error(w, "POST only", http.StatusMethodNotAllowed)
+				return
+			}
+
+			if err := generateBlankFiles(); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
 			w.WriteHeader(http.StatusOK)
 		})
 
@@ -106,6 +122,54 @@ func runServer() {
 }
 
 // ================================ File Generation ================================
+
+func generateBlankFiles() error {
+	timestamp := time.Now().Unix()
+	dirPath := filepath.Join("void", fmt.Sprintf("%d", timestamp))
+
+	if err := os.MkdirAll(dirPath, 0755); err != nil {
+		return err
+	}
+
+	currentTime := time.Now().Format("2006-01-02 15:04:05")
+
+	// Generate main.go (只有注释和空行)
+	mainContent := fmt.Sprintf("// time: %s https://github.com/funcdfs\n\n\n", currentTime)
+	if err := os.WriteFile(filepath.Join(dirPath, "main.go"), []byte(mainContent), 0644); err != nil {
+		return err
+	}
+
+	// Generate main_test.go
+	testContent := generateBlankTestFile(currentTime)
+	if err := os.WriteFile(filepath.Join(dirPath, "main_test.go"), []byte(testContent), 0644); err != nil {
+		return err
+	}
+
+	fmt.Printf("\n%s╔════════════════════════════════════════════════════╗%s\n", cYellow, cReset)
+	printField("TYPE", "Blank Problem", cGreen)
+	printField("PATH", dirPath, cCyan)
+	printField("TIME", currentTime, cGray)
+	fmt.Printf("%s╚════════════════════════════════════════════════════╝%s\n", cYellow, cReset)
+
+	return nil
+}
+
+func generateBlankTestFile(currentTime string) string {
+	var sb strings.Builder
+	sb.WriteString("package main\n\n")
+	sb.WriteString("import (\n")
+	sb.WriteString("\t\"testing\"\n\n")
+	sb.WriteString("\t. \"github.com/funcdfs/gocph/tool/testutil\"\n")
+	sb.WriteString(")\n\n")
+	sb.WriteString(fmt.Sprintf("// Time: %s\n\n", currentTime))
+	sb.WriteString("func TestSolution(t *testing.T) {\n")
+	sb.WriteString("\tRun(t, []Case{\n")
+	sb.WriteString("\n\t\t// case 1\n")
+	sb.WriteString("\t\tC(`\n`, `\n`),\n")
+	sb.WriteString("\t}, main)\n")
+	sb.WriteString("}\n")
+	return sb.String()
+}
 
 func generateFiles(problem Problem) error {
 	dirPath := calculateDirPath(problem.URL, problem.Name)

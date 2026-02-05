@@ -102,6 +102,14 @@ export type ToggleRegionsCommand = {
     command: 'toggle-regions';
 };
 
+export type CreateBlankProblemCommand = {
+    command: 'create-blank-problem';
+};
+
+export type CreateVoidCommand = {
+    command: 'create-void';
+};
+
 export type WebviewToVSEvent =
     | RunAllCommand
     | GetInitialProblem
@@ -112,7 +120,9 @@ export type WebviewToVSEvent =
     | DeleteTcsCommand
     | OpenFileCommand
     | CopyMainGoCommand
-    | ToggleRegionsCommand;
+    | ToggleRegionsCommand
+    | CreateBlankProblemCommand
+    | CreateVoidCommand;
 
 export type RunningCommand = {
     command: 'running';

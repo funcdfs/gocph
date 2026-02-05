@@ -673,6 +673,37 @@ button:disabled {
     width: 100%;
 }
 
+/* Row 1 固定布局 */
+.row-1-fixed {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.row-1-fixed > .file-icons {
+    flex-shrink: 0; /* 文件图标不压缩 */
+}
+
+.row-1-fixed > .copy-btn {
+    flex-shrink: 0; /* 复制按钮不压缩 */
+}
+
+.row-1-fixed > .problem-name-text-flex {
+    flex: 1; /* 问题名称可以缩减 */
+    min-width: 0; /* 允许缩小到 0 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.row-1-fixed > .void-btn {
+    flex-shrink: 0; /* 新建 void 按钮不压缩 */
+}
+
 .row-1 {
     justify-content: space-between;
 }
@@ -797,6 +828,17 @@ button:disabled {
     border-color: rgba(142, 68, 173, 0.2);
     padding: 4px 8px;
     font-size: 10px;
+}
+
+.void-btn {
+    background: rgba(241, 196, 15, 0.15);
+    color: #f1c40f;
+    border-color: rgba(241, 196, 15, 0.3);
+}
+
+.void-btn:hover {
+    background: rgba(241, 196, 15, 0.25);
+    border-color: rgba(241, 196, 15, 0.5);
 }
 
 /* Pass Rate Tag */
@@ -1302,6 +1344,17 @@ body.vscode-light .new-btn {
 
 body.vscode-light .new-btn:hover {
     background: rgba(37, 99, 235, 0.1);
+}
+
+body.vscode-light .void-btn {
+    background: rgba(234, 179, 8, 0.1);
+    color: #ca8a04;
+    border-color: rgba(234, 179, 8, 0.3);
+}
+
+body.vscode-light .void-btn:hover {
+    background: rgba(234, 179, 8, 0.15);
+    border-color: rgba(234, 179, 8, 0.5);
 }
 
 

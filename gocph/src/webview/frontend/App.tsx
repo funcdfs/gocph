@@ -169,6 +169,10 @@ function Judge(props: {
         sendMessage({ command: 'copy-main-go', problem });
     }, [problem, sendMessage]);
 
+    const createVoid = useCallback(() => {
+        sendMessage({ command: 'create-void' });
+    }, [sendMessage]);
+
     const toggleRegions = useCallback(() => {
         sendMessage({ command: 'toggle-regions' });
     }, [sendMessage]);
@@ -228,7 +232,7 @@ function Judge(props: {
         };
         window.addEventListener('message', handler);
         return () => window.removeEventListener('message', handler);
-    }, [runAll, notify]);
+    }, [runAll, notify, updateCases]);
 
     const hasTimeout = cases.some(
         (c) => c.result?.timeOut || c.result?.signal === 'SIGTERM'
@@ -260,8 +264,8 @@ function Judge(props: {
             )}
 
             <div className="header-container sticky-top">
-                {/* Row 1: Management & Info */}
-                <div className="row-1">
+                {/* Row 1: 固定布局 - 文件图标 + 复制代码 + 问题名称（可缩减）+ 新建 void（固定） */}
+                <div className="row-1-fixed">
                     <div className="file-icons">
                         {mainFilePath && (
                             <i className="codicon codicon-go-to-file clickable-icon" onClick={() => openFile(mainFilePath)} title={`打开 ${getFileName(mainFilePath)}`}></i>
@@ -271,12 +275,15 @@ function Judge(props: {
                         )}
                     </div>
                     <button className="header-btn copy-btn" onClick={copyMainGo}>
-                        <i className="codicon codicon-copy"></i> 复制代码
+                        <i className="codicon codicon-copy"></i> 复制
                     </button>
-                    <span className="problem-name-text">
+                    <span className="problem-name-text-flex">
                         {problem.name}
                         {compiling && <span className="loader"></span>}
                     </span>
+                    <button className="header-btn void-btn icon-only-btn" onClick={createVoid} title="创建新的 void 文件">
+                        <i className="codicon codicon-add"></i>
+                    </button>
                 </div>
 
                 {/* Row 2: Execution Actions */}
@@ -299,7 +306,7 @@ function Judge(props: {
             <div className="results-container">
                 <div className="new-test-row">
                     <button className="header-btn new-btn" onClick={newCase}>
-                        <i className="codicon codicon-add"></i> 新建测试
+                        <i className="codicon codicon-add"></i> 添加测试样例
                     </button>
                     <div className="row-spacer-flex"></div>
                     <div className="header-controls-group">

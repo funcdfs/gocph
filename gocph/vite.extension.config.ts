@@ -15,9 +15,9 @@ function generateBuildInfo() {
                 const dateTime = new Date().toISOString();
 
                 const generated = { gitCommitHash, licenseString, dateTime };
-                mkdirSync(resolve(__dirname, 'dist/static'), { recursive: true });
+                mkdirSync(resolve(__dirname, 'dist'), { recursive: true });
                 writeFileSync(
-                    resolve(__dirname, 'dist/static/generated.json'),
+                    resolve(__dirname, 'dist/generated.json'),
                     JSON.stringify(generated, null, 2)
                 );
             } catch {

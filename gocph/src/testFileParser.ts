@@ -20,6 +20,7 @@ const ALLOWED_DIRECTORIES = [
     'luogu',
     'nowcoder',
     'others',
+    'void',  // 临时测试文件目录
 ];
 
 // ================================ Path Helpers ================================

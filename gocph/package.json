@@ -21,7 +21,7 @@
                 {
                     "id": "gocph-judge-view-container",
                     "title": "GoCPH",
-                    "icon": "dist/static/panel-view-icon.svg"
+                    "icon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTMgNWgtMnY2SDV2Mmg2djZoMnYtNmg2di0yaC02VjV6IiBmaWxsPSIjRkZDQzAwIi8+PC9zdmc+"
                 }
             ]
         },
@@ -50,7 +50,7 @@
             {
                 "command": "gocph.runAllTests",
                 "title": "GoCPH: 运行所有测试",
-                "icon": "dist/static/play.png"
+                "icon": "$(play)"
             },
             {
                 "command": "gocph.stopTests",
@@ -139,7 +139,7 @@
         "build": "npm run build:frontend && npm run build:extension && npm run copy:assets",
         "build:frontend": "vite build",
         "build:extension": "vite build --config vite.extension.config.ts",
-        "copy:assets": "cp -r static dist/ && cp src/webview/frontend/index.html dist/ && cp src/webview/frontend/app.css dist/ && cp node_modules/@vscode/codicons/dist/codicon.css dist/ && cp node_modules/@vscode/codicons/dist/codicon.ttf dist/",
+        "copy:assets": "cp src/webview/frontend/index.html dist/ && cp src/webview/frontend/app.css dist/ && cp node_modules/@vscode/codicons/dist/codicon.css dist/ && cp node_modules/@vscode/codicons/dist/codicon.ttf dist/",
         "dev": "npm run build",
         "watch": "npm run build:frontend && vite build --config vite.extension.config.ts --watch",
         "vscode:prepublish": "npm run build",

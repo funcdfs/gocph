@@ -116,6 +116,67 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                             break;
                         }
 
+                        case 'create-blank-problem':
+                        case 'create-void': {
+                            const now = new Date();
+                            const year = now.getFullYear();
+                            const month = String(now.getMonth() + 1).padStart(2, '0');
+                            const day = String(now.getDate()).padStart(2, '0');
+                            const hour = String(now.getHours()).padStart(2, '0');
+                            const minute = String(now.getMinutes()).padStart(2, '0');
+                            const second = String(now.getSeconds()).padStart(2, '0');
+                            const timestamp = `${year}_${month}_${day}_${hour}_${minute}_${second}`;
+                            
+                            const voidDir = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+                            if (!voidDir) {
+                                this.extensionToJudgeViewMessage({
+                                    command: 'notification',
+                                    text: '未找到工作区目录',
+                                    type: 'error',
+                                });
+                                break;
+                            }
+                            
+                            // eslint-disable-next-line @typescript-eslint/no-require-imports
+                            const path = require('path');
+                            // eslint-disable-next-line @typescript-eslint/no-require-imports
+                            const fs = require('fs');
+                            const targetDir = path.join(voidDir, 'void', timestamp);
+                            
+                            try {
+                                // 创建目录
+                                fs.mkdirSync(targetDir, { recursive: true });
+                                
+                                // 创建 main.go
+                                const mainContent = `// time: ${now.toISOString().replace('T', ' ').substring(0, 19)} https://github.com/funcdfs\n\n\n`;
+                                fs.writeFileSync(path.join(targetDir, 'main.go'), mainContent);
+                                
+                                // 创建 main_test.go
+                                const testContent = `package main\n\nimport (\n\t"testing"\n\n\t. "github.com/funcdfs/gocph/tool/testutil"\n)\n\n// Time: ${now.toISOString().replace('T', ' ').substring(0, 19)}\n\nfunc TestSolution(t *testing.T) {\n\tRun(t, []Case{\n\n\t\t// case 1\n\t\tC(\`\n\`, \`\n\`),\n\t}, main)\n}\n`;
+                                fs.writeFileSync(path.join(targetDir, 'main_test.go'), testContent);
+                                
+                                // 打开 main.go
+                                const mainPath = path.join(targetDir, 'main.go');
+                                vscode.workspace.openTextDocument(mainPath).then(doc => {
+                                    vscode.window.showTextDocument(doc);
+                                });
+                                
+                                this.extensionToJudgeViewMessage({
+                                    command: 'notification',
+                                    text: `已创建 void 文件: void/${timestamp}`,
+                                    type: 'success',
+                                });
+                            } catch (e) {
+                                globalThis.logger.error('创建 void 文件失败', e);
+                                this.extensionToJudgeViewMessage({
+                                    command: 'notification',
+                                    text: '创建失败，请重试',
+                                    type: 'error',
+                                });
+                            }
+                            break;
+                        }
+
                         default: {
                             globalThis.logger.error(
                                 'Unknown event received from webview',
