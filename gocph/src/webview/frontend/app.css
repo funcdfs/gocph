@@ -681,17 +681,21 @@ button:disabled {
     gap: 8px;
 }
 
-.row-1-fixed > .file-icons {
-    flex-shrink: 0; /* 文件图标不压缩 */
+.row-1-fixed>.file-icons {
+    flex-shrink: 0;
+    /* 文件图标不压缩 */
 }
 
-.row-1-fixed > .copy-btn {
-    flex-shrink: 0; /* 复制按钮不压缩 */
+.row-1-fixed>.copy-btn {
+    flex-shrink: 0;
+    /* 复制按钮不压缩 */
 }
 
-.row-1-fixed > .problem-name-text-flex {
-    flex: 1; /* 问题名称可以缩减 */
-    min-width: 0; /* 允许缩小到 0 */
+.row-1-fixed>.problem-name-text-flex {
+    flex: 1;
+    /* 问题名称可以缩减 */
+    min-width: 0;
+    /* 允许缩小到 0 */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -700,8 +704,9 @@ button:disabled {
     color: rgba(255, 255, 255, 0.4);
 }
 
-.row-1-fixed > .void-btn {
-    flex-shrink: 0; /* 新建 void 按钮不压缩 */
+.row-1-fixed>.void-btn {
+    flex-shrink: 0;
+    /* 新建 void 按钮不压缩 */
 }
 
 .row-1 {
@@ -1568,6 +1573,8 @@ body.vscode-light .notification {
     background: var(--vscode-sideBar-background);
     border-top: 1px solid rgba(180, 150, 200, 0.2);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    will-change: height;
 }
 
 .global-drawer.collapsed {
@@ -1593,6 +1600,10 @@ body.vscode-light .notification {
 
 .drawer-collapse-area:hover {
     background: rgba(0, 0, 0, 0.02);
+}
+
+.drawer-collapse-area.hidden {
+    display: none;
 }
 
 /* 抽屉内容区域 */

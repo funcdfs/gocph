@@ -10,7 +10,7 @@ export default function GlobalDrawer({ whiteboard, onWhiteboardChange }: GlobalD
         const saved = localStorage.getItem('gocph-global-drawer-expanded');
         return saved === 'true';
     });
-    
+
     const [content, setContent] = useState<string>('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -76,14 +76,13 @@ export default function GlobalDrawer({ whiteboard, onWhiteboardChange }: GlobalD
     return (
         <div className={`global-drawer ${isExpanded ? 'expanded' : 'collapsed'}`}>
             {/* 收起区域 - 点击收起抽屉 */}
-            {isExpanded && (
-                <div 
-                    className="drawer-collapse-area" 
-                    onClick={handleCollapseAreaClick}
-                    title="点击收起"
-                />
-            )}
-            
+            {/* 收起区域 - 点击收起抽屉 */}
+            <div
+                className={`drawer-collapse-area ${isExpanded ? '' : 'hidden'}`}
+                onClick={handleCollapseAreaClick}
+                title="点击收起"
+            />
+
             {/* 抽屉内容区域 */}
             <div className="drawer-content-area">
                 {/* 展开/收起按钮 */}
@@ -91,37 +90,36 @@ export default function GlobalDrawer({ whiteboard, onWhiteboardChange }: GlobalD
                 </div>
 
                 {/* 编辑器区域 */}
-                {isExpanded && (
-                    <div className="drawer-editor-wrapper">
-                        {/* 操作按钮 */}
-                        <div className="drawer-actions">
-                            <button className="action-btn" onClick={handlePaste} title="粘贴">
-                                <i className="codicon codicon-clippy"></i>
-                                <span>粘贴</span>
-                            </button>
-                            <button className="action-btn" onClick={handleClear} title="清空">
-                                <i className="codicon codicon-trash"></i>
-                                <span>清空</span>
-                            </button>
-                            <button className="action-btn" onClick={handleCopy} title="复制">
-                                <i className="codicon codicon-copy"></i>
-                                <span>复制</span>
-                            </button>
-                        </div>
-                        
-                        {/* 编辑器 */}
-                        <div className="drawer-editor-container">
-                            <textarea
-                                ref={textareaRef}
-                                className="drawer-editor selectable"
-                                value={content}
-                                onChange={handleContentChange}
-                                placeholder=""
-                                spellCheck={false}
-                            />
-                        </div>
+                {/* 编辑器区域 */}
+                <div className="drawer-editor-wrapper">
+                    {/* 操作按钮 */}
+                    <div className="drawer-actions">
+                        <button className="action-btn" onClick={handlePaste} title="粘贴">
+                            <i className="codicon codicon-clippy"></i>
+                            <span>粘贴</span>
+                        </button>
+                        <button className="action-btn" onClick={handleClear} title="清空">
+                            <i className="codicon codicon-trash"></i>
+                            <span>清空</span>
+                        </button>
+                        <button className="action-btn" onClick={handleCopy} title="复制">
+                            <i className="codicon codicon-copy"></i>
+                            <span>复制</span>
+                        </button>
                     </div>
-                )}
+
+                    {/* 编辑器 */}
+                    <div className="drawer-editor-container">
+                        <textarea
+                            ref={textareaRef}
+                            className="drawer-editor selectable"
+                            value={content}
+                            onChange={handleContentChange}
+                            placeholder=""
+                            spellCheck={false}
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );
