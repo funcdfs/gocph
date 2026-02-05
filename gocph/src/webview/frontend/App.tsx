@@ -62,7 +62,10 @@ function Judge(props: {
     const fireConfetti = useCallback(() => {
         const count = 200;
         const defaults = {
-            origin: { y: 0.7 }
+            origin: { y: 0.7 },
+            ticks: 60,
+            gravity: 1.2,
+            decay: 0.92,
         };
 
         function fire(particleRatio: number, opts: confetti.Options) {
