@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import confetti from 'canvas-confetti';
 import {
@@ -30,6 +30,13 @@ function getFileName(filePath: string): string {
     return filePath.split(/[/\\]/).pop() || filePath;
 }
 
+function getRecentFileLabel(filePath: string): string {
+    const parts = filePath.split(/[/\\]/);
+    const fileName = parts.pop() || filePath;
+    const parentDir = parts.pop();
+    return parentDir ? `${fileName} ${parentDir}` : fileName;
+}
+
 
 function Judge(props: {
     problem: Problem;
@@ -55,10 +62,7 @@ function Judge(props: {
     const fireConfetti = useCallback(() => {
         const count = 200;
         const defaults = {
-            origin: { y: 0.7 },
-            gravity: 2.5, // 再次增加重力
-            ticks: 100,   // 减少存在时间
-            decay: 0.85   // 进一步减少空气阻力
+            origin: { y: 0.7 }
         };
 
         function fire(particleRatio: number, opts: confetti.Options) {
@@ -94,15 +98,21 @@ function Judge(props: {
     }, []);
 
     const isRunning = compiling || executing;
-    const wasRunning = useRef<boolean>(false);
+    // Track if a run session is active to determine when to check for success
+    const [waitingForResults, setWaitingForResults] = useState<boolean>(false);
 
     useEffect(() => {
-        // 当从运行中转为停止运行，且全部通过时触发
-        if (wasRunning.current && !isRunning && total > 0 && numPassed === total) {
-            fireConfetti();
+        if (isRunning) {
+            setWaitingForResults(true);
+        } else if (waitingForResults) {
+            // Once running stops, check if all cases passed
+            // The check happens here (or when numPassed updates while waitingForResults is true)
+            if (total > 0 && numPassed === total) {
+                fireConfetti();
+                setWaitingForResults(false); // Reset to prevent double firing
+            }
         }
-        wasRunning.current = isRunning;
-    }, [isRunning, numPassed, total, fireConfetti]);
+    }, [isRunning, numPassed, total, fireConfetti, waitingForResults]);
 
     const sendMessage = useCallback((message: WebviewToVSEvent) => {
         vscodeApi.postMessage(message);
@@ -336,6 +346,7 @@ function App() {
     const [cases, setCases] = useState<Case[]>([]);
     const [deferSaveTimer, setDeferSaveTimer] = useState<number | null>(null);
     const [showFallback, setShowFallback] = useState<boolean>(false);
+    const [recentFiles, setRecentFiles] = useState<string[]>([]);
     const [fileStatus, setFileStatus] = useState<'valid' | 'not-allowed' | 'no-file' | 'is-test-file'>('no-file');
     const [mainFilePath, setMainFilePath] = useState<string | undefined>(undefined);
     const [testFilePath, setTestFilePath] = useState<string | undefined>(undefined);
@@ -387,6 +398,9 @@ function App() {
                     if (data.testFilePath !== undefined) {
                         setTestFilePath(data.testFilePath);
                     }
+                    if (data.recentFiles !== undefined) {
+                        setRecentFiles(data.recentFiles);
+                    }
                     break;
                 case 'run-single-result':
                     handleRunSingleResult(data);
@@ -424,6 +438,7 @@ function App() {
 
     // 不在允许目录下的提示
     if (!problem && showFallback && fileStatus === 'not-allowed') {
+        const hasRecent = recentFiles && recentFiles.length > 0;
         return (
             <div className="ui p10">
                 <div className="text-center">
@@ -431,17 +446,49 @@ function App() {
                         <i className="codicon codicon-info" style={{ marginRight: 6 }}></i>
                         当前文件不在竞赛目录下
                     </p>
-                    <p style={{ marginBottom: 16, opacity: 0.6, fontSize: '12px', lineHeight: 1.6 }}>
-                        请打开以下目录中的 .go 文件：<br />
-                        <code style={{
-                            background: 'var(--vscode-textBlockQuote-background)',
-                            padding: '2px 6px',
-                            borderRadius: '3px',
-                            fontSize: '11px'
-                        }}>
-                            cf/ atcoder/ acwing/ luogu/ nowcoder/ others/
-                        </code>
-                    </p>
+                    {hasRecent ? (
+                        <div style={{ textAlign: 'left', marginTop: '20px' }}>
+                            <p style={{ opacity: 0.7, fontSize: '12px', marginBottom: '8px' }}>最近编辑的文件：</p>
+                            <div className="recent-files-list">
+                                {recentFiles.map((path, i) => (
+                                    <div
+                                        key={i}
+                                        className="recent-file-item"
+                                        onClick={() => openFile(path)}
+                                        style={{
+                                            padding: '6px 8px',
+                                            cursor: 'pointer',
+                                            borderRadius: '4px',
+                                            marginBottom: '4px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            fontSize: '12px',
+                                            background: 'var(--vscode-editor-inactiveSelectionBackground)',
+                                            color: 'var(--vscode-editor-foreground)'
+                                        }}
+                                        title={path}
+                                    >
+                                        <i className="codicon codicon-file-code" style={{ marginRight: '6px', opacity: 0.8 }}></i>
+                                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {getRecentFileLabel(path)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <p style={{ marginBottom: 16, opacity: 0.6, fontSize: '12px', lineHeight: 1.6 }}>
+                            请打开以下目录中的 .go 文件：<br />
+                            <code style={{
+                                background: 'var(--vscode-textBlockQuote-background)',
+                                padding: '2px 6px',
+                                borderRadius: '3px',
+                                fontSize: '11px'
+                            }}>
+                                cf/ atcoder/ acwing/ luogu/ nowcoder/ others/
+                            </code>
+                        </p>
+                    )}
                 </div>
             </div>
         );

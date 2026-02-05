@@ -99,7 +99,7 @@
             "properties": {
                 "gocph.超时时间": {
                     "type": "number",
-                    "default": 3000,
+                    "default": 10000,
                     "description": "测试用例运行超时时间（毫秒）"
                 },
                 "gocph.编译成功时隐藏警告": {

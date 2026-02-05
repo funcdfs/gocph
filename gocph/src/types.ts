@@ -149,6 +149,8 @@ export type NewProblemCommand = {
     mainFilePath?: string;
     /** 测试文件路径 */
     testFilePath?: string;
+    /** 最近使用的文件列表 */
+    recentFiles?: string[];
 };
 
 export type NotificationCommand = {

@@ -8,6 +8,28 @@ import { getTestFilePath, getProblemFromTestFile } from '../testFileParser';
 /**
  * 当编辑器切换时，显示对应的问题详情
  */
+const RECENT_FILES_KEY = 'gocph.recentFiles';
+const MAX_RECENT_FILES = 5;
+
+function updateRecentFiles(filePath: string) {
+    if (!globalThis.context) return;
+    let recent = globalThis.context.globalState.get<string[]>(RECENT_FILES_KEY, []);
+    // 移除已存在的当前路径（为了置顶）
+    recent = recent.filter(p => p !== filePath);
+    // 插入到开头
+    recent.unshift(filePath);
+    // 截断
+    if (recent.length > MAX_RECENT_FILES) {
+        recent = recent.slice(0, MAX_RECENT_FILES);
+    }
+    globalThis.context.globalState.update(RECENT_FILES_KEY, recent);
+}
+
+function getRecentFiles(): string[] {
+    if (!globalThis.context) return [];
+    return globalThis.context.globalState.get<string[]>(RECENT_FILES_KEY, []);
+}
+
 export const editorChanged = async (e: vscode.TextEditor | undefined) => {
     globalThis.logger.log('切换编辑器到', e?.document.fileName);
 
@@ -16,6 +38,7 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
             command: 'new-problem',
             problem: undefined,
             fileStatus: 'no-file',
+            recentFiles: getRecentFiles(),
         });
         return;
     }
@@ -33,9 +56,11 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
     if (fileStatus === 'is-test-file') {
         mainFilePath = getMainFileFromTestFile(srcPath);
         testFilePath = srcPath;
+        if (mainFilePath) updateRecentFiles(mainFilePath); // 记录关联的主文件
     } else if (fileStatus === 'valid') {
         mainFilePath = srcPath;
         testFilePath = getTestFilePath(srcPath);
+        updateRecentFiles(srcPath); // 记录当前文件
     }
 
     const problem = getProblemForDocument(e.document);
@@ -47,11 +72,27 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
             fileStatus,
             mainFilePath,
             testFilePath,
+            recentFiles: getRecentFiles(),
         });
         return;
     }
 
+    // 检查是否在 preview 模式 (Git worktree 或单击文件预览)
+    // 如果是 preview 模式，则不自动聚焦面板
+    let isPreview = false;
+    const activeTab = vscode.window.tabGroups.activeTabGroup.activeTab;
+    if (activeTab && activeTab.input instanceof vscode.TabInputText) {
+        if (activeTab.input.uri.fsPath === srcPath && (activeTab as any).isPreview) {
+            isPreview = true;
+        }
+    }
+    // 备用检查：activeTab.isPreview 属性在 API 中存在
+    if (activeTab && (activeTab as any).isPreview && activeTab.input instanceof vscode.TabInputText && activeTab.input.uri.fsPath === srcPath) {
+        isPreview = true;
+    }
+
     if (
+        !isPreview &&
         getAutoShowJudgePref() &&
         getJudgeViewProvider().isViewUninitialized()
     ) {

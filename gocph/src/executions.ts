@@ -1,10 +1,11 @@
 import { Language, Run } from './types';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { unlink } from 'fs';
 import config from './config';
 import { getTimeOutPref } from './preferences';
 import { getJudgeViewProvider } from './extension';
 
-const runningBinaries: ChildProcessWithoutNullStreams[] = [];
+const runningBinaries = new Set<ChildProcessWithoutNullStreams>();
 let isCancellationRequested = false;
 
 export const resetCancellation = () => {
@@ -65,22 +66,47 @@ export const runTestCase = (
 
     const begin = Date.now();
     const ret: Promise<Run> = new Promise((resolve) => {
-        runningBinaries.push(process);
+        runningBinaries.add(process);
+
         process.on('exit', (code, signal) => {
             const end = Date.now();
             clearTimeout(killer);
             result.code = code;
             result.signal = signal;
             result.time = end - begin;
-            runningBinaries.pop();
+            runningBinaries.delete(process); // Remove specific instance
             globalThis.logger.log('Run Result:', result);
             resolve(result);
         });
 
+        let lineCount = 0;
+        const MAX_LINES = 1000;
+        let truncated = false;
+
         process.stdout.on('data', (data) => {
-            result.stdout += data;
+            if (truncated) return;
+
+            const str = data.toString();
+            const lines = str.split('\n').length - 1;
+
+            if (lineCount + lines > MAX_LINES) {
+                const remaining = MAX_LINES - lineCount;
+                const part = str.split('\n').slice(0, remaining).join('\n');
+                result.stdout += part + '\n... [Output truncated after 1000 lines]';
+                truncated = true;
+                process.kill(); // Kill process if flooding output
+            } else {
+                result.stdout += str;
+                lineCount += lines;
+            }
         });
-        process.stderr.on('data', (data) => (result.stderr += data));
+
+        process.stderr.on('data', (data) => {
+            // Limit stderr as well to avoid crash
+            if (result.stderr.length < 50000) {
+                result.stderr += data;
+            }
+        });
 
         globalThis.logger.log('Wrote to STDIN');
         try {
@@ -96,7 +122,7 @@ export const runTestCase = (
             result.code = 1;
             result.signal = err.name;
             result.time = end - begin;
-            runningBinaries.pop();
+            runningBinaries.delete(process);
             globalThis.logger.log('Run Error Result:', result);
             resolve(result);
         });
@@ -108,15 +134,22 @@ export const runTestCase = (
 /** Remove the generated binary from the file system, if present */
 export const deleteBinary = (_language: Language, binPath: string) => {
     globalThis.logger.log('Deleting binary', binPath);
-    try {
-        spawn('rm', [binPath]);
-    } catch (err) {
-        globalThis.logger.error('Error while deleting binary', err);
-    }
+    unlink(binPath, (err) => {
+        if (err) {
+            globalThis.logger.error('Error while deleting binary', err);
+        }
+    });
 };
 
 /** Kill all running binaries. Usually, only one should be running at a time. */
 export const killRunning = () => {
-    globalThis.logger.log('Killing binaries');
-    runningBinaries.forEach((process) => process.kill());
+    globalThis.logger.log('Killing binaries', runningBinaries.size);
+    runningBinaries.forEach((process) => {
+        try {
+            process.kill();
+        } catch (e) {
+            globalThis.logger.error('Error killing process', e);
+        }
+    });
+    runningBinaries.clear();
 };

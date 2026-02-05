@@ -39,24 +39,24 @@ export const getFileStatus = (
     if (document === undefined) {
         return 'no-file';
     }
-    
+
     const srcPath = document.fileName;
-    
+
     // 检查是否是 .go 文件
     if (!srcPath.endsWith('.go')) {
         return 'not-allowed';
     }
-    
+
     // 检查是否在允许的目录下
     if (!isInAllowedDirectory(srcPath)) {
         return 'not-allowed';
     }
-    
+
     // 检查是否是测试文件
     if (isTestFile(srcPath)) {
         return 'is-test-file';
     }
-    
+
     return 'valid';
 };
 
@@ -101,8 +101,8 @@ export const ocWrite = (string: string) => {
     oc.append(string);
 };
 
-export const ocShow = () => {
-    oc.show();
+export const ocShow = (preserveFocus: boolean = true) => {
+    oc.show(preserveFocus);
 };
 
 export const ocHide = () => {
@@ -157,7 +157,7 @@ export const getProblemForDocument = (
     }
 
     const srcPath = document.fileName;
-    
+
     // 检查是否在允许的目录下
     if (!isInAllowedDirectory(srcPath)) {
         return undefined;
@@ -190,3 +190,23 @@ export const formatLocalTime = (date?: Date): string => {
     const seconds = String(d.getSeconds()).padStart(2, '0');
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
+
+/**
+ * 防抖函数
+ * @param func 需要防抖的函数
+ * @param wait 等待时间（毫秒）
+ */
+export function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    wait: number
+): (...args: Parameters<T>) => void {
+    let timeout: NodeJS.Timeout | null = null;
+    return (...args: Parameters<T>) => {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+            func(...args);
+        }, wait);
+    };
+}

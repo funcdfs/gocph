@@ -214,11 +214,16 @@ async function processFolding(toggle: boolean): Promise<number> {
     return regionStartLines.length;
 }
 
+import { debounce } from './utils';
+
 // 监听文档变化，检测 snippet 插入后自动折叠
-let foldTimeout: NodeJS.Timeout | undefined;
 const snippetPatterns = ['// #region main', '//#region main'];
 
 function setupSnippetListener(context: vscode.ExtensionContext) {
+    const debouncedFold = debounce(() => {
+        foldRegionsInActiveEditor();
+    }, 300);
+
     const changeDisposable = vscode.workspace.onDidChangeTextDocument((e) => {
         if (e.document.languageId !== 'go') {
             return;
@@ -226,24 +231,17 @@ function setupSnippetListener(context: vscode.ExtensionContext) {
 
         // 简单检测：如果文档内容包含特定 region 标记，且似乎是刚插入的（这里简化处理，不做严格 diff）
         // 对于 snippet 触发，用户通常是一次性插入大段代码
-        // 我们通过延时 debounce 来避免频繁触发
         for (const change of e.contentChanges) {
-            // 性能优化：只检测前 20 行的变更，且插入文本长度需超过 10 字符
+            // 性能优化：只检测前 50 行的变更，且插入文本长度需超过 10 字符
             // 这能过滤掉大部分普通输入和非头部编辑
-            if (change.range.start.line >= 20 || change.text.length < 10) {
+            if (change.range.start.line >= 50 || change.text.length < 10) {
                 continue;
             }
 
             // 如果插入的内容中包含标记
             const hasRegion = snippetPatterns.some(p => change.text.includes(p));
             if (hasRegion) {
-                if (foldTimeout) {
-                    clearTimeout(foldTimeout);
-                }
-                // 延迟 300ms 折叠（减少延迟以提高响应速度）
-                foldTimeout = setTimeout(() => {
-                    foldRegionsInActiveEditor();
-                }, 300);
+                debouncedFold();
                 break;
             }
         }
@@ -311,9 +309,7 @@ export function deactivate() {
         statusBarItem = undefined;
     }
 
-    if (foldTimeout) {
-        clearTimeout(foldTimeout);
-    }
+
 
     globalThis.logger.log('gocph: deactivate() completed');
 }
