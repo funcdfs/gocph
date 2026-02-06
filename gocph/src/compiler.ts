@@ -4,7 +4,7 @@ import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import path from 'path';
 import { getHideStderrorWhenCompiledOK } from './preferences';
 import * as vscode from 'vscode';
-import { getJudgeViewProvider } from './extension';
+import { getJudgeViewProvider } from './shared';
 import { toAsciiFilename } from './utilsPure';
 
 /**

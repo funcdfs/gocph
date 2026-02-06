@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { existsSync, statSync } from 'fs';
-import { getJudgeViewProvider, foldRegionsInActiveEditor } from '../extension';
+import { getJudgeViewProvider, foldRegionsInActiveEditor } from '../shared';
 import { getProblemForDocument, getFileStatus, getMainFileFromTestFile } from '../utils';
 import { getAutoShowJudgePref } from '../preferences';
 import { getTestFilePath, getProblemFromTestFile } from '../testFileParser';

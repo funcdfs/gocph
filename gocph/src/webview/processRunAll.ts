@@ -3,7 +3,7 @@ import { runSingleAndSave } from './processRunSingle';
 import { compileFile, getBinSaveLocation } from '../compiler';
 import { deleteBinary, resetCancellation, getIsCancellationRequested } from '../executions';
 import { getLanguage } from '../utils';
-import { getJudgeViewProvider } from '../extension';
+import { getJudgeViewProvider } from '../shared';
 
 /**
  * Run every testcase in a problem one by one. Waits for the first to complete

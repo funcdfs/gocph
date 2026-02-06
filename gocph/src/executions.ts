@@ -3,7 +3,7 @@ import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { unlink } from 'fs';
 import config from './config';
 import { getTimeOutPref } from './preferences';
-import { getJudgeViewProvider } from './extension';
+import { getJudgeViewProvider } from './shared';
 
 const runningBinaries = new Set<ChildProcessWithoutNullStreams>();
 let isCancellationRequested = false;

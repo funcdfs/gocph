@@ -5,7 +5,7 @@ import { saveProblem } from '../parser';
 import { runTestCase, deleteBinary } from '../executions';
 import { isResultCorrect } from '../judge';
 import * as vscode from 'vscode';
-import { getJudgeViewProvider } from '../extension';
+import { getJudgeViewProvider } from '../shared';
 import { getIgnoreSTDERRORPref } from '../preferences';
 
 export const runSingleAndSave = async (

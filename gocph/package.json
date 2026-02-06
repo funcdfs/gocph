@@ -11,9 +11,6 @@
     "categories": [
         "Testing"
     ],
-    "activationEvents": [
-        "onLanguage:go"
-    ],
     "main": "dist/extension.js",
     "contributes": {
         "viewsContainers": {
@@ -42,7 +39,8 @@
                 {
                     "type": "webview",
                     "id": "gocph.judgeView",
-                    "name": ""
+                    "name": "",
+                    "icon": "icon-sidebar.svg"
                 }
             ]
         },
@@ -138,10 +136,10 @@
     "scripts": {
         "build": "npm run build:frontend && npm run build:extension && npm run copy:assets",
         "build:frontend": "vite build",
-        "build:extension": "vite build --config vite.extension.config.ts",
+        "build:extension": "vite build --config vite.extension.config.mts",
         "copy:assets": "cp src/webview/frontend/index.html dist/ && cp src/webview/frontend/app.css dist/ && cp node_modules/@vscode/codicons/dist/codicon.css dist/ && cp node_modules/@vscode/codicons/dist/codicon.ttf dist/",
         "dev": "npm run build",
-        "watch": "npm run build:frontend && vite build --config vite.extension.config.ts --watch",
+        "watch": "npm run build:frontend && vite build --config vite.extension.config.mts --watch",
         "vscode:prepublish": "npm run build",
         "lint": "eslint src",
         "typecheck": "tsc --noEmit",

@@ -8,7 +8,8 @@ import { runSingleAndSave } from './processRunSingle';
 import runAllAndSave from './processRunAll';
 import runTestCases from '../runTestCases';
 import { getAutoShowJudgePref, getRetainWebviewContextPref } from '../preferences';
-import { toggleRegionsInActiveEditor } from '../extension';
+import { toggleRegionsInActiveEditor } from '../shared';
+import { editorChanged } from './editorChange';
 
 class JudgeViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'gocph.judgeView';
@@ -189,7 +190,6 @@ func TestSolution(t *testing.T) {
                                             const editor = vscode.window.activeTextEditor;
                                             if (editor && editor.document.uri.fsPath === mainPath) {
                                                 // 手动触发 editorChanged
-                                                const { editorChanged } = require('./webview/editorChange');
                                                 editorChanged(editor);
                                             }
                                         }, 100);

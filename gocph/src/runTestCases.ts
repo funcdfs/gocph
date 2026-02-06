@@ -6,7 +6,7 @@ import { getProblem } from './parser';
 import { compileFile } from './compiler';
 import runAllAndSave from './webview/processRunAll';
 import path from 'path';
-import { getJudgeViewProvider, foldRegionsInActiveEditor } from './extension';
+import { getJudgeViewProvider, foldRegionsInActiveEditor } from './shared';
 import { getTestFilePath } from './testFileParser';
 import { generateTestGo } from './templateGenerator';
 

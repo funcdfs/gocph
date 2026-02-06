@@ -15,7 +15,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Problem, TestCase } from './types';
-import { getJudgeViewProvider } from './extension';
+import { getJudgeViewProvider } from './shared';
 import { randomId } from './utils';
 import { getCompanionPortPref } from './preferences';
 import { generatePaths } from './pathGenerator';

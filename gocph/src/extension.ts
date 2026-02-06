@@ -40,13 +40,10 @@ import JudgeViewProvider from './webview/JudgeView';
 import { getRetainWebviewContextPref } from './preferences';
 import { startCompanionServer, stopCompanionServer } from './companion';
 import { requestCancellation } from './executions';
+import { setJudgeViewProvider, setFoldRegionsFunction, setToggleRegionsFunction, getJudgeViewProvider } from './shared';
 
 let judgeViewProvider: JudgeViewProvider;
 let statusBarItem: vscode.StatusBarItem | undefined;
-
-export const getJudgeViewProvider = () => {
-    return judgeViewProvider;
-};
 
 const registerCommands = (context: vscode.ExtensionContext) => {
     globalThis.logger.log('Registering commands');
@@ -60,6 +57,7 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     );
 
     judgeViewProvider = new JudgeViewProvider(context.extensionUri);
+    setJudgeViewProvider(judgeViewProvider); // 设置全局引用
 
     const webviewView = vscode.window.registerWebviewViewProvider(
         JudgeViewProvider.viewType,
@@ -172,6 +170,10 @@ export async function foldRegionsInActiveEditor(): Promise<number> {
     }
     return count;
 }
+
+// 注册折叠函数到共享模块
+setFoldRegionsFunction(foldRegionsInActiveEditor);
+setToggleRegionsFunction(toggleRegionsInActiveEditor);
 
 /**
  * 统一处理折叠/切换逻辑
