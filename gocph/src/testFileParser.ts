@@ -15,7 +15,7 @@ import { Problem, TestCase } from './types';
  */
 const ALLOWED_DIRECTORIES = [
     'cf',
-    'atcoder', 
+    'atcoder',
     'acwing',
     'luogu',
     'nowcoder',
@@ -57,17 +57,17 @@ export function parseTestFile(content: string, srcPath: string): Problem | null 
         // 解析元数据注释
         const contestMatch = content.match(/\/\/ Contest: (.+)/);
         const urlMatch = content.match(/\/\/ URL: (.+)/);
-        
+
         const group = contestMatch?.[1]?.trim() ?? '';
         const url = urlMatch?.[1]?.trim() ?? '';
-        
+
         // 从 group 中提取 name (最后一个空格后的部分，通常是 "A. Problem Name")
         const nameParts = group.split(' - ');
         const name = nameParts.length > 1 ? nameParts[nameParts.length - 1].trim() : group;
 
         // 解析测试用例
         const tests = parseTestCases(content);
-        
+
         // 解析白板内容
         const whiteboard = parseWhiteboard(content);
 
@@ -93,17 +93,17 @@ export function parseTestFile(content: string, srcPath: string): Problem | null 
  */
 function parseTestCases(content: string): TestCase[] {
     const tests: TestCase[] = [];
-    
+
     // 匹配 C(`input`, `output`) 模式
     // 使用非贪婪匹配，处理反引号内的内容
     const caseRegex = /C\(\s*`([\s\S]*?)`\s*,\s*`([\s\S]*?)`\s*\)/g;
-    
+
     let match;
     let id = 1;
     while ((match = caseRegex.exec(content)) !== null) {
         const input = normalizeTestContent(match[1]);
         const output = normalizeTestContent(match[2]);
-        
+
         tests.push({
             input,
             output,
@@ -149,7 +149,7 @@ function formatTestCases(tests: TestCase[]): string {
     return tests.map((test, index) => {
         const input = test.input.endsWith('\n') ? test.input : test.input + '\n';
         const output = test.output.endsWith('\n') ? test.output : test.output + '\n';
-        
+
         return `
 		// case ${index + 1}
 		C(\`
@@ -166,28 +166,28 @@ export function updateTestFileContent(originalContent: string, tests: TestCase[]
     // 找到 Run(t, []Case{ 和对应的 }, main) 之间的部分并替换
     const startPattern = /Run\(t,\s*\[\]Case\{/;
     const endPattern = /\},\s*main\)/;
-    
+
     const startMatch = originalContent.match(startPattern);
     const endMatch = originalContent.match(endPattern);
-    
+
     if (!startMatch || !endMatch) {
         throw new Error('无法找到测试用例区域');
     }
-    
+
     const startIndex = startMatch.index! + startMatch[0].length;
     const endIndex = endMatch.index!;
-    
+
     const newCases = formatTestCases(tests);
-    
-    let result = originalContent.substring(0, startIndex) + 
-           newCases + '\n\t' +
-           originalContent.substring(endIndex);
-    
+
+    let result = originalContent.substring(0, startIndex) +
+        newCases + '\n\t' +
+        originalContent.substring(endIndex);
+
     // 更新或添加白板内容
     if (whiteboard !== undefined) {
         result = updateWhiteboardContent(result, whiteboard);
     }
-    
+
     return result;
 }
 
@@ -197,7 +197,7 @@ export function updateTestFileContent(originalContent: string, tests: TestCase[]
 function updateWhiteboardContent(content: string, whiteboard: string): string {
     // 移除现有的白板注释块
     const withoutWhiteboard = content.replace(/\/\*\s*[\s\S]*?\*\/\s*$/, '').trimEnd();
-    
+
     // 添加新的白板注释块
     if (whiteboard.trim()) {
         return `${withoutWhiteboard}\n\n/*\n\n${whiteboard}\n\n*/\n`;
@@ -220,19 +220,19 @@ export function getProblemFromTestFile(srcPath: string): Problem | null {
     }
 
     const testPath = getTestFilePath(srcPath);
-    
+
     if (!fs.existsSync(testPath)) {
         return null;
     }
-    
+
     try {
         const content = fs.readFileSync(testPath, 'utf-8');
-        
+
         // 检查是否是 gocph 生成的 test 文件格式
         if (!isValidTestFile(content)) {
             return null;
         }
-        
+
         return parseTestFile(content, srcPath);
     } catch (error) {
         globalThis.logger?.error('读取 test 文件失败', error);
@@ -244,15 +244,12 @@ export function getProblemFromTestFile(srcPath: string): Problem | null {
  * 检查 test 文件是否是 gocph 生成的格式
  */
 function isValidTestFile(content: string): boolean {
-    // 必须包含 Contest 和 URL 注释
-    const hasContest = /\/\/ Contest:/.test(content);
-    const hasUrl = /\/\/ URL:/.test(content);
     // 必须包含 Run(t, []Case{ 结构
     const hasRunCase = /Run\(t,\s*\[\]Case\{/.test(content);
     // 必须包含 testutil 导入
     const hasTestutil = /github\.com\/funcdfs\/gocph\/tool\/testutil/.test(content);
-    
-    return hasContest && hasUrl && hasRunCase && hasTestutil;
+
+    return hasRunCase && hasTestutil;
 }
 
 /**
@@ -260,11 +257,11 @@ function isValidTestFile(content: string): boolean {
  */
 export function saveProblemToTestFile(srcPath: string, problem: Problem): void {
     const testPath = getTestFilePath(srcPath);
-    
+
     if (!fs.existsSync(testPath)) {
         throw new Error(`Test 文件不存在: ${testPath}`);
     }
-    
+
     try {
         const originalContent = fs.readFileSync(testPath, 'utf-8');
         const newContent = updateTestFileContent(originalContent, problem.tests, problem.whiteboard);
