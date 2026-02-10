@@ -1,4 +1,4 @@
-import { Case, VSToWebViewMessage } from '../../types';
+import { Case, VSToWebViewMessage } from '../../common/types';
 import { useState, createRef, useEffect, useCallback } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import React from 'react';

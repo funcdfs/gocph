@@ -3,7 +3,7 @@
  * 生成 main.go 和 main_test.go 的文件内容
  */
 
-import { formatLocalTime } from './utils';
+import { formatLocalTime } from '../utils/utils';
 
 // ================================ Types ================================
 

@@ -1,14 +1,15 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { checkUnsupported, randomId, isValidLanguage } from './utils';
-import { Problem } from './types';
-import { getProblem } from './parser';
-import { compileFile } from './compiler';
-import runAllAndSave from './webview/processRunAll';
+import { checkUnsupported, randomId, isValidLanguage } from '../utils/utils';
+import { Problem } from '../common/types';
+import { getProblemFromTestFile } from '../core/testFileParser';
+import { compileFile } from '../core/compiler';
+import runAllAndSave from '../webview/processRunAll';
 import path from 'path';
-import { getJudgeViewProvider, foldRegionsInActiveEditor } from './shared';
-import { getTestFilePath } from './testFileParser';
-import { generateTestGo } from './templateGenerator';
+import { getJudgeViewProvider } from '../common/shared';
+import { foldRegionsInActiveEditor } from '../features/folding';
+import { getTestFilePath } from '../core/testFileParser';
+import { generateTestGo } from '../core/templateGenerator';
 
 /**
  * Execution for the run testcases command. Runs all testcases for the active
@@ -31,7 +32,7 @@ export default async () => {
         return;
     }
 
-    const problem = getProblem(srcPath);
+    const problem = getProblemFromTestFile(srcPath);
 
     if (!problem) {
         globalThis.logger.log('No problem saved.');

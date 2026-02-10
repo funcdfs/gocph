@@ -1,11 +1,12 @@
-import { getLanguage, ocHide, ocShow, ocWrite } from './utils';
-import { Language } from './types';
+import { getLanguage } from '../utils/utils';
+import { ocHide, ocShow, ocWrite } from '../utils/outputChannel';
+import { Language } from '../common/types';
 import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 import path from 'path';
-import { getHideStderrorWhenCompiledOK } from './preferences';
+import { getHideStderrorWhenCompiledOK } from '../common/preferences';
 import * as vscode from 'vscode';
-import { getJudgeViewProvider } from './shared';
-import { toAsciiFilename } from './utilsPure';
+import { getJudgeViewProvider } from '../common/shared';
+import { toAsciiFilename } from '../utils/utilsPure';
 
 /**
  * 获取编译后二进制文件的保存位置，始终保存在源文件同目录

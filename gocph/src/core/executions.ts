@@ -1,9 +1,9 @@
-import { Language, Run } from './types';
+import { Language, Run } from '../common/types';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { unlink } from 'fs';
-import config from './config';
-import { getTimeOutPref } from './preferences';
-import { getJudgeViewProvider } from './shared';
+import config from '../common/config';
+import { getTimeOutPref } from '../common/preferences';
+import { getJudgeViewProvider } from '../common/shared';
 
 const runningBinaries = new Set<ChildProcessWithoutNullStreams>();
 let isCancellationRequested = false;

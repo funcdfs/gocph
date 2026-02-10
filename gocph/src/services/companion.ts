@@ -14,12 +14,12 @@ import * as http from 'http';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Problem, TestCase } from './types';
-import { getJudgeViewProvider } from './shared';
-import { randomId } from './utils';
-import { getCompanionPortPref } from './preferences';
-import { generatePaths } from './pathGenerator';
-import { generateMainGo, generateTestGo } from './templateGenerator';
+import { Problem, TestCase } from '../common/types';
+import { getJudgeViewProvider } from '../common/shared';
+import { randomId } from '../utils/utils';
+import { getCompanionPortPref } from '../common/preferences';
+import { generatePaths } from '../core/pathGenerator';
+import { generateMainGo, generateTestGo } from '../core/templateGenerator';
 
 let server: http.Server | null = null;
 

@@ -5,12 +5,11 @@ import { platform } from 'os';
 import path from 'path';
 import * as vscode from 'vscode';
 
-import config from './config';
-import { getGoArgsPref, getGoCommand } from './preferences';
-import { Language, Problem } from './types';
-import { getTestFilePath, getProblemFromTestFile, isInAllowedDirectory } from './testFileParser';
+import config from '../common/config';
+import { getGoArgsPref, getGoCommand } from '../common/preferences';
+import { Language, Problem } from '../common/types';
+import { getTestFilePath, getProblemFromTestFile, isInAllowedDirectory } from '../core/testFileParser';
 
-const oc = vscode.window.createOutputChannel('GoCPH');
 
 /** 文件状态类型 */
 export type FileStatus = 'valid' | 'not-allowed' | 'no-file' | 'is-test-file';
@@ -92,23 +91,7 @@ export const isValidLanguage = (srcPath: string): boolean => {
     );
 };
 
-export const ocAppend = (string: string) => {
-    oc.append(string);
-};
 
-export const ocWrite = (string: string) => {
-    oc.clear();
-    oc.append(string);
-};
-
-export const ocShow = (preserveFocus: boolean = true) => {
-    oc.show(preserveFocus);
-};
-
-export const ocHide = () => {
-    oc.clear();
-    oc.hide();
-};
 
 export const randomId = (index: number | null) => {
     if (index !== null) {

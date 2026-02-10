@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
-import { killRunning } from '../executions';
-import { saveProblem } from '../parser';
-import { VSToWebViewMessage, WebviewToVSEvent } from '../types';
-import { deleteProblemFile, getNonce, getProblemForDocument, getFileStatus, getMainFileFromTestFile } from '../utils';
-import { getTestFilePath } from '../testFileParser';
+import { killRunning } from '../core/executions';
+import { saveProblemToTestFile } from '../core/testFileParser';
+import { VSToWebViewMessage, WebviewToVSEvent } from '../common/types';
+import { deleteProblemFile, getNonce, getProblemForDocument, getFileStatus, getMainFileFromTestFile } from '../utils/utils';
+import { getTestFilePath } from '../core/testFileParser';
 import { runSingleAndSave } from './processRunSingle';
 import runAllAndSave from './processRunAll';
-import runTestCases from '../runTestCases';
-import { getAutoShowJudgePref, getRetainWebviewContextPref } from '../preferences';
-import { toggleRegionsInActiveEditor } from '../shared';
+import runTestCases from '../commands/runTestCases';
+import { getAutoShowJudgePref, getRetainWebviewContextPref } from '../common/preferences';
+import { toggleRegionsInActiveEditor } from '../features/folding';
 import { editorChanged } from './editorChange';
 
 class JudgeViewProvider implements vscode.WebviewViewProvider {
@@ -53,7 +53,7 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                         }
 
                         case 'save': {
-                            saveProblem(message.problem.srcPath, message.problem);
+                            saveProblemToTestFile(message.problem.srcPath, message.problem);
                             break;
                         }
 
@@ -127,7 +127,7 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                             const minute = String(now.getMinutes()).padStart(2, '0');
                             const second = String(now.getSeconds()).padStart(2, '0');
                             const timestamp = `${year}_${month}_${day}_${hour}_${minute}_${second}`;
-                            
+
                             const voidDir = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
                             if (!voidDir) {
                                 this.extensionToJudgeViewMessage({
@@ -137,21 +137,21 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                                 });
                                 break;
                             }
-                            
+
                             // eslint-disable-next-line @typescript-eslint/no-require-imports
                             const path = require('path');
                             // eslint-disable-next-line @typescript-eslint/no-require-imports
                             const fs = require('fs');
                             const targetDir = path.join(voidDir, 'void', timestamp);
-                            
+
                             try {
                                 // 创建目录
                                 fs.mkdirSync(targetDir, { recursive: true });
-                                
+
                                 // 创建 main.go
                                 const mainContent = `// time: ${now.toISOString().replace('T', ' ').substring(0, 19)} https://github.com/funcdfs\n\n\n`;
                                 fs.writeFileSync(path.join(targetDir, 'main.go'), mainContent);
-                                
+
                                 // 创建 main_test.go - 添加必需的 Contest 和 URL 注释
                                 const testContent = `package main
 
@@ -180,7 +180,7 @@ func TestSolution(t *testing.T) {
 */
 `;
                                 fs.writeFileSync(path.join(targetDir, 'main_test.go'), testContent);
-                                
+
                                 // 打开 main.go 并手动触发 webview 更新
                                 const mainPath = path.join(targetDir, 'main.go');
                                 vscode.workspace.openTextDocument(mainPath).then(doc => {
@@ -195,7 +195,7 @@ func TestSolution(t *testing.T) {
                                         }, 100);
                                     });
                                 });
-                                
+
                                 this.extensionToJudgeViewMessage({
                                     command: 'notification',
                                     text: `已创建 void 文件: void/${timestamp}`,

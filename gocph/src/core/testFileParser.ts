@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Problem, TestCase } from './types';
+import { Problem, TestCase } from '../common/types';
 
 // ================================ Constants ================================
 

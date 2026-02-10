@@ -11,7 +11,7 @@ import {
     RunningCommand,
     WebViewpersistenceState,
     RecentFileInfo,
-} from '../../types';
+} from '../../common/types';
 import CaseView from './CaseView';
 import GlobalDrawer from './GlobalDrawer';
 
@@ -364,9 +364,9 @@ function Judge(props: {
                     <p>检查是否全部正确的读入所有的数据。</p>
                 </div>
             )}
-            
-            <GlobalDrawer 
-                whiteboard={problem.whiteboard} 
+
+            <GlobalDrawer
+                whiteboard={problem.whiteboard}
                 onWhiteboardChange={handleWhiteboardChange}
             />
         </div>
@@ -480,10 +480,10 @@ function App() {
             <div className="ui p10">
                 <div className="text-center">
                     {/* 创建 Void 按钮 - 置顶居中 */}
-                    <button 
-                        className="btn" 
+                    <button
+                        className="btn"
                         onClick={createVoid}
-                        style={{ 
+                        style={{
                             marginBottom: hasRecent ? '24px' : '0',
                             fontSize: '13px',
                             padding: '8px 16px'
@@ -527,9 +527,9 @@ function App() {
                                                 {getRecentFileLabel(fileInfo.path)}
                                             </span>
                                         </div>
-                                        <span style={{ 
-                                            opacity: 0.6, 
-                                            fontSize: '11px', 
+                                        <span style={{
+                                            opacity: 0.6,
+                                            fontSize: '11px',
                                             marginLeft: '8px',
                                             flexShrink: 0
                                         }}>

@@ -1,12 +1,12 @@
-import { Problem, RunResult } from '../types';
-import { getLanguage } from '../utils';
-import { getBinSaveLocation, compileFile } from '../compiler';
-import { saveProblem } from '../parser';
-import { runTestCase, deleteBinary } from '../executions';
-import { isResultCorrect } from '../judge';
+import { Problem, RunResult } from '../common/types';
+import { getLanguage } from '../utils/utils';
+import { getBinSaveLocation, compileFile } from '../core/compiler';
+import { saveProblemToTestFile } from '../core/testFileParser';
+import { runTestCase, deleteBinary } from '../core/executions';
+import { isResultCorrect } from '../core/judge';
 import * as vscode from 'vscode';
-import { getJudgeViewProvider } from '../shared';
-import { getIgnoreSTDERRORPref } from '../preferences';
+import { getJudgeViewProvider } from '../common/shared';
+import { getIgnoreSTDERRORPref } from '../common/preferences';
 
 export const runSingleAndSave = async (
     problem: Problem,
@@ -37,7 +37,7 @@ export const runSingleAndSave = async (
         return;
     }
 
-    saveProblem(srcPath, problem);
+    saveProblemToTestFile(srcPath, problem);
 
     if (!skipCompile) {
         if (!(await compileFile(srcPath))) {

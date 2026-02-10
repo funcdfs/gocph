@@ -1,46 +1,18 @@
-/**
- * 初始化全局日志记录器
- */
-function initializeLogger() {
-    globalThis.storedLogs = '';
-
-    function customLogger(
-        originalMethod: (...args: unknown[]) => void,
-        ...args: unknown[]
-    ) {
-        originalMethod(...args);
-
-        globalThis.storedLogs += new Date().toISOString() + ' ';
-        globalThis.storedLogs +=
-            args
-                .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
-                .join(' ') + '\n';
-    }
-
-    globalThis.logger = {
-        log: (...args: unknown[]) => customLogger(console.log, ...args),
-        error: (...args: unknown[]) => customLogger(console.error, ...args),
-        warn: (...args: unknown[]) => customLogger(console.warn, ...args),
-        info: (...args: unknown[]) => customLogger(console.info, ...args),
-        debug: (...args: unknown[]) => customLogger(console.debug, ...args),
-    };
-}
-
-// 在模块加载时初始化 logger，确保其他模块可以使用
-initializeLogger();
+import './common/logger';
 
 import * as vscode from 'vscode';
-import runTestCases from './runTestCases';
+import runTestCases from './commands/runTestCases';
 import {
     editorChanged,
     editorClosed,
     checkLaunchWebview,
 } from './webview/editorChange';
 import JudgeViewProvider from './webview/JudgeView';
-import { getRetainWebviewContextPref } from './preferences';
-import { startCompanionServer, stopCompanionServer } from './companion';
-import { requestCancellation } from './executions';
-import { setJudgeViewProvider, setFoldRegionsFunction, setToggleRegionsFunction, getJudgeViewProvider } from './shared';
+import { getRetainWebviewContextPref } from './common/preferences';
+import { startCompanionServer, stopCompanionServer } from './services/companion';
+import { requestCancellation } from './core/executions';
+import { setJudgeViewProvider, getJudgeViewProvider } from './common/shared';
+import { toggleRegionsInActiveEditor, setupSnippetListener } from './features/folding';
 
 let judgeViewProvider: JudgeViewProvider;
 let statusBarItem: vscode.StatusBarItem | undefined;
@@ -128,128 +100,7 @@ const registerCommands = (context: vscode.ExtensionContext) => {
     context.subscriptions.push(copyDisposable);
 };
 
-// 公共折叠函数，供内外部调用
-// 折叠状态缓存 (LRU 策略，最大 5 个)
-const foldedCache = new Map<string, number>();
-const MAX_CACHE_SIZE = 5;
 
-function updateFoldCache(filePath: string) {
-    if (foldedCache.has(filePath)) {
-        foldedCache.delete(filePath);
-    }
-    foldedCache.set(filePath, Date.now());
-    if (foldedCache.size > MAX_CACHE_SIZE) {
-        const oldestKey = foldedCache.keys().next().value;
-        if (oldestKey) foldedCache.delete(oldestKey);
-    }
-}
-
-/**
- * 切换折叠状态 (用于手动和快捷键)
- */
-export async function toggleRegionsInActiveEditor(): Promise<number> {
-    return await processFolding(true);
-}
-
-/**
- * 仅执行折叠 (用于自动触发)
- */
-export async function foldRegionsInActiveEditor(): Promise<number> {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) return 0;
-    const filePath = editor.document.uri.fsPath;
-
-    // 如果已经在缓存中，说明已折叠过，跳过自动折叠以避免 toggle 导致展开
-    if (foldedCache.has(filePath)) {
-        return 0;
-    }
-
-    const count = await processFolding(false);
-    if (count > 0) {
-        updateFoldCache(filePath);
-    }
-    return count;
-}
-
-// 注册折叠函数到共享模块
-setFoldRegionsFunction(foldRegionsInActiveEditor);
-setToggleRegionsFunction(toggleRegionsInActiveEditor);
-
-/**
- * 统一处理折叠/切换逻辑
- * @param toggle 是否为切换模式。false 则仅执行折叠
- */
-async function processFolding(toggle: boolean): Promise<number> {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) return 0;
-
-    const document = editor.document;
-    const regionStartLines: number[] = [];
-
-    // 性能优化：只在前 10 行中查找 #region 开始行
-    const searchLimit = Math.min(10, document.lineCount);
-    for (let i = 0; i < searchLimit; i++) {
-        const lineText = document.lineAt(i).text.trim();
-        if (lineText.startsWith('// #region') || lineText.startsWith('//#region')) {
-            regionStartLines.push(i);
-        }
-    }
-
-    if (regionStartLines.length === 0) return 0;
-
-    const originalSelections = editor.selections;
-    editor.selections = regionStartLines.map(
-        (line) => new vscode.Selection(line, 0, line, 0)
-    );
-
-    // 执行命令
-    if (toggle) {
-        await vscode.commands.executeCommand('editor.toggleFold');
-    } else {
-        // 强制收起：先展开再收起确保状态一致，或者直接调用 fold
-        // VS Code 没有直接的 "fold if expanded" 命令能完美匹配这里
-        // 我们使用 editor.fold 命令，它在已收起时通常无副作用
-        await vscode.commands.executeCommand('editor.fold');
-    }
-
-    editor.selections = originalSelections;
-    return regionStartLines.length;
-}
-
-import { debounce } from './utils';
-
-// 监听文档变化，检测 snippet 插入后自动折叠
-const snippetPatterns = ['// #region main', '//#region main'];
-
-function setupSnippetListener(context: vscode.ExtensionContext) {
-    const debouncedFold = debounce(() => {
-        foldRegionsInActiveEditor();
-    }, 300);
-
-    const changeDisposable = vscode.workspace.onDidChangeTextDocument((e) => {
-        if (e.document.languageId !== 'go') {
-            return;
-        }
-
-        // 简单检测：如果文档内容包含特定 region 标记，且似乎是刚插入的（这里简化处理，不做严格 diff）
-        // 对于 snippet 触发，用户通常是一次性插入大段代码
-        for (const change of e.contentChanges) {
-            // 性能优化：只检测前 50 行的变更，且插入文本长度需超过 10 字符
-            // 这能过滤掉大部分普通输入和非头部编辑
-            if (change.range.start.line >= 50 || change.text.length < 10) {
-                continue;
-            }
-
-            // 如果插入的内容中包含标记
-            const hasRegion = snippetPatterns.some(p => change.text.includes(p));
-            if (hasRegion) {
-                debouncedFold();
-                break;
-            }
-        }
-    });
-    context.subscriptions.push(changeDisposable);
-}
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {

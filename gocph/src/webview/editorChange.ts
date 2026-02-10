@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import { existsSync, statSync } from 'fs';
-import { getJudgeViewProvider, foldRegionsInActiveEditor } from '../shared';
-import { getProblemForDocument, getFileStatus, getMainFileFromTestFile } from '../utils';
-import { getAutoShowJudgePref } from '../preferences';
-import { getTestFilePath, getProblemFromTestFile } from '../testFileParser';
-import { RecentFileInfo } from '../types';
+import { getJudgeViewProvider } from '../common/shared';
+import { foldRegionsInActiveEditor } from '../features/folding';
+import { getProblemForDocument, getFileStatus, getMainFileFromTestFile } from '../utils/utils';
+import { getAutoShowJudgePref } from '../common/preferences';
+import { getTestFilePath, getProblemFromTestFile } from '../core/testFileParser';
+import { RecentFileInfo } from '../common/types';
 
 /**
  * 当编辑器切换时，显示对应的问题详情
@@ -29,7 +30,7 @@ function updateRecentFiles(filePath: string) {
 function getRecentFiles(): RecentFileInfo[] {
     if (!globalThis.context) return [];
     const paths = globalThis.context.globalState.get<string[]>(RECENT_FILES_KEY, []);
-    
+
     // 转换为包含修改时间的对象数组
     return paths
         .filter(path => existsSync(path)) // 过滤掉不存在的文件

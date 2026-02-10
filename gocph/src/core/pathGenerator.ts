@@ -6,6 +6,7 @@
 
 import * as path from 'path';
 
+
 // ================================ Types ================================
 
 export type Platform = 'codeforces' | 'atcoder' | 'acwing' | 'luogu' | 'nowcoder' | 'other';

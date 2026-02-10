@@ -1,9 +1,9 @@
-import { Problem } from '../types';
+import { Problem } from '../common/types';
 import { runSingleAndSave } from './processRunSingle';
-import { compileFile, getBinSaveLocation } from '../compiler';
-import { deleteBinary, resetCancellation, getIsCancellationRequested } from '../executions';
-import { getLanguage } from '../utils';
-import { getJudgeViewProvider } from '../shared';
+import { compileFile, getBinSaveLocation } from '../core/compiler';
+import { deleteBinary, resetCancellation, getIsCancellationRequested } from '../core/executions';
+import { getLanguage } from '../utils/utils';
+import { getJudgeViewProvider } from '../common/shared';
 
 /**
  * Run every testcase in a problem one by one. Waits for the first to complete

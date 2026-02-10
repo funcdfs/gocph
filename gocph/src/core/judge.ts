@@ -1,4 +1,4 @@
-import { TestCase, Problem, Case } from './types';
+import { TestCase, Problem, Case } from '../common/types';
 /**
  * Judge whether the testcase stdout is correct
  *
