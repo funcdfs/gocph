@@ -56,11 +56,6 @@
                 "icon": "$(debug-stop)"
             },
             {
-                "command": "gocph.foldAllRegions",
-                "title": "GoCPH: 切换折叠所有 Region",
-                "icon": "$(folding-expanded)"
-            },
-            {
                 "command": "gocph.copyCode",
                 "title": "GoCPH: 复制代码",
                 "icon": "$(copy)"
@@ -82,12 +77,6 @@
             {
                 "key": "alt+3",
                 "mac": "alt+3",
-                "command": "gocph.foldAllRegions",
-                "when": "editorTextFocus"
-            },
-            {
-                "key": "alt+4",
-                "mac": "alt+4",
                 "command": "gocph.copyCode",
                 "when": "editorTextFocus"
             }

@@ -928,19 +928,6 @@ button:disabled {
     width: 20%;
 }
 
-.toggle-fold-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
-    cursor: pointer !important;
-    padding: 2px;
-}
-
-.toggle-fold-icon:hover {
-    color: #f5b041;
-}
-
 .header-controls-group {
     display: flex;
     align-items: center;
@@ -1439,15 +1426,6 @@ body.vscode-light .header-icon-label {
 body.vscode-light .header-icon-label:hover {
     background: rgba(0, 0, 0, 0.08);
     color: rgba(0, 0, 0, 0.85);
-}
-
-/* 亮色主题 - 折叠切换图标 */
-body.vscode-light .toggle-fold-icon {
-    color: rgba(0, 0, 0, 0.5);
-}
-
-body.vscode-light .toggle-fold-icon:hover {
-    color: #ca8a04;
 }
 
 /* 亮色主题 - 通知图标 */

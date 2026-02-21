@@ -7,7 +7,6 @@ import { compileFile } from '../core/compiler';
 import runAllAndSave from '../webview/processRunAll';
 import path from 'path';
 import { getJudgeViewProvider } from '../common/shared';
-import { foldRegionsInActiveEditor } from '../features/folding';
 import { getTestFilePath } from '../core/testFileParser';
 import { generateTestGo } from '../core/templateGenerator';
 
@@ -46,9 +45,6 @@ export default async () => {
         globalThis.logger.error('Could not compile', srcPath);
         return;
     }
-
-    // 自动折叠 region
-    await foldRegionsInActiveEditor();
 
     await editor.document.save();
     getJudgeViewProvider().focus();

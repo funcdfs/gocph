@@ -195,10 +195,6 @@ function Judge(props: {
         sendMessage({ command: 'create-void' });
     }, [sendMessage]);
 
-    const toggleRegions = useCallback(() => {
-        sendMessage({ command: 'toggle-regions' });
-    }, [sendMessage]);
-
     const getRunningProp = useCallback((c: Case) => {
         if (forceRunning === c.id) {
             setTimeout(() => setForceRunning(false), 100);
@@ -334,9 +330,6 @@ function Judge(props: {
                     <div className="header-controls-group">
                         <i className="codicon codicon-chevron-up header-icon-label" onClick={collapseAll} title="收起来"></i>
                         <i className="codicon codicon-chevron-down header-icon-label" onClick={expandAll} title="全部展开"></i>
-                        <div className="toggle-fold-icon" onClick={toggleRegions} title="切换 Region 折叠 (Alt+3)">
-                            <i className="codicon codicon-folding-expanded"></i>
-                        </div>
                         <div className={`pass-rate-tag ${numPassed === total && total > 0 ? 'pass-all' : ''}`}>
                             {numPassed} / {total} 通过
                         </div>

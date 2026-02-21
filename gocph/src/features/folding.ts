@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { debounce } from '../utils/utils';
 
-// 公共折叠函数，供内外部调用
 // 折叠状态缓存 (LRU 策略，最大 5 个)
 const foldedCache = new Map<string, number>();
 const MAX_CACHE_SIZE = 5;
@@ -18,31 +17,24 @@ function updateFoldCache(filePath: string) {
 }
 
 /** 清除指定文件的折叠缓存 */
-export function clearFoldCache(filePath: string) {
+function clearFoldCache(filePath: string) {
     foldedCache.delete(filePath);
 }
 
 /**
- * 切换折叠状态 (用于手动和快捷键)
- */
-export async function toggleRegionsInActiveEditor(): Promise<number> {
-    return await processFolding(true);
-}
-
-/**
- * 仅执行折叠 (用于自动触发)
+ * 自动折叠前几行的 region（导出供外部使用）
  */
 export async function foldRegionsInActiveEditor(): Promise<number> {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return 0;
     const filePath = editor.document.uri.fsPath;
 
-    // 如果已经在缓存中，说明已折叠过，跳过自动折叠以避免 toggle 导致展开
+    // 如果已经在缓存中，说明已折叠过，跳过自动折叠
     if (foldedCache.has(filePath)) {
         return 0;
     }
 
-    const count = await processFolding(false);
+    const count = await processFolding();
     if (count > 0) {
         updateFoldCache(filePath);
     }
@@ -50,10 +42,9 @@ export async function foldRegionsInActiveEditor(): Promise<number> {
 }
 
 /**
- * 统一处理折叠/切换逻辑
- * @param toggle 是否为切换模式。false 则仅执行折叠
+ * 处理折叠逻辑：在前 10 行中查找 #region 并折叠
  */
-async function processFolding(toggle: boolean): Promise<number> {
+async function processFolding(): Promise<number> {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return 0;
 
@@ -71,16 +62,38 @@ async function processFolding(toggle: boolean): Promise<number> {
 
     if (regionStartLines.length === 0) return 0;
 
-    // 使用 selectionLines 参数精确指定要折叠的行号
-    // 不修改 editor.selections，避免破坏 VS Code 内部折叠状态
-    if (toggle) {
-        await vscode.commands.executeCommand('editor.toggleFold', {
-            selectionLines: regionStartLines,
-        });
-    } else {
+    // 增加重试机制以应对 Snippet 插入后语言服务未能即刻完成 AST 更新的情况
+    const maxRetries = 10;
+    const retryDelay = 500;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        // 使用 editor.fold 命令折叠指定行
         await vscode.commands.executeCommand('editor.fold', {
             selectionLines: regionStartLines,
         });
+
+        // 检查折叠是否生效：简单的判断条件是 region 开始的下一行是否变得不可见
+        let allFolded = true;
+        for (const line of regionStartLines) {
+            if (line + 1 < document.lineCount) {
+                const nextLineVisible = editor.visibleRanges.some(
+                    range => (line + 1) >= range.start.line && (line + 1) <= range.end.line
+                );
+                if (nextLineVisible) {
+                    allFolded = false;
+                    break;
+                }
+            }
+        }
+
+        if (allFolded) {
+            break;
+        }
+
+        // 短暂延迟后重试
+        if (attempt < maxRetries - 1) {
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+        }
     }
 
     return regionStartLines.length;
@@ -91,8 +104,8 @@ const snippetPatterns = ['// #region main', '//#region main'];
 
 export function setupSnippetListener(context: vscode.ExtensionContext) {
     const debouncedFold = debounce(() => {
-        // snippet 插入后直接调用 processFolding，绕过 foldedCache
-        processFolding(false);
+        // snippet 插入后直接调用折叠
+        foldRegionsInActiveEditor();
     }, 300);
 
     const changeDisposable = vscode.workspace.onDidChangeTextDocument((e) => {
@@ -100,11 +113,9 @@ export function setupSnippetListener(context: vscode.ExtensionContext) {
             return;
         }
 
-        // 简单检测：如果文档内容包含特定 region 标记，且似乎是刚插入的（这里简化处理，不做严格 diff）
-        // 对于 snippet 触发，用户通常是一次性插入大段代码
+        // 检测 snippet 插入：如果文档内容包含特定 region 标记
         for (const change of e.contentChanges) {
             // 性能优化：只检测前 50 行的变更，且插入文本长度需超过 10 字符
-            // 这能过滤掉大部分普通输入和非头部编辑
             if (change.range.start.line >= 50 || change.text.length < 10) {
                 continue;
             }

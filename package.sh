@@ -45,12 +45,13 @@ echo "🔨 构建项目..."
 npm run build
 
 echo "📦 打包 VSIX..."
-VSIX_TEMP="gocph-latest.vsix"
-npx @vscode/vsce package --no-git-tag-version --out "$VSIX_TEMP" >/dev/null 2>&1
+# 直接使用 vsce 并在本地生成，移除阻止输出从而方便排错
+npx @vscode/vsce package --no-git-tag-version --out "gocph-1.0.0.vsix"
 
-echo "🚚 移动 VSIX 到根目录..."
+echo "🚚 移动 VSIX 到目标位置..."
+# 将其移动到上一层目录中，如果有旧版直接覆盖
 DEST_VSIX="../gocph-1.0.0.vsix"
-mv -f "$VSIX_TEMP" "$DEST_VSIX"
+mv -f "gocph-1.0.0.vsix" "$DEST_VSIX"
 
 echo ""
 echo "✅ 打包完成！"

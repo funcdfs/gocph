@@ -8,7 +8,6 @@ import { runSingleAndSave } from './processRunSingle';
 import runAllAndSave from './processRunAll';
 import runTestCases from '../commands/runTestCases';
 import { getAutoShowJudgePref, getRetainWebviewContextPref } from '../common/preferences';
-import { toggleRegionsInActiveEditor } from '../features/folding';
 import { editorChanged } from './editorChange';
 
 class JudgeViewProvider implements vscode.WebviewViewProvider {
@@ -109,11 +108,6 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                                     });
                                 }
                             }
-                            break;
-                        }
-
-                        case 'toggle-regions': {
-                            toggleRegionsInActiveEditor();
                             break;
                         }
 

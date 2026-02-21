@@ -99,10 +99,6 @@ export type CopyMainGoCommand = {
     problem: Problem;
 };
 
-export type ToggleRegionsCommand = {
-    command: 'toggle-regions';
-};
-
 export type CreateBlankProblemCommand = {
     command: 'create-blank-problem';
 };
@@ -121,7 +117,6 @@ export type WebviewToVSEvent =
     | DeleteTcsCommand
     | OpenFileCommand
     | CopyMainGoCommand
-    | ToggleRegionsCommand
     | CreateBlankProblemCommand
     | CreateVoidCommand;
 

@@ -12,7 +12,7 @@ import { getRetainWebviewContextPref } from './common/preferences';
 import { startCompanionServer, stopCompanionServer } from './services/companion';
 import { requestCancellation } from './core/executions';
 import { setJudgeViewProvider, getJudgeViewProvider } from './common/shared';
-import { toggleRegionsInActiveEditor, setupSnippetListener } from './features/folding';
+import { setupSnippetListener } from './features/folding';
 
 let judgeViewProvider: JudgeViewProvider;
 let statusBarItem: vscode.StatusBarItem | undefined;
@@ -57,29 +57,6 @@ const registerCommands = (context: vscode.ExtensionContext) => {
         },
     );
     context.subscriptions.push(stopDisposable);
-
-    // 注册折叠 Region 命令 - 手动实现查找并折叠 #region 标记
-    const foldDisposable = vscode.commands.registerCommand(
-        'gocph.foldAllRegions',
-        async () => {
-            const foldedCount = await toggleRegionsInActiveEditor();
-
-            if (foldedCount === 0) {
-                judgeViewProvider.extensionToJudgeViewMessage({
-                    command: 'notification',
-                    text: 'GoCPH: 未找到 #region 标记',
-                    type: 'info',
-                });
-            } else {
-                judgeViewProvider.extensionToJudgeViewMessage({
-                    command: 'notification',
-                    text: `GoCPH: 已切换 ${foldedCount} 个 region 的折叠状态`,
-                    type: 'success',
-                });
-            }
-        },
-    );
-    context.subscriptions.push(foldDisposable);
 
     // 注册复制代码命令
     const copyDisposable = vscode.commands.registerCommand(
