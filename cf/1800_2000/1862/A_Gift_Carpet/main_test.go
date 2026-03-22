@@ -8,7 +8,7 @@ import (
 
 // Contest: Codeforces - Codeforces Round 894 (Div. 3) A. Gift Carpet
 // URL: https://codeforces.com/contest/1862/problem/A
-// Time: 2026-03-22 11:21:04
+// Time: 2026-03-22 11:32:59
 
 func TestSolution(t *testing.T) {
 	Run(t, []Case{

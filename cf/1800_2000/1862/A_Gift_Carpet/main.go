@@ -1,5 +1,5 @@
 // link: https://codeforces.com/contest/1862/problem/A
-// time: 2026-03-22 11:21:04 https://github.com/funcdfs
+// time: 2026-03-22 11:32:59 https://github.com/funcdfs
 
 
 // #region main
@@ -82,7 +82,30 @@ func dbg(args ...any) {
 // ----------------------------- /* Start of useful functions */ -----------------------------
 func solve(_case int) {
 
-	
+	n, m := input[int](), input[int]()
+	grid := make([][]byte, n)
+	for i := 0; i < n; i++ {
+		grid[i] = make([]byte, m)
+		grid[i] = input[[]byte]()
+	}
+	// vika
+	vika := "vika"
+	idx := 0
+
+	for j := 0; j < m && idx < 4; j++ {
+		thisLine := true
+		for i := 0; i < n && idx < 4 && thisLine; i++ {
+			if grid[i][j] == vika[idx] {
+				idx++
+				thisLine = false
+			}
+		}
+	}
+	if idx == 4 {
+		println("YES")
+	} else {
+		println("NO")
+	}
 
 }
 
