@@ -12,6 +12,7 @@ import { getRetainWebviewContextPref } from './common/preferences';
 import { startCompanionServer, stopCompanionServer } from './services/companion';
 import { requestCancellation } from './core/executions';
 import { setJudgeViewProvider, getJudgeViewProvider } from './common/shared';
+import { setupAutoFold } from './core/autoFold';
 
 let judgeViewProvider: JudgeViewProvider;
 let statusBarItem: vscode.StatusBarItem | undefined;
@@ -96,6 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     registerCommands(context);
     checkLaunchWebview();
+    setupAutoFold(context);
 
     // 启动 Competitive Companion 服务器
     startCompanionServer();

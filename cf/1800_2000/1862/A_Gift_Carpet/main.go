@@ -1,5 +1,6 @@
 // link: https://codeforces.com/contest/1862/problem/A
-// time: 2026-03-22 10:50:35 https://github.com/funcdfs
+// time: 2026-03-22 11:21:04 https://github.com/funcdfs
+
 
 // #region main
 package main
@@ -80,6 +81,8 @@ func dbg(args ...any) {
 
 // ----------------------------- /* Start of useful functions */ -----------------------------
 func solve(_case int) {
+
+	
 
 }
 
