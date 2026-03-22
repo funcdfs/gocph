@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { existsSync, statSync } from 'fs';
 import { getJudgeViewProvider } from '../common/shared';
-import { foldRegionsInActiveEditor } from '../features/folding';
 import { getProblemForDocument, getFileStatus, getMainFileFromTestFile } from '../utils/utils';
 import { getAutoShowJudgePref } from '../common/preferences';
 import { getTestFilePath, getProblemFromTestFile } from '../core/testFileParser';
@@ -126,28 +125,9 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
         mainFilePath,
         testFilePath,
     });
-
-    // 打开有效的 main.go 文件时，自动折叠 region
-    if (fileStatus === 'valid' && problem) {
-        triggerAutoFold();
-    }
 };
 
-let foldTimeout: NodeJS.Timeout | undefined;
-const AUTO_FOLD_DELAY = 2000; // 2s 延迟
 
-/**
- * 自动折叠防抖处理
- */
-function triggerAutoFold() {
-    if (foldTimeout) {
-        clearTimeout(foldTimeout);
-    }
-    foldTimeout = setTimeout(() => {
-        foldRegionsInActiveEditor();
-        foldTimeout = undefined;
-    }, AUTO_FOLD_DELAY);
-}
 
 export const editorClosed = (e: vscode.TextDocument) => {
     globalThis.logger.log('关闭编辑器:', e.uri.fsPath);

@@ -12,7 +12,6 @@ import { getRetainWebviewContextPref } from './common/preferences';
 import { startCompanionServer, stopCompanionServer } from './services/companion';
 import { requestCancellation } from './core/executions';
 import { setJudgeViewProvider, getJudgeViewProvider } from './common/shared';
-import { setupSnippetListener } from './features/folding';
 
 let judgeViewProvider: JudgeViewProvider;
 let statusBarItem: vscode.StatusBarItem | undefined;
@@ -96,7 +95,6 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(statusBarItem);
 
     registerCommands(context);
-    setupSnippetListener(context); // 注册监听器
     checkLaunchWebview();
 
     // 启动 Competitive Companion 服务器
