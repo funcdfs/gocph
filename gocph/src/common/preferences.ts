@@ -31,3 +31,6 @@ export const getRetainWebviewContextPref = (): boolean => false;
 
 export const getCompanionPortPref = (): number =>
     getPreference('Companion端口') || 27121;
+
+export const getAutoFoldPref = (): boolean =>
+    getPreference('自动折叠骨架') !== false;

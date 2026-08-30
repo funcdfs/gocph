@@ -118,6 +118,11 @@
                     "type": "number",
                     "default": 27121,
                     "description": "Competitive Companion 监听端口（默认 27121，与 CPH 兼容）"
+                },
+                "gocph.自动折叠骨架": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "插入 cp / tt / ttna 模板后，自动折叠 // #region main 骨架代码"
                 }
             }
         }

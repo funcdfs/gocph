@@ -6,7 +6,8 @@ export type prefSection =
     | '编译参数'
     | 'Go命令'
     | '自动显示结果面板'
-    | 'Companion端口';
+    | 'Companion端口'
+    | '自动折叠骨架';
 
 export type Language = {
     name: LangNames;

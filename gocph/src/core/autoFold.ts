@@ -1,116 +1,122 @@
 import * as vscode from 'vscode';
+import { getAutoFoldPref } from '../common/preferences';
+
+/** 模板骨架的折叠起始标记，与 snippets/go.json 中的 `// #region main` 保持一致 */
+const REGION_START = /^[ \t]*\/\/[ \t]*#region[ \t]+main\b/;
+
+/** 骨架代码远长于此，用来在每次按键时以 O(1) 成本提前返回 */
+const MIN_SNIPPET_LENGTH = 40;
+
+/** 折叠命令的重试节奏（毫秒）：编辑器需要时间重新计算折叠模型 */
+const FOLD_ATTEMPT_DELAYS = [120, 400, 900];
+
+/** 在插入的文本里定位 `// #region main` 的绝对行号，找不到返回 -1 */
+function findRegionLine(change: vscode.TextDocumentContentChangeEvent): number {
+    const lines = change.text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        if (REGION_START.test(lines[i])) {
+            return change.range.start.line + i;
+        }
+    }
+    return -1;
+}
+
+/** 折叠后 targetLine 之后的内容会被移出可见区域，以此判断是否已经折叠成功 */
+function isFolded(editor: vscode.TextEditor, line: number): boolean {
+    return editor.visibleRanges.some(
+        (range) =>
+            range.end.line === line &&
+            line < editor.document.lineCount - 1,
+    );
+}
+
+/** 目标行仍然是骨架的起始标记时才允许折叠，避免用户后续编辑导致误折叠 */
+function isStillRegionStart(doc: vscode.TextDocument, line: number): boolean {
+    return line < doc.lineCount && REGION_START.test(doc.lineAt(line).text);
+}
+
+/**
+ * 折叠 targetLine 处的 region。
+ *
+ * 关键点：通过 `selectionLines` 参数指定折叠目标，全程不修改 editor.selection。
+ * 直接移动光标会终止正在进行的 snippet 会话，导致 tabstop / $0 全部失效。
+ */
+function scheduleFold(uriStr: string, line: number, attempt: number) {
+    if (attempt >= FOLD_ATTEMPT_DELAYS.length) {
+        return;
+    }
+
+    setTimeout(() => {
+        const editor = vscode.window.activeTextEditor;
+
+        // 折叠命令作用于当前聚焦的编辑器，文件不在前台时跳过本次尝试
+        if (!editor || editor.document.uri.toString() !== uriStr) {
+            scheduleFold(uriStr, line, attempt + 1);
+            return;
+        }
+
+        if (!isStillRegionStart(editor.document, line)) {
+            globalThis.logger.log(`[autoFold] 第 ${line} 行已不是骨架标记，放弃折叠`);
+            return;
+        }
+
+        if (isFolded(editor, line)) {
+            globalThis.logger.log(`[autoFold] 第 ${line} 行已折叠，结束重试`);
+            return;
+        }
+
+        vscode.commands
+            .executeCommand('editor.fold', { levels: 1, selectionLines: [line] })
+            .then(undefined, (err) => {
+                globalThis.logger.error(`[autoFold] 折叠命令失败: ${String(err)}`);
+            });
+
+        scheduleFold(uriStr, line, attempt + 1);
+    }, FOLD_ATTEMPT_DELAYS[attempt]);
+}
 
 export function setupAutoFold(context: vscode.ExtensionContext) {
-    const openTimes = new Map<string, number>();
-    const foldedDocs = new Set<string>();
-
-    // 记录已经打开的文件，防止扩展重载时无法触发生效
-    const now = Date.now();
-    vscode.workspace.textDocuments.forEach(doc => {
-        if (doc.uri.scheme === 'file') {
-            openTimes.set(doc.uri.toString(), now);
-        }
-    });
-
-    context.subscriptions.push(
-        vscode.workspace.onDidOpenTextDocument((doc) => {
-            if (doc.uri.scheme === 'file') {
-                openTimes.set(doc.uri.toString(), Date.now());
-            }
-        })
-    );
+    // 每个文档只自动折叠一次，避免用户手动展开后又被折回去
+    const handledDocs = new Set<string>();
 
     context.subscriptions.push(
         vscode.workspace.onDidCloseTextDocument((doc) => {
-            const uriStr = doc.uri.toString();
-            openTimes.delete(uriStr);
-            foldedDocs.delete(uriStr);
-        })
+            handledDocs.delete(doc.uri.toString());
+        }),
     );
 
     context.subscriptions.push(
         vscode.workspace.onDidChangeTextDocument((event) => {
             const doc = event.document;
-            if (doc.uri.scheme !== 'file') {
+            if (doc.languageId !== 'go' || doc.uri.scheme !== 'file') {
                 return;
             }
 
             const uriStr = doc.uri.toString();
-            
-            // 性能保证：O(1) 拦截，如果已经折叠过
-            if (foldedDocs.has(uriStr)) {
+            if (handledDocs.has(uriStr)) {
                 return;
             }
 
-            const openTime = openTimes.get(uriStr);
-            if (!openTime) {
-                return;
-            }
-
-            const elapsed = Date.now() - openTime;
-            // 性能保证：O(1) 拦截，如果距离文件打开时间超过 10 秒
-            if (elapsed > 10000) {
-                openTimes.delete(uriStr); // 超过 10 秒后不再需要监控此文件，清理内存
-                return;
-            }
-
-            const logger = (globalThis as any).logger;
-            logger?.log(`[autoFold] change event | elapsed: ${elapsed}ms | doc: ${uriStr}`);
-            event.contentChanges.forEach((c, idx) => {
-                logger?.log(`[autoFold] change[${idx}] line: ${c.range.start.line}, txtLength: ${c.text.length}, hasRegion: ${c.text.includes('region main')}`);
-            });
-
-            // 检查：变更是否发生在文件头部（前 10 行），并且新输入的文本中包含了 'region main'
-            const isSnippetInsertion = event.contentChanges.some(
-                c => c.range.start.line < 10 && c.text.includes('region main')
-            );
-
-            if (isSnippetInsertion) {
-                logger?.log(`[autoFold] matched snippet insertion!`);
-                let targetLine = -1;
-                // 由于前面的条件极其严格，只有确实输入了骨架时才会走到这里，此时执行 O(N) 遍历行号开销完全可接受
-                for (let i = 0; i < doc.lineCount; i++) {
-                    if (doc.lineAt(i).text.includes('region main')) {
-                        targetLine = i;
-                        break;
-                    }
+            for (const change of event.contentChanges) {
+                if (change.text.length < MIN_SNIPPET_LENGTH) {
+                    continue;
                 }
 
-                logger?.log(`[autoFold] found target line for region: ${targetLine}`);
-
-                if (targetLine !== -1) {
-                    foldedDocs.add(uriStr);
-                    openTimes.delete(uriStr);
-
-                    // 延迟 500ms 后触发，让代码生成或 snippet 完全展开，避免冲突
-                    setTimeout(() => {
-                        const activeEditor = vscode.window.activeTextEditor;
-                        const isMatch = activeEditor?.document.uri.toString() === uriStr;
-                        logger?.log(`[autoFold] timeout executing. Editor match: ${isMatch}`);
-                        if (activeEditor && isMatch) {
-                            // 兼容性最佳实现：记录原光标，移动到目标行折叠，然后恢复原光标
-                            const originalSelection = activeEditor.selection;
-                            logger?.log(`[autoFold] saving original selection: line ${originalSelection.active.line}`);
-                            
-                            activeEditor.selection = new vscode.Selection(targetLine, 0, targetLine, 0);
-                            
-                            vscode.commands.executeCommand('editor.fold', {
-                                direction: 'up',
-                                levels: 1
-                            }).then(() => {
-                                // 恢复原光标
-                                activeEditor.selection = originalSelection;
-                                // 将编辑器滚动视图还原，防止因为折叠导致的画面跳动
-                                activeEditor.revealRange(originalSelection, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
-                                logger?.log(`[autoFold] command execute resolved. Cursor restored.`);
-                            }, (err) => {
-                                logger?.log(`[autoFold] command execute error: ${String(err)}`);
-                                activeEditor.selection = originalSelection;
-                            });
-                        }
-                    }, 500);
+                const line = findRegionLine(change);
+                if (line === -1) {
+                    continue;
                 }
+
+                if (!getAutoFoldPref()) {
+                    return;
+                }
+
+                handledDocs.add(uriStr);
+
+                globalThis.logger.log(`[autoFold] 检测到骨架插入，目标行 ${line}`);
+                scheduleFold(uriStr, line, 0);
+                return;
             }
-        })
+        }),
     );
 }
