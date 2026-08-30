@@ -8,19 +8,9 @@ import (
 )
 
 var (
-	_in  = bufio.NewReader(os.Stdin)
-	_out = bufio.NewWriter(os.Stdout)
+	_in  = bufio.NewReaderSize(os.Stdin, 1<<16)
+	_out = bufio.NewWriterSize(os.Stdout, 1<<16)
 )
-
-func init() {
-	fastIO()
-}
-
-// FastIO initializes input/output buffers
-func fastIO() {
-	_in = bufio.NewReader(os.Stdin)
-	_out = bufio.NewWriter(os.Stdout)
-}
 
 // Input core input function
 func Input[T any]() T {
@@ -51,19 +41,18 @@ func InputSlice[T any](size int) []T {
 // Core output function
 func _github_funcdfs[T any](sep, end string, arr ...T) {
 	for idx := range arr {
-		fmt.Fprint(_out, arr[idx])
-		if idx == len(arr)-1 {
-			fmt.Fprint(_out, end)
-		} else {
+		if idx > 0 {
 			fmt.Fprint(_out, sep)
 		}
+		fmt.Fprint(_out, arr[idx])
 	}
+	fmt.Fprint(_out, end)
 	_out.Flush() // Flush output immediately
 }
 
 // Print exported print functions
-func Print[T any](arr ...T)   { _github_funcdfs("", "", arr...) }
-func Println[T any](arr ...T) { _github_funcdfs(" ", "\n", arr...) }
+func Print[T any](arr ...T) { _github_funcdfs("", "", arr...) }
+func Pln[T any](arr ...T)   { _github_funcdfs(" ", "\n", arr...) }
 func Printf(format string, args ...interface{}) {
 	fmt.Fprintf(_out, format, args...)
 	_out.Flush() // Flush output immediately
