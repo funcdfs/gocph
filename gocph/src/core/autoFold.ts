@@ -8,7 +8,7 @@ const REGION_START = /^[ \t]*\/\/[ \t]*#region[ \t]+main\b/;
 const MIN_SNIPPET_LENGTH = 40;
 
 /** 折叠命令的重试节奏（毫秒）：编辑器需要时间重新计算折叠模型 */
-const FOLD_ATTEMPT_DELAYS = [120, 400, 900];
+const FOLD_ATTEMPT_DELAYS = [120, 400, 900, 2000];
 
 /** 在插入的文本里定位 `// #region main` 的绝对行号，找不到返回 -1 */
 function findRegionLine(change: vscode.TextDocumentContentChangeEvent): number {

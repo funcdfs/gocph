@@ -11,6 +11,7 @@
 - **Competitive Companion**：内置监听端口（默认 27121，与 CPH 兼容），浏览器插件一点即可生成题目目录、`main.go` 与带样例的 `main_test.go`。
 - **代码片段**：80+ 条 Go 竞赛片段，含三套主模板与常用算法模板（DSU、堆、KMP、Z-function、字符串哈希、modInt、Lucas 等）。
 - **自动折叠骨架**：插入模板后自动折叠 `// #region main` 里的 IO 骨架，只留下 `solve()`，且不打断 snippet 的 tabstop 跳转。
+- **region 折叠支持**：内置 Go 的 `// #region` / `// #endregion` 折叠区域识别（gopls 不提供此能力），折叠箭头始终可用。
 
 ## 快捷键
 
@@ -24,7 +25,8 @@
 
 | 前缀 | 说明 |
 | --- | --- |
-| `cp` | 单测试用例基础模板（含 `input` / `inputSlice` / `print` / `println` / `dbg`） |
+| `cp` | 单测试用例基础模板（含 `input` / `inputSlice` / `print` / `pln` / `printf` / `dbg`） |
+| `pln` / `pf` | `pln(...)` 空格分隔打印并换行；`printf(...)` 格式化打印 |
 | `tt` | 多测试用例模板，自动读取组数并循环调用 `solve(i+1)` |
 | `ttna` | 多测试用例模板，自动读取 `n` 与长度为 `n` 的切片 `a` |
 | `dsu` / `minHeap` / `maxHeap` | 并查集、最小堆、最大堆 |

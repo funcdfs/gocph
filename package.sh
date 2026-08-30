@@ -44,14 +44,17 @@ npm install --silent
 echo "🔨 构建项目..."
 npm run build
 
-echo "📦 打包 VSIX..."
+VERSION=$(node -p "require('./package.json').version")
+VSIX_NAME="gocph-${VERSION}.vsix"
+
+echo "📦 打包 VSIX (v${VERSION})..."
 # 直接使用 vsce 并在本地生成，移除阻止输出从而方便排错
-npx @vscode/vsce package --no-git-tag-version --out "gocph-1.0.0.vsix"
+npx @vscode/vsce package --no-git-tag-version --out "$VSIX_NAME"
 
 echo "🚚 移动 VSIX 到目标位置..."
 # 将其移动到上一层目录中，如果有旧版直接覆盖
-DEST_VSIX="../gocph-1.0.0.vsix"
-mv -f "gocph-1.0.0.vsix" "$DEST_VSIX"
+DEST_VSIX="../$VSIX_NAME"
+mv -f "$VSIX_NAME" "$DEST_VSIX"
 
 echo ""
 echo "✅ 打包完成！"
@@ -71,10 +74,10 @@ cd ..
 
 echo ""
 echo "💡 手动安装方式："
-echo "   code --install-extension gocph-1.0.0.vsix"
+echo "   code --install-extension $VSIX_NAME"
 echo ""
 echo "💡 或者在 VSCode 中："
 echo "   1. 打开扩展面板 (Cmd+Shift+X)"
 echo "   2. 点击 '...' 菜单"
 echo "   3. 选择 '从 VSIX 安装...'"
-echo "   4. 选择 gocph-1.0.0.vsix"
+echo "   4. 选择 $VSIX_NAME"

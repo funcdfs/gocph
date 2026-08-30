@@ -4,7 +4,7 @@
     "description": "Go 程序测试运行器，支持输入输出对比测试",
     "license": "GPL-3.0-or-later",
     "publisher": "funcdfs",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "icon": "icon.png",
     "galleryBanner": {
         "color": "#00ADD8",
