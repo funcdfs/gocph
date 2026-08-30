@@ -35,3 +35,7 @@ Thumbs.db
 
 # Secrets
 src/secrets.ts
+
+# 打包发布必需的资源，覆盖仓库根 .gitignore 对 *.md / *.png 的全局忽略
+!README.md
+!icon.png

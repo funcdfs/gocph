@@ -7,6 +7,7 @@ screenshots/
 server/
 *.config.ts
 *.config.js
+*.mts
 tsconfig.json
 .gitignore
 .git/
@@ -16,3 +17,5 @@ tsconfig.json
 package-lock.json
 eslint.config.js
 *.md
+!README.md
+!CHANGELOG.md

@@ -3,15 +3,34 @@
     "displayName": "GoCPH - Go Test Runner",
     "description": "Go 程序测试运行器，支持输入输出对比测试",
     "license": "GPL-3.0-or-later",
-    "publisher": "LocalDev",
+    "publisher": "funcdfs",
     "version": "1.0.0",
+    "icon": "icon.png",
+    "galleryBanner": {
+        "color": "#00ADD8",
+        "theme": "dark"
+    },
+    "keywords": [
+        "go",
+        "golang",
+        "competitive programming",
+        "codeforces",
+        "atcoder",
+        "leetcode",
+        "cph"
+    ],
     "engines": {
         "vscode": "^1.85.0"
     },
     "categories": [
-        "Testing"
+        "Testing",
+        "Snippets",
+        "Other"
     ],
     "main": "dist/extension.js",
+    "activationEvents": [
+        "onLanguage:go"
+    ],
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -169,6 +188,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/example/go-test-runner/"
+        "url": "https://github.com/funcdfs/gocph.git"
+    },
+    "homepage": "https://github.com/funcdfs/gocph#readme",
+    "bugs": {
+        "url": "https://github.com/funcdfs/gocph/issues"
     }
 }
