@@ -1,1077 +1,89 @@
-* {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    cursor: default !important;
-    box-sizing: border-box;
-    scrollbar-width: thin;
+/* ==========================================================================
+   GoCPH — 界面样式
+   配色基于 Lesser 主题（funcdfs.lesser）：
+     结构色取自 --vscode-* 主题变量，回退值即 Lesser 的取值；
+     强调色 / 状态色固定为 Lesser 语义色，保证跨主题时语义不漂移。
+   设计原则：单一强调色、单层表面、发丝级分隔线、颜色只用来表达状态。
+   ========================================================================== */
+
+:root {
+    /* ---- 表面与文字（跟随主题） ---- */
+    --g-bg: var(--vscode-sideBar-background, #181818);
+    --g-surface: var(--vscode-editor-background, #1f1f1f);
+    --g-fg: var(--vscode-foreground, #e4e4e4);
+    --g-fg-2: #b0b0b0;
+    --g-fg-3: #8a8a8a;
+    --g-fg-4: #707070;
+
+    /* ---- 分隔线（Lesser border.subtle / border.default） ---- */
+    --g-line: #2e2b32;
+    --g-line-strong: #33303b;
+
+    /* ---- 强调色：全局唯一（Lesser accent.violet） ---- */
+    --g-accent: var(--vscode-focusBorder, #a995f1);
+
+    /* ---- 状态色（Lesser testing.* / accent.*） ---- */
+    --g-pass: var(--vscode-testing-iconPassed, #3fa266);
+    --g-pass-fg: #70b489;
+    --g-fail: var(--vscode-testing-iconFailed, #ff8080);
+    --g-warn: var(--vscode-testing-iconQueued, #f1b467);
+    --g-info: #88c0d0;
+
+    /* ---- 交互反馈 ---- */
+    --g-hover: rgba(255, 255, 255, 0.055);
+    --g-active: rgba(255, 255, 255, 0.09);
+    --g-well: rgba(0, 0, 0, 0.22);
+
+    /* ---- 状态底色 ---- */
+    --g-tint-accent: rgba(169, 149, 241, 0.13);
+    --g-tint-pass: rgba(63, 162, 102, 0.13);
+    --g-tint-fail: rgba(255, 128, 128, 0.12);
+    --g-tint-warn: rgba(241, 180, 103, 0.12);
+    --g-tint-info: rgba(136, 192, 208, 0.12);
+
+    /* ---- 尺度：圆角 / 字号 / 等宽 ---- */
+    --g-r-sm: 3px;
+    --g-r: 4px;
+    --g-r-lg: 6px;
+    --g-fs-label: 11px;
+    --g-fs: 12px;
+    --g-mono: var(--vscode-editor-font-family, 'SF Mono', Consolas, 'Ubuntu Mono', monospace);
+    --g-mono-lh: 18px;
+    --g-ease: 0.12s ease;
 }
 
-.selectable {
-    -webkit-touch-callout: text;
+/* --------------------------------------------------------------------------
+   基础
+   -------------------------------------------------------------------------- */
+
+* {
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+
+.selectable,
+textarea {
     -webkit-user-select: text;
-    -khtml-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
     user-select: text;
-    cursor: text !important;
+    cursor: text;
 }
 
 body {
     margin: 0 auto;
-    padding: 0px;
+    padding: 0;
     max-width: 1400px;
-    /* 增加最大宽度以支持横向布局 */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 13px;
+    background: transparent;
+    color: var(--g-fg);
+    font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+    font-size: var(--g-fs);
+    line-height: 1.5;
     overflow-x: hidden;
 }
 
-/* 自定义滚动条样式 */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-}
-
-*::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-/* 亮色主题滚动条 */
-body.vscode-light *::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-}
-
-body.vscode-light *::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
-}
-
 #app {
-    margin-bottom: 20px;
-}
-
-/* 按钮样式 */
-.btn {
-    padding: 6px 12px;
-    background: #177bb4;
-    color: white;
-    outline: none;
-    margin-right: 6px;
-    margin-bottom: 6px;
-    text-align: center;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer !important;
-    transition: all 0.15s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.btn:hover {
-    filter: brightness(115%);
-}
-
-.btn:active {
-    transform: scale(0.98);
-}
-
-.btn-block {
-    display: block;
-    width: 100%;
-}
-
-.btn-green {
-    background: #4a7c23;
-}
-
-.btn-red {
-    background: #a01d38;
-}
-
-.btn-orange {
-    background: #d4940d;
-}
-
-.btn-sm {
-    padding: 4px 8px;
-    font-size: 11px;
-}
-
-.btn:focus {
-    outline: 2px solid var(--vscode-focusBorder);
-    outline-offset: 1px;
-}
-
-button:disabled {
-    background: rgb(66, 66, 66) !important;
-    opacity: 0.3 !important;
-    cursor: not-allowed !important;
-}
-
-/* Results Container padding to avoid overlap with sticky header */
-.results-container {
-    padding-top: 5px;
-}
-
-/* 新建测试按钮行 */
-.new-test-row {
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.new-test-row .new-btn {
-    width: auto;
-}
-
-/* 测试用例卡片 */
-.case {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 0;
-    margin: 8px;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.case-header {
-    display: flex;
-    align-items: center;
-    padding: 10px 12px;
-    background: rgba(0, 0, 0, 0.2);
-    border-left: 4px solid rgba(255, 255, 255, 0.2);
-    gap: 8px;
-}
-
-.case.running .case-header {
-    border-left-color: #f1c40f;
-}
-
-.case.passed .case-header {
-    border-left-color: #27ae60;
-}
-
-.case.failed .case-header {
-    border-left-color: #e74c3c;
-}
-
-.case-body {
-    padding: 12px;
-    animation: slideDown 0.2s ease-out;
-    transform-origin: top;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* 编辑器行 - 水平布局 */
-.editor-row {
-    display: flex;
-    width: 100%;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    overflow-x: auto;
-    overflow-y: hidden;
-}
-
-.editor-row>.editor-section {
-    flex: 1;
-    min-width: 240px;
-    /* 保证宏观显示宽度的最短值 */
-    margin-bottom: 0;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-}
-
-.editor-row>.editor-section.input-section,
-.editor-row>.editor-section.expected-section {
-    flex: 0.8;
-}
-
-.editor-row>.editor-section.actual-section {
-    flex: 1.65;
-    /* 增加 10% 左右的权重 (1.5 * 1.1) */
-}
-
-.editor-row>.editor-section:not(:last-child) {
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* 全宽行 - 用于 stderr 和 void 独占 */
-.editor-row-full {
-    display: flex;
-    width: 100%;
-}
-
-.editor-row-full>.editor-section {
-    flex: 1;
-    margin-bottom: 0;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        max-height: 1000px;
-        transform: translateY(0);
-    }
-}
-
-.case-title {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    gap: 8px;
-    cursor: pointer !important;
-}
-
-.case-title:hover {
-    opacity: 0.8;
-}
-
-/* 测试标签样式 */
-.case-label {
-    display: inline-flex;
-    align-items: center;
-    background: rgba(52, 152, 219, 0.15);
-    border: 1px solid rgba(52, 152, 219, 0.3);
-    border-radius: 12px;
-    padding: 2px 10px;
-    gap: 4px;
-}
-
-.case-label-text {
-    font-weight: 600;
-    color: #5dade2;
-    font-size: 12px;
-}
-
-/* 状态标签样式 */
-.status-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.status-label.pass {
-    background: rgba(46, 204, 113, 0.15);
-    border: 1px solid rgba(46, 204, 113, 0.3);
-    color: #2ecc71;
-}
-
-.status-label.fail {
-    background: rgba(231, 76, 60, 0.15);
-    border: 1px solid rgba(231, 76, 60, 0.3);
-    color: #e74c3c;
-}
-
-.status-label.running {
-    background: rgba(241, 196, 15, 0.15);
-    border: 1px solid rgba(241, 196, 15, 0.3);
-    color: #f1c40f;
-}
-
-.status-label svg {
-    width: 12px;
-    height: 12px;
-}
-
-/* 时间标签 */
-.time-label {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.6);
-    padding: 2px 8px;
-    font-size: 10px;
-    border-radius: 10px;
-    font-weight: 500;
-}
-
-.case-actions {
-    display: flex;
-    gap: 4px;
-}
-
-/* 图标按钮样式 */
-.icon-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.7);
-    cursor: pointer !important;
-    transition: all 0.15s ease;
-}
-
-.icon-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.95);
-    transform: scale(1.05);
-}
-
-.icon-btn:active {
-    transform: scale(0.95);
-}
-
-.icon-btn.run {
-    background: rgba(74, 124, 35, 0.3);
-    color: #7cb342;
-}
-
-.icon-btn.run:hover {
-    background: rgba(74, 124, 35, 0.5);
-    color: #9ccc65;
-}
-
-.icon-btn.delete {
-    background: rgba(160, 29, 56, 0.3);
-    color: #e57373;
-}
-
-.icon-btn.delete:hover {
-    background: rgba(160, 29, 56, 0.5);
-    color: #ef9a9a;
-}
-
-.icon-btn:disabled {
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: rgba(255, 255, 255, 0.2) !important;
-    cursor: not-allowed !important;
-    transform: none !important;
-}
-
-.icon-btn svg {
-    width: 14px;
-    height: 14px;
-}
-
-.toggle-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
-    width: 16px;
-    height: 16px;
-    transition: transform 0.2s ease, color 0.15s;
-}
-
-.toggle-icon.collapsed {
-    transform: rotate(-90deg);
-}
-
-.case-title:hover .toggle-icon {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-/* 标签和编辑器容器 */
-.editor-section {
-    margin-bottom: 12px;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Void 区域样式 */
-.void-section {
-    flex: 1;
-}
-
-.void-placeholder {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 0;
-    padding: 40px 20px;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 120px;
-}
-
-.void-placeholder svg {
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0 4px;
-}
-
-/* 输入区域 - 薰衣草紫色 */
-.input-section .editor-box {
-    border-color: rgba(180, 150, 200, 0.3);
-}
-
-.input-section .line-numbers {
-    color: rgba(180, 150, 200, 0.6);
-}
-
-.input-section .editor-content {
-    color: rgb(200, 180, 220);
-}
-
-.editor-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-    min-height: 24px;
-    /* 确保有足够高度 */
-}
-
-.editor-label>span:first-child {
-    flex-shrink: 0;
-    /* 标签文字不压缩 */
-    margin-right: 8px;
-}
-
-.editor-actions {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-    /* 操作按钮区域不压缩 */
-    flex-wrap: nowrap;
-    /* 不换行 */
-}
-
-/* 操作按钮样式 */
-.action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    border: none;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.55);
-    font-size: 11px;
-    cursor: pointer !important;
-    transition: all 0.15s ease;
-    white-space: nowrap;
-    /* 防止文字换行 */
-}
-
-.action-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.action-btn:active {
-    transform: scale(0.96);
-}
-
-.action-btn.primary {
-    background: rgba(52, 152, 219, 0.15);
-    color: rgba(82, 182, 249, 0.85);
-}
-
-.action-btn.primary:hover {
-    background: rgba(52, 152, 219, 0.25);
-    color: #5dade2;
-}
-
-.action-btn svg {
-    width: 12px;
-    height: 12px;
-    flex-shrink: 0;
-}
-
-.action-btn span {
-    flex-shrink: 0;
-    /* 防止文字被压缩 */
-}
-
-/* 编辑器框 - 无圆角 */
-.editor-box {
-    display: flex;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0;
-    overflow: hidden;
-}
-
-.editor-box:focus-within {
-    border-color: #3498db;
-}
-
-.line-numbers {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 8px 0;
-    min-width: 28px;
-    width: 28px;
-    text-align: center;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    font-family: 'SF Mono', Consolas, 'Ubuntu Mono', monospace;
-    font-size: 12px;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.35);
-    flex-shrink: 0;
-}
-
-.line-numbers .ln {
-    padding: 0 6px;
-    display: block;
-}
-
-.editor-content {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 8px 10px;
-    font-family: 'SF Mono', Consolas, 'Ubuntu Mono', monospace;
-    font-size: 12px;
-    line-height: 1.5;
-    color: #d4d4d4;
-    resize: none;
-    outline: none !important;
-    min-height: 50px;
-    white-space: pre;
-    overflow-x: auto;
-}
-
-/* Diff 显示 - 无圆角 */
-.diff-box {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    overflow-x: auto;
-}
-
-.diff-line {
-    display: flex;
-    font-family: 'SF Mono', Consolas, 'Ubuntu Mono', monospace;
-    font-size: 12px;
-    line-height: 1.5;
-    border-radius: 0 !important;
-}
-
-.diff-line .ln {
-    min-width: 28px;
-    width: 28px;
-    padding: 0 6px;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.2);
-    color: rgba(255, 255, 255, 0.35);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    flex-shrink: 0;
-    font-size: 11px;
-}
-
-.diff-line .content {
-    flex: 1;
-    padding: 0 10px;
-    color: #d4d4d4;
-    white-space: pre;
-    word-break: normal;
-}
-
-/* Diff 高亮样式 - 与命令行 testutil 保持一致 */
-/* 匹配行 → 绿色 */
-.diff-line.match .ln,
-.diff-line.match .content {
-    color: #4ade80;
-}
-
-.diff-line.match .ln {
-    background: rgba(34, 197, 94, 0.15);
-}
-
-.diff-line.match .content {
-    background: rgba(34, 197, 94, 0.08);
-}
-
-/* Expected(期望) 不匹配行 → 蓝色 (提示正确答案) */
-.diff-box.expected .diff-line.mismatch .ln {
-    background: rgba(59, 130, 246, 0.25);
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.diff-box.expected .diff-line.mismatch .content {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-}
-
-/* Received(实际输出) 不匹配行 → 红色 (我输出错了) */
-.diff-box.received .diff-line.mismatch .ln {
-    background: rgba(239, 68, 68, 0.25);
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.diff-box.received .diff-line.mismatch .content {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
-}
-
-/* 字符级别 diff */
-.diff-char-add {
-    background: rgba(34, 197, 94, 0.4);
-    border-radius: 2px;
-    padding: 0 1px;
-}
-
-.diff-char-del {
-    background: rgba(220, 38, 38, 0.4);
-    border-radius: 2px;
-    padding: 0 1px;
-    text-decoration: line-through;
-}
-
-/* Sticky Header Styles */
-.header-container {
-    background: var(--vscode-sideBar-background);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    z-index: 1000;
-}
-
-.sticky-top {
-    position: sticky;
-    top: 0;
-}
-
-/* Action Rows */
-.row-1,
-.row-2 {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-/* Row 1 固定布局 */
-.row-1-fixed {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: 8px;
-}
-
-.row-1-fixed>.file-icons {
-    flex-shrink: 0;
-    /* 文件图标不压缩 */
-}
-
-.row-1-fixed>.copy-btn {
-    flex-shrink: 0;
-    /* 复制按钮不压缩 */
-}
-
-.row-1-fixed>.problem-name-text-flex {
-    flex: 1;
-    /* 问题名称可以缩减 */
-    min-width: 0;
-    /* 允许缩小到 0 */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.4);
-}
-
-.row-1-fixed>.void-btn {
-    flex-shrink: 0;
-    /* 新建 void 按钮不压缩 */
-}
-
-.row-1 {
-    justify-content: space-between;
-}
-
-.row-2 {
-    gap: 8px;
-}
-
-/* Header Buttons */
-.header-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 6px 12px;
-    font-size: 11px;
-    font-weight: 500;
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.7);
-    cursor: pointer !important;
-    white-space: nowrap;
-    transition: all 0.15s ease;
-}
-
-.header-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.header-btn .codicon {
-    font-size: 14px;
-}
-
-.icon-only-btn {
-    padding: 6px;
-    width: 28px;
-    height: 28px;
-}
-
-/* Grouped Buttons */
-.group-btns {
-    display: flex;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.group-btns .header-btn {
-    border: none;
-    border-radius: 0;
-    background: transparent;
-}
-
-.group-btns .header-btn:not(:last-child) {
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Specific Button Colors */
-.run-btn {
-    background: rgba(46, 204, 113, 0.15);
-    /* Green-ish */
-    color: #2ecc71;
-    border-color: rgba(46, 204, 113, 0.3);
-    width: 50%;
-}
-
-.run-btn:hover {
-    background: rgba(46, 204, 113, 0.25);
-    border-color: rgba(46, 204, 113, 0.5);
-}
-
-.stop-btn {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.4);
-    border-color: rgba(255, 255, 255, 0.1);
-    flex: 1;
-}
-
-.stop-btn:not(:disabled) {
-    background: rgba(231, 76, 60, 0.2);
-    color: #f1948a;
-    border-color: rgba(231, 76, 60, 0.4);
-}
-
-.stop-btn:hover:not(:disabled) {
-    background: rgba(231, 76, 60, 0.3);
-    color: #ff8a80;
-}
-
-.stop-btn:disabled {
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: rgba(255, 255, 255, 0.2) !important;
-    border-color: rgba(255, 255, 255, 0.05) !important;
-    cursor: not-allowed !important;
-}
-
-.toggle-btn {
-    background: rgba(243, 156, 18, 0.1);
-    color: #f5b041;
-    border-color: rgba(243, 156, 18, 0.2);
-    flex: 1;
-}
-
-.new-btn {
-    background: rgba(52, 152, 219, 0.15);
-    /* Blue-ish */
-    color: #5dade2;
-    border-color: rgba(52, 152, 219, 0.3);
-}
-
-.new-btn:hover {
-    background: rgba(52, 152, 219, 0.25);
-    border-color: rgba(52, 152, 219, 0.5);
-}
-
-.copy-btn {
-    background: rgba(142, 68, 173, 0.1);
-    color: #af7ac5;
-    border-color: rgba(142, 68, 173, 0.2);
-    padding: 4px 8px;
-    font-size: 10px;
-}
-
-.void-btn {
-    background: rgba(241, 196, 15, 0.15);
-    color: #f1c40f;
-    border-color: rgba(241, 196, 15, 0.3);
-}
-
-.void-btn:hover {
-    background: rgba(241, 196, 15, 0.25);
-    border-color: rgba(241, 196, 15, 0.5);
-}
-
-/* Pass Rate Tag */
-.pass-rate-tag {
-    padding: 2px 8px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.08);
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    white-space: nowrap;
-}
-
-.pass-rate-tag.pass-all {
-    color: #2ecc71;
-    border-color: rgba(46, 204, 113, 0.3);
-    background: rgba(46, 204, 113, 0.1);
-}
-
-/* Meta Row (Files & Name) */
-.meta-row {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 4px 4px 0 4px;
-}
-
-.problem-name-text {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.4);
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-left: 4px;
-}
-
-.clickable-icon {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.5);
-    cursor: pointer !important;
-    padding: 4px;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-
-.clickable-icon:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #5dade2;
-}
-
-.file-icons {
-    display: flex;
-    gap: 2px;
-    align-items: center;
-}
-
-.header-icon-label {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.5);
-    cursor: pointer !important;
-    padding: 4px;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-
-.header-icon-label:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.row-spacer-flex {
-    flex: 1;
-}
-
-.row-spacer-25 {
-    width: 25%;
-}
-
-.row-spacer-20 {
-    width: 20%;
-}
-
-.header-controls-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* 加载动画 */
-.loader {
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-top: 2px solid #3498db;
-    border-radius: 50%;
-    width: 14px;
-    height: 14px;
-    animation: spin 0.6s linear infinite;
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 8px;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* SVG 旋转动画 */
-svg.spin {
-    animation: spin 0.8s linear infinite;
-}
-
-.compiling {
-    color: #f39c12;
-}
-
-/* 通知 */
-.notification {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(30, 30, 30, 0.98);
-    color: white;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 2000;
-    font-size: 13px;
-    font-weight: 500;
-    animation: notifySlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(12px);
-}
-
-@keyframes notifySlideUp {
-    from {
-        transform: translateY(100%);
-    }
-
-    to {
-        transform: translateY(0);
-    }
-}
-
-/* 不同类型的通知颜色 */
-.notification-success {
-    border-left: 3px solid #2ecc71;
-}
-
-.notification-success .codicon {
-    color: #2ecc71;
-    font-size: 16px;
-}
-
-.notification-error {
-    border-left: 3px solid #e74c3c;
-}
-
-.notification-error .codicon {
-    color: #e74c3c;
-    font-size: 16px;
-}
-
-.notification-warning {
-    border-left: 3px solid #f39c12;
-}
-
-.notification-warning .codicon {
-    color: #f39c12;
-    font-size: 16px;
-}
-
-.notification-info {
-    border-left: 3px solid #3498db;
-}
-
-.notification-info .codicon {
-    color: #3498db;
-    font-size: 16px;
-}
-
-/* 超时提示 */
-.timeout-suggestion {
-    padding: 10px 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(231, 76, 60, 0.3);
-    margin-top: 10px;
-    background: rgba(231, 76, 60, 0.1);
-    font-size: 12px;
-}
-
-.timeout-suggestion h5 {
-    margin: 0 0 6px 0;
-    font-size: 12px;
-    color: #e74c3c;
-}
-
-.timeout-suggestion p {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.7);
-    line-height: 1.4;
-}
-
-/* 工具类 */
-.p10 {
-    padding: 10px;
-}
-
-.margin-10 {
-    margin: 10px;
-}
-
-/* Center text helper */
-.text-center {
-    text-align: center;
-}
-
-.right {
-    float: right;
+    padding-bottom: 40px;
 }
 
 a,
@@ -1080,511 +92,903 @@ a:hover {
     text-decoration: none;
 }
 
-a[href]:hover {
-    text-decoration: underline;
-    cursor: pointer !important;
-}
-
-.icon,
 .codicon {
     vertical-align: middle;
 }
 
-.row {
-    display: flex;
-    gap: 6px;
+/* --------------------------------------------------------------------------
+   滚动条：细、无轨道
+   -------------------------------------------------------------------------- */
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
 }
 
-/* 亮色主题适配 */
-body.vscode-light .case {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.1);
+*::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
 }
 
-body.vscode-light .case-header {
-    background: rgba(0, 0, 0, 0.05);
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
-body.vscode-light .case-number {
-    color: #2563eb;
+*::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.13);
+    border-radius: 4px;
 }
 
-body.vscode-light .case-label {
-    background: rgba(37, 99, 235, 0.1);
-    border-color: rgba(37, 99, 235, 0.25);
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.24);
 }
 
-body.vscode-light .case-label-text {
-    color: #2563eb;
-}
+/* --------------------------------------------------------------------------
+   按钮：一套灰阶幽灵按钮 + 唯一一个强调态
+   -------------------------------------------------------------------------- */
 
-body.vscode-light .status-label.pass {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.25);
-    color: #16a34a;
-}
-
-body.vscode-light .status-label.fail {
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.25);
-    color: #dc2626;
-}
-
-body.vscode-light .status-label.running {
-    background: rgba(234, 179, 8, 0.1);
-    border-color: rgba(234, 179, 8, 0.25);
-    color: #ca8a04;
-}
-
-body.vscode-light .time-label {
-    background: rgba(0, 0, 0, 0.06);
-    color: rgba(0, 0, 0, 0.5);
-}
-
-body.vscode-light .icon-btn {
-    background: rgba(0, 0, 0, 0.06);
-    color: rgba(0, 0, 0, 0.6);
-}
-
-body.vscode-light .icon-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: rgba(0, 0, 0, 0.85);
-}
-
-body.vscode-light .icon-btn.run {
-    background: rgba(74, 124, 35, 0.15);
-    color: #4a7c23;
-}
-
-body.vscode-light .icon-btn.delete {
-    background: rgba(160, 29, 56, 0.15);
-    color: #a01d38;
-}
-
-body.vscode-light .action-btn {
-    background: rgba(0, 0, 0, 0.05);
-    color: rgba(0, 0, 0, 0.55);
-}
-
-body.vscode-light .action-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: rgba(0, 0, 0, 0.85);
-}
-
-body.vscode-light .action-btn.primary {
-    background: rgba(37, 99, 235, 0.1);
-    color: #2563eb;
-}
-
-body.vscode-light .toggle-icon {
-    color: rgba(0, 0, 0, 0.4);
-}
-
-body.vscode-light .case-title:hover .toggle-icon {
-    color: rgba(0, 0, 0, 0.7);
-}
-
-body.vscode-light .expand-btn {
-    background: rgba(0, 0, 0, 0.06);
-    color: rgba(0, 0, 0, 0.5);
-}
-
-body.vscode-light .expand-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: rgba(0, 0, 0, 0.8);
-}
-
-body.vscode-light .editor-box,
-body.vscode-light .diff-box {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: rgba(0, 0, 0, 0.15);
-}
-
-body.vscode-light .line-numbers {
-    background: rgba(0, 0, 0, 0.05);
-    color: rgba(0, 0, 0, 0.3);
-}
-
-body.vscode-light .editor-content,
-body.vscode-light .diff-line .content {
-    color: #333;
-}
-
-body.vscode-light .editor-label,
-body.vscode-light .editor-action {
-    color: rgba(0, 0, 0, 0.6);
-}
-
-body.vscode-light .line-numbers {
-    background: rgba(0, 0, 0, 0.04);
-    color: rgba(0, 0, 0, 0.35);
-}
-
-body.vscode-light .diff-line .ln {
-    background: rgba(0, 0, 0, 0.04);
-    color: rgba(0, 0, 0, 0.35);
-}
-
-body.vscode-light .diff-box.expected .diff-line.mismatch .content {
-    background: rgba(59, 130, 246, 0.1);
-    color: #2563eb;
-}
-
-body.vscode-light .diff-box.received .diff-line.mismatch .content {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-}
-
-body.vscode-light .diff-line.match .content {
-    background: rgba(34, 197, 94, 0.08);
-    color: #16a34a;
-}
-
-body.vscode-light .diff-line.match .ln {
-    background: rgba(34, 197, 94, 0.12);
-    color: rgba(0, 0, 0, 0.4);
-}
-
-body.vscode-light .diff-box.expected .diff-line.mismatch .ln {
-    background: rgba(59, 130, 246, 0.15);
-    color: rgba(0, 0, 0, 0.4);
-}
-
-body.vscode-light .diff-box.received .diff-line.mismatch .ln {
-    background: rgba(239, 68, 68, 0.15);
-    color: rgba(0, 0, 0, 0.4);
-}
-
-body.vscode-light .btn {
-    color: white;
-}
-
-/* 亮色主题 - 输入区域薰衣草紫色 */
-body.vscode-light .input-section .editor-box {
-    border-color: rgba(140, 100, 160, 0.3);
-}
-
-body.vscode-light .input-section .line-numbers {
-    color: rgba(140, 100, 160, 0.6);
-}
-
-body.vscode-light .input-section .editor-content {
-    color: rgb(120, 80, 140);
-}
-
-/* 亮色主题 - Void 区域 */
-body.vscode-light .void-placeholder {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.15);
-    color: rgba(0, 0, 0, 0.4);
-}
-
-/* 亮色主题 - 底部按钮 */
-body.vscode-light .actions .btn:first-child {
-    border-color: rgba(37, 99, 235, 0.4);
-    color: #2563eb;
-}
-
-body.vscode-light .actions .btn:first-child:hover {
-    background: rgba(37, 99, 235, 0.1);
-    border-color: rgba(37, 99, 235, 0.6);
-}
-
-body.vscode-light .actions .btn.btn-green,
-body.vscode-light .run-btn {
-    border-color: rgba(22, 163, 74, 0.4);
-    color: #16a34a;
-    background: rgba(22, 163, 74, 0.05);
-}
-
-body.vscode-light .run-btn:hover {
-    background: rgba(22, 163, 74, 0.1);
-}
-
-body.vscode-light .actions .btn.btn-orange {
-    border-color: rgba(202, 138, 4, 0.4);
-    color: #ca8a04;
-}
-
-body.vscode-light .actions .btn.btn-orange:hover {
-    background: rgba(202, 138, 4, 0.1);
-    border-color: rgba(202, 138, 4, 0.6);
-}
-
-body.vscode-light .actions .btn.btn-red,
-body.vscode-light .stop-btn {
-    border-color: rgba(220, 38, 38, 0.4);
-    color: #dc2626;
-    background: rgba(220, 38, 38, 0.05);
-}
-
-body.vscode-light .stop-btn:hover:not(:disabled) {
-    background: rgba(220, 38, 38, 0.1);
-}
-
-body.vscode-light .stop-btn:disabled {
-    border-color: rgba(0, 0, 0, 0.1) !important;
-    color: rgba(0, 0, 0, 0.3) !important;
-    background: rgba(0, 0, 0, 0.05) !important;
-}
-
-body.vscode-light .new-btn {
-    border-color: rgba(37, 99, 235, 0.4);
-    color: #2563eb;
-    background: rgba(37, 99, 235, 0.05);
-}
-
-body.vscode-light .new-btn:hover {
-    background: rgba(37, 99, 235, 0.1);
-}
-
-body.vscode-light .void-btn {
-    background: rgba(234, 179, 8, 0.1);
-    color: #ca8a04;
-    border-color: rgba(234, 179, 8, 0.3);
-}
-
-body.vscode-light .void-btn:hover {
-    background: rgba(234, 179, 8, 0.15);
-    border-color: rgba(234, 179, 8, 0.5);
-}
-
-
-/* 文件链接样式 */
-.meta-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-}
-
-.file-links {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.file-link {
+.btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
-    border: none;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 11px;
-    cursor: pointer !important;
-    transition: all 0.15s ease;
+    justify-content: center;
+    gap: 5px;
+    height: 26px;
+    padding: 0 10px;
+    border: 1px solid var(--g-line);
+    border-radius: var(--g-r);
+    background: transparent;
+    color: var(--g-fg-2);
+    font-family: inherit;
+    font-size: var(--g-fs-label);
+    font-weight: 500;
     white-space: nowrap;
+    cursor: pointer;
+    transition: background var(--g-ease), border-color var(--g-ease), color var(--g-ease);
+}
+
+.btn:hover {
+    background: var(--g-hover);
+    border-color: var(--g-line-strong);
+    color: var(--g-fg);
+}
+
+.btn:active {
+    background: var(--g-active);
+}
+
+.btn:focus-visible {
+    outline: 1px solid var(--g-accent);
+    outline-offset: 1px;
+}
+
+.btn .codicon,
+.btn svg {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+    opacity: 0.85;
+}
+
+/* 强调态：整个界面只有「全部运行」用它 */
+.btn.primary {
+    border-color: transparent;
+    background: var(--g-tint-accent);
+    color: var(--g-accent);
+}
+
+.btn.primary:hover {
+    background: rgba(169, 149, 241, 0.2);
+    border-color: transparent;
+    color: var(--g-accent);
+}
+
+.btn:disabled,
+.btn:disabled:hover {
+    background: transparent;
+    border-color: var(--g-line);
+    color: var(--g-fg-4);
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* 图标按钮：24px 方形幽灵 */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: var(--g-r);
+    background: transparent;
+    color: var(--g-fg-3);
+    cursor: pointer;
+    transition: background var(--g-ease), color var(--g-ease);
+}
+
+.icon-btn:hover {
+    background: var(--g-hover);
+    color: var(--g-fg);
+}
+
+.icon-btn:active {
+    background: var(--g-active);
+}
+
+.icon-btn:focus-visible {
+    outline: 1px solid var(--g-accent);
+    outline-offset: -1px;
+}
+
+.icon-btn .codicon {
+    font-size: 14px;
+}
+
+.icon-btn svg {
+    width: 13px;
+    height: 13px;
+}
+
+.icon-btn:disabled,
+.icon-btn:disabled:hover {
+    background: transparent;
+    color: var(--g-fg-4);
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* 语义化图标按钮：颜色只在可用时出现 */
+.icon-btn.run:not(:disabled):hover {
+    background: var(--g-tint-pass);
+    color: var(--g-pass-fg);
+}
+
+.icon-btn.stop:not(:disabled) {
+    color: var(--g-fail);
+}
+
+.icon-btn.stop:not(:disabled):hover {
+    background: var(--g-tint-fail);
+}
+
+.icon-btn.remove:hover {
+    background: var(--g-tint-fail);
+    color: var(--g-fail);
+}
+
+/* --------------------------------------------------------------------------
+   顶栏
+   -------------------------------------------------------------------------- */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px 9px;
+    background: var(--g-bg);
+    border-bottom: 1px solid var(--g-line);
+}
+
+.topbar-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.topbar-row.actions {
+    gap: 6px;
+}
+
+/* 题目名：等宽、弱化、可截断 */
+.problem-name {
+    flex: 1;
+    min-width: 0;
+    margin: 0 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--g-mono);
+    font-size: var(--g-fs-label);
+    color: var(--g-fg-3);
+    letter-spacing: 0.01em;
+}
+
+.topbar .btn.run {
+    flex: 1;
+    min-width: 0;
+    max-width: 300px;
+}
+
+/* 与「全部运行」同高，带边框才有按钮感 */
+.topbar-row.actions .icon-btn {
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--g-line);
+}
+
+/* 通过率读数 */
+.pass-rate {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    flex-shrink: 0;
+    margin-left: auto;
+    padding-left: 8px;
+    font-family: var(--g-mono);
+    font-size: var(--g-fs-label);
+    color: var(--g-fg-4);
+    font-variant-numeric: tabular-nums;
+}
+
+.pass-rate b {
+    font-weight: 600;
+    color: var(--g-fg-2);
+}
+
+.pass-rate.all-pass b,
+.pass-rate.all-pass {
+    color: var(--g-pass-fg);
+}
+
+/* --------------------------------------------------------------------------
+   用例列表工具条
+   -------------------------------------------------------------------------- */
+
+.list-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 10px 4px;
+}
+
+.list-toolbar .spacer {
+    flex: 1;
+}
+
+.case-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 10px 10px;
+}
+
+/* --------------------------------------------------------------------------
+   测试用例卡片
+   -------------------------------------------------------------------------- */
+
+.case {
+    position: relative;
+    border: 1px solid var(--g-line);
+    border-radius: var(--g-r-lg);
+    background: rgba(255, 255, 255, 0.014);
+    overflow: hidden;
+    transition: border-color var(--g-ease);
+}
+
+.case:hover {
+    border-color: var(--g-line-strong);
+}
+
+/* 左侧状态导轨：折叠时也能一眼看出结果 */
+.case::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: transparent;
+    transition: background var(--g-ease);
+}
+
+.case.passed::before {
+    background: var(--g-pass);
+}
+
+.case.failed::before {
+    background: var(--g-fail);
+}
+
+.case.running::before {
+    background: var(--g-warn);
+}
+
+.case-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 6px 5px 9px;
+    min-height: 34px;
+}
+
+.case-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    color: var(--g-fg-4);
+    transition: transform 0.15s ease, color var(--g-ease);
+}
+
+.toggle-icon.collapsed {
+    transform: rotate(-90deg);
+}
+
+.case-title:hover .toggle-icon {
+    color: var(--g-fg-2);
+}
+
+.case-label {
+    flex-shrink: 0;
+    font-size: var(--g-fs);
+    font-weight: 500;
+    color: var(--g-fg-2);
+    letter-spacing: 0.01em;
+}
+
+.case-title:hover .case-label {
+    color: var(--g-fg);
+}
+
+/* 状态：小圆点 + 文字，不用胶囊 */
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    font-size: var(--g-fs-label);
+    font-weight: 500;
+}
+
+.status .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
     flex-shrink: 0;
 }
 
-.file-link:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.9);
+.status.pass {
+    color: var(--g-pass-fg);
 }
 
-.file-link:active {
-    transform: scale(0.98);
+.status.fail {
+    color: var(--g-fail);
 }
 
-.file-link .codicon {
-    font-size: 12px;
+.status.running {
+    color: var(--g-warn);
+}
+
+.status.running .dot {
+    animation: pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.25;
+    }
+}
+
+.time-label {
+    flex-shrink: 0;
+    font-family: var(--g-mono);
+    font-size: 10px;
+    color: var(--g-fg-4);
+    font-variant-numeric: tabular-nums;
+}
+
+.case-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    opacity: 0.55;
+    transition: opacity var(--g-ease);
+}
+
+.case:hover .case-actions,
+.case-actions:focus-within {
+    opacity: 1;
+}
+
+.case-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 10px 12px;
+    border-top: 1px solid var(--g-line);
+    animation: reveal 0.14s ease-out;
+}
+
+@keyframes reveal {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   输入 / 期望 / 实际 三栏：窄栏自动堆叠，永不横向滚动
+   -------------------------------------------------------------------------- */
+
+.editor-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 14px;
+}
+
+.editor-row>.editor-section {
+    flex: 1 1 190px;
+    min-width: 0;
+}
+
+.editor-row>.editor-section.actual-section {
+    flex-grow: 1.4;
+}
+
+.editor-row-full>.editor-section {
+    flex: 1 1 100%;
+}
+
+.editor-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.editor-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 18px;
+}
+
+.editor-label .name {
+    flex-shrink: 0;
+    font-size: var(--g-fs-label);
+    font-weight: 500;
+    color: var(--g-fg-4);
+    letter-spacing: 0.03em;
+}
+
+.editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    margin-left: auto;
+    opacity: 0;
+    transition: opacity var(--g-ease);
+}
+
+.editor-section:hover .editor-actions,
+.editor-actions:focus-within {
+    opacity: 1;
+}
+
+/* 常驻动作（如「设为期望」）不随悬停隐藏 */
+.editor-actions.persistent {
+    opacity: 1;
+}
+
+/* 小号动作按钮 */
+.mini-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 18px;
+    padding: 0 4px;
+    border: none;
+    border-radius: var(--g-r-sm);
+    background: transparent;
+    color: var(--g-fg-4);
+    font-family: inherit;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background var(--g-ease), color var(--g-ease);
+}
+
+.mini-btn:hover {
+    background: var(--g-hover);
+    color: var(--g-fg-2);
+}
+
+.mini-btn:focus-visible {
+    outline: 1px solid var(--g-accent);
+    outline-offset: -1px;
+}
+
+.mini-btn svg {
+    width: 12px;
+    height: 12px;
+}
+
+.mini-btn.accent {
+    color: var(--g-accent);
+    opacity: 0.8;
+}
+
+.mini-btn.accent:hover {
+    background: var(--g-tint-accent);
+    color: var(--g-accent);
+    opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   代码框
+   -------------------------------------------------------------------------- */
+
+.editor-box,
+.diff-box {
+    background: var(--g-well);
+    border: 1px solid transparent;
+    border-radius: var(--g-r);
+    overflow: hidden;
+}
+
+.editor-box {
+    display: flex;
+}
+
+.editor-box:focus-within {
+    border-color: rgba(169, 149, 241, 0.45);
+}
+
+.line-numbers {
+    flex-shrink: 0;
+    min-width: 26px;
+    padding: 6px 0;
+    text-align: right;
+    font-family: var(--g-mono);
+    font-size: var(--g-fs);
+    line-height: var(--g-mono-lh);
+    color: var(--g-fg-4);
+    opacity: 0.55;
+    font-variant-numeric: tabular-nums;
+}
+
+.line-numbers .ln {
+    display: block;
+    padding: 0 8px 0 6px;
+}
+
+.editor-content {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px 6px 0;
+    border: none;
+    background: transparent;
+    font-family: var(--g-mono);
+    font-size: var(--g-fs);
+    line-height: var(--g-mono-lh);
+    color: var(--g-fg);
+    resize: none;
+    outline: none;
+    white-space: pre;
+    overflow-x: auto;
+    min-height: calc(var(--g-mono-lh) * 2 + 12px);
+}
+
+.editor-content[readonly] {
+    color: var(--g-fg-2);
+}
+
+.editor-content::selection {
+    background: var(--vscode-editor-selectionBackground, rgba(88, 133, 100, 0.4));
+}
+
+/* --------------------------------------------------------------------------
+   Diff：匹配行只上文字色，差异行才有底色
+   -------------------------------------------------------------------------- */
+
+.diff-box {
+    overflow-x: auto;
+    padding: 6px 0;
+}
+
+.diff-line {
+    display: flex;
+    font-family: var(--g-mono);
+    font-size: var(--g-fs);
+    line-height: var(--g-mono-lh);
+}
+
+.diff-line .ln {
+    flex-shrink: 0;
+    min-width: 26px;
+    padding: 0 8px 0 6px;
+    text-align: right;
+    color: var(--g-fg-4);
+    opacity: 0.55;
+    font-variant-numeric: tabular-nums;
+}
+
+.diff-line .content {
+    flex: 1;
+    padding: 0 8px;
+    color: var(--g-fg-2);
+    white-space: pre;
+}
+
+.diff-line.match .content {
+    color: var(--g-pass-fg);
+}
+
+.diff-box.expected .diff-line.mismatch .content {
+    background: var(--g-tint-info);
+    color: var(--g-info);
+}
+
+.diff-box.received .diff-line.mismatch .content {
+    background: var(--g-tint-fail);
+    color: var(--g-fail);
+}
+
+/* --------------------------------------------------------------------------
+   加载指示
+   -------------------------------------------------------------------------- */
+
+.spinner {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 11px;
+    height: 11px;
+    border: 1.5px solid var(--g-line-strong);
+    border-top-color: var(--g-accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+svg.spin {
+    animation: spin 0.9s linear infinite;
+}
+
+/* --------------------------------------------------------------------------
+   轻提示：右下角浮起，不再占满整条底边
+   -------------------------------------------------------------------------- */
+
+.toast {
+    position: fixed;
+    right: 10px;
+    bottom: 36px;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    max-width: calc(100% - 20px);
+    padding: 7px 11px;
+    border: 1px solid var(--g-line-strong);
+    border-radius: var(--g-r);
+    background: var(--vscode-editorWidget-background, #232323);
+    color: var(--g-fg);
+    font-size: var(--g-fs-label);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    animation: toast-in 0.16s ease-out;
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.toast .codicon {
+    font-size: 13px;
     flex-shrink: 0;
 }
 
-/* 亮色主题 - 文件链接 */
-body.vscode-light .file-link {
-    background: rgba(0, 0, 0, 0.05);
-    color: rgba(0, 0, 0, 0.6);
+.toast.success .codicon {
+    color: var(--g-pass-fg);
 }
 
-body.vscode-light .file-link:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: rgba(0, 0, 0, 0.85);
+.toast.error .codicon {
+    color: var(--g-fail);
 }
 
-/* 亮色主题 - 可点击图标 */
-body.vscode-light .clickable-icon {
-    color: rgba(0, 0, 0, 0.5);
+.toast.warning .codicon {
+    color: var(--g-warn);
 }
 
-body.vscode-light .clickable-icon:hover {
-    background: rgba(0, 0, 0, 0.08);
-    color: #2563eb;
+.toast.info .codicon {
+    color: var(--g-accent);
 }
 
-/* 亮色主题 - 头部图标标签 */
-body.vscode-light .header-icon-label {
-    color: rgba(0, 0, 0, 0.5);
+/* --------------------------------------------------------------------------
+   超时提示
+   -------------------------------------------------------------------------- */
+
+.hint {
+    margin: 0 10px 10px;
+    padding: 9px 11px;
+    border: 1px solid var(--g-line);
+    border-left: 2px solid var(--g-warn);
+    border-radius: var(--g-r);
+    background: var(--g-tint-warn);
 }
 
-body.vscode-light .header-icon-label:hover {
-    background: rgba(0, 0, 0, 0.08);
-    color: rgba(0, 0, 0, 0.85);
+.hint-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+    font-size: var(--g-fs-label);
+    font-weight: 600;
+    color: var(--g-warn);
 }
 
-/* 亮色主题 - 通知图标 */
-body.vscode-light .notification-success .codicon {
-    color: #16a34a;
+.hint p {
+    margin: 0;
+    font-size: var(--g-fs-label);
+    color: var(--g-fg-3);
+    line-height: 1.5;
 }
 
-body.vscode-light .notification-error .codicon {
-    color: #dc2626;
+/* --------------------------------------------------------------------------
+   空状态 / 最近文件
+   -------------------------------------------------------------------------- */
+
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 14px 20px;
+    gap: 14px;
 }
 
-body.vscode-light .notification-warning .codicon {
-    color: #ca8a04;
+.empty-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--g-fs-label);
+    color: var(--g-fg-3);
 }
 
-body.vscode-light .notification-info .codicon {
-    color: #2563eb;
+.empty-loading {
+    padding: 40px 14px;
+    text-align: center;
+    font-size: var(--g-fs-label);
+    color: var(--g-fg-4);
 }
 
-/* 亮色主题 - 头部按钮 */
-body.vscode-light .header-btn {
-    border-color: rgba(0, 0, 0, 0.15);
-    background: rgba(0, 0, 0, 0.05);
-    color: rgba(0, 0, 0, 0.7);
+.recent {
+    width: 100%;
+    max-width: 340px;
+    margin-top: 6px;
 }
 
-body.vscode-light .header-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: rgba(0, 0, 0, 0.9);
-    border-color: rgba(0, 0, 0, 0.25);
+.recent-title {
+    margin: 0 0 6px 2px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--g-fg-4);
 }
 
-body.vscode-light .header-btn .codicon {
-    color: inherit;
+.recent-list {
+    display: flex;
+    flex-direction: column;
 }
 
-/* 亮色主题 - 切换按钮 */
-body.vscode-light .toggle-btn {
-    background: rgba(234, 179, 8, 0.1);
-    color: #ca8a04;
-    border-color: rgba(234, 179, 8, 0.25);
+.recent-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 8px;
+    border-radius: var(--g-r);
+    font-size: var(--g-fs-label);
+    color: var(--g-fg-2);
+    cursor: pointer;
+    transition: background var(--g-ease), color var(--g-ease);
 }
 
-body.vscode-light .toggle-btn:hover {
-    background: rgba(234, 179, 8, 0.15);
-    border-color: rgba(234, 179, 8, 0.4);
+.recent-item:hover {
+    background: var(--g-hover);
+    color: var(--g-fg);
 }
 
-/* 亮色主题 - 复制按钮 */
-body.vscode-light .copy-btn {
-    background: rgba(124, 58, 237, 0.1);
-    color: #7c3aed;
-    border-color: rgba(124, 58, 237, 0.25);
+.recent-item .codicon {
+    font-size: 13px;
+    color: var(--g-fg-4);
+    flex-shrink: 0;
 }
 
-body.vscode-light .copy-btn:hover {
-    background: rgba(124, 58, 237, 0.15);
-    border-color: rgba(124, 58, 237, 0.4);
+.recent-item .name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* 亮色主题 - 通过率标签 */
-body.vscode-light .pass-rate-tag {
-    background: rgba(0, 0, 0, 0.06);
-    color: rgba(0, 0, 0, 0.5);
-    border-color: rgba(0, 0, 0, 0.15);
+.recent-item .time {
+    flex-shrink: 0;
+    font-family: var(--g-mono);
+    font-size: 10px;
+    color: var(--g-fg-4);
 }
 
-body.vscode-light .pass-rate-tag.pass-all {
-    color: #16a34a;
-    border-color: rgba(34, 197, 94, 0.3);
-    background: rgba(34, 197, 94, 0.1);
-}
+/* --------------------------------------------------------------------------
+   底部白板抽屉
+   -------------------------------------------------------------------------- */
 
-/* 亮色主题 - 加载动画 */
-body.vscode-light .loader {
-    border-color: rgba(0, 0, 0, 0.15);
-    border-top-color: #2563eb;
-}
-
-/* 亮色主题 - 编译状态 */
-body.vscode-light .compiling {
-    color: #ca8a04;
-}
-
-/* 亮色主题 - 问题名称文本 */
-body.vscode-light .problem-name-text,
-body.vscode-light .problem-name-text-flex {
-    color: rgba(0, 0, 0, 0.5);
-}
-
-/* 亮色主题 - 超时提示 */
-body.vscode-light .timeout-suggestion {
-    border-color: rgba(220, 38, 38, 0.3);
-    background: rgba(220, 38, 38, 0.08);
-}
-
-body.vscode-light .timeout-suggestion h5 {
-    color: #dc2626;
-}
-
-body.vscode-light .timeout-suggestion p {
-    color: rgba(0, 0, 0, 0.7);
-}
-
-/* 亮色主题 - 通知基础样式 */
-body.vscode-light .notification {
-    background: rgba(255, 255, 255, 0.98);
-    color: rgba(0, 0, 0, 0.9);
-    border-top-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
-}
-
-/* ==================== 全局抽屉样式 ==================== */
 .global-drawer {
     position: fixed;
-    bottom: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     z-index: 1500;
     display: flex;
     flex-direction: column;
-    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: var(--vscode-sideBar-background);
-    border-top: 1px solid rgba(180, 150, 200, 0.2);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    background: var(--g-bg);
+    border-top: 1px solid var(--g-line);
+    transition: height 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     will-change: height;
 }
 
 .global-drawer.collapsed {
-    height: 40px;
+    height: 26px;
 }
 
 .global-drawer.expanded {
-    height: 75vh;
+    height: 70vh;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.28);
 }
 
-/* 收起区域 - 点击收起 */
 .drawer-collapse-area {
     position: absolute;
-    top: 40px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    cursor: pointer !important;
-    background: transparent;
-    transition: background 0.2s ease;
+    inset: 26px 0 0 0;
     z-index: 1;
-}
-
-.drawer-collapse-area:hover {
-    background: rgba(0, 0, 0, 0.02);
+    cursor: pointer;
 }
 
 .drawer-collapse-area.hidden {
     display: none;
 }
 
-/* 抽屉内容区域 */
 .drawer-content-area {
     position: relative;
     z-index: 2;
@@ -1593,133 +997,138 @@ body.vscode-light .notification {
     height: 100%;
 }
 
-/* 展开/收起手柄 - 精致简约设计 */
+/* 抓手 */
 .drawer-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    height: 40px;
-    cursor: pointer !important;
-    background: transparent;
-    transition: all 0.2s ease;
-    user-select: none;
     position: relative;
+    flex-shrink: 0;
+    height: 26px;
+    cursor: pointer;
 }
 
 .drawer-toggle::before {
     content: '';
     position: absolute;
-    top: 12px;
+    top: 11px;
     left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
+    width: 30px;
     height: 3px;
-    background: rgba(180, 150, 200, 0.5);
+    transform: translateX(-50%);
     border-radius: 3px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--g-line-strong);
+    transition: background var(--g-ease), width 0.15s ease;
 }
 
 .drawer-toggle:hover::before {
-    background: rgba(180, 150, 200, 0.85);
-    width: 56px;
-    height: 4px;
-    top: 11.5px;
-    box-shadow: 0 2px 8px rgba(180, 150, 200, 0.3);
+    background: var(--g-accent);
+    width: 44px;
 }
 
-/* 编辑器容器 */
 .drawer-editor-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    min-height: 0;
 }
 
-/* 操作按钮区域 */
 .drawer-actions {
     display: flex;
-    gap: 6px;
-    padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(180, 150, 200, 0.15);
+    align-items: center;
+    gap: 2px;
+    padding: 0 8px 6px;
 }
 
 .drawer-editor-container {
     flex: 1;
     display: flex;
-    overflow: hidden;
-    padding: 12px;
+    min-height: 0;
+    padding: 0 10px 10px;
 }
 
-/* 编辑器 */
 .drawer-editor {
     flex: 1;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(180, 150, 200, 0.2);
-    border-radius: 6px;
-    padding: 12px;
-    font-family: 'SF Mono', Consolas, 'Ubuntu Mono', monospace;
-    font-size: 13px;
+    padding: 9px 10px;
+    border: 1px solid transparent;
+    border-radius: var(--g-r);
+    background: var(--g-well);
+    font-family: var(--g-mono);
+    font-size: var(--g-fs);
     line-height: 1.6;
-    color: #d4d4d4;
+    color: var(--g-fg);
     resize: none;
-    outline: none !important;
+    outline: none;
     overflow-y: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
 }
 
 .drawer-editor:focus {
-    border-color: rgba(180, 150, 200, 0.6);
-    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(169, 149, 241, 0.45);
 }
 
 .drawer-editor::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-    font-style: italic;
+    color: var(--g-fg-4);
 }
 
-/* 亮色主题适配 */
-body.vscode-light .global-drawer {
-    background: var(--vscode-sideBar-background);
-    border-top-color: rgba(140, 100, 160, 0.3);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+/* --------------------------------------------------------------------------
+   亮色主题：只翻转结构色，语义色改用同色系深色调
+   -------------------------------------------------------------------------- */
+
+body.vscode-light,
+body.vscode-high-contrast-light {
+    --g-fg-2: #444;
+    --g-fg-3: #666;
+    --g-fg-4: #8a8a8a;
+    --g-line: rgba(0, 0, 0, 0.11);
+    --g-line-strong: rgba(0, 0, 0, 0.2);
+    --g-accent: #6f5bc4;
+    --g-pass: #2f8552;
+    --g-pass-fg: #2f8552;
+    --g-fail: #c04747;
+    --g-warn: #b57d1f;
+    --g-info: #3d7f92;
+    --g-hover: rgba(0, 0, 0, 0.05);
+    --g-active: rgba(0, 0, 0, 0.09);
+    --g-well: rgba(0, 0, 0, 0.035);
+    --g-tint-accent: rgba(111, 91, 196, 0.1);
+    --g-tint-pass: rgba(47, 133, 82, 0.1);
+    --g-tint-fail: rgba(192, 71, 71, 0.1);
+    --g-tint-warn: rgba(181, 125, 31, 0.1);
+    --g-tint-info: rgba(61, 127, 146, 0.1);
 }
 
-body.vscode-light .drawer-collapse-area:hover {
-    background: rgba(0, 0, 0, 0.03);
+body.vscode-light .case,
+body.vscode-high-contrast-light .case {
+    background: rgba(0, 0, 0, 0.012);
 }
 
-body.vscode-light .drawer-actions {
-    background: rgba(0, 0, 0, 0.06);
-    border-bottom-color: rgba(140, 100, 160, 0.2);
+body.vscode-light .btn.primary:hover,
+body.vscode-high-contrast-light .btn.primary:hover {
+    background: rgba(111, 91, 196, 0.17);
 }
 
-body.vscode-light .drawer-toggle::before {
-    background: rgba(120, 80, 140, 0.6);
-}
-
-body.vscode-light .drawer-toggle:hover::before {
-    background: rgba(120, 80, 140, 0.9);
-    box-shadow: 0 2px 8px rgba(120, 80, 140, 0.3);
-}
-
-body.vscode-light .drawer-editor {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(140, 100, 160, 0.3);
-    color: #2c2c2c;
-}
-
+body.vscode-light .editor-box:focus-within,
 body.vscode-light .drawer-editor:focus {
-    border-color: rgba(120, 80, 140, 0.65);
-    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(111, 91, 196, 0.5);
 }
 
-body.vscode-light .drawer-editor::placeholder {
-    color: rgba(0, 0, 0, 0.35);
+body.vscode-light *,
+body.vscode-high-contrast-light * {
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
-body.vscode-light .drawer-editor-container {
-    background: rgba(0, 0, 0, 0.01);
+body.vscode-light *::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.18);
+}
+
+body.vscode-light *::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+body.vscode-light .toast {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+}
+
+/* 同一标签行内的第二组动作按钮不再右推 */
+.editor-actions+.editor-actions {
+    margin-left: 0;
 }

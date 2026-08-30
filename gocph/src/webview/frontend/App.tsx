@@ -272,7 +272,7 @@ function Judge(props: {
     return (
         <div className="ui">
             {notification && (
-                <div className={`notification notification-${notification.type}`}>
+                <div className={`toast ${notification.type}`}>
                     {notification.type === 'success' && <i className="codicon codicon-check"></i>}
                     {notification.type === 'error' && <i className="codicon codicon-error"></i>}
                     {notification.type === 'warning' && <i className="codicon codicon-warning"></i>}
@@ -281,60 +281,70 @@ function Judge(props: {
                 </div>
             )}
 
-            <div className="header-container sticky-top">
-                {/* Row 1: 固定布局 - 文件图标 + 复制代码 + 问题名称（可缩减）+ 新建 void（固定） */}
-                <div className="row-1-fixed">
-                    <div className="file-icons">
-                        {mainFilePath && (
-                            <i className="codicon codicon-go-to-file clickable-icon" onClick={() => openFile(mainFilePath)} title={`打开 ${getFileName(mainFilePath)}`}></i>
-                        )}
-                        {testFilePath && (
-                            <i className="codicon codicon-beaker clickable-icon" onClick={() => openFile(testFilePath)} title={`打开 ${getFileName(testFilePath)}`}></i>
-                        )}
-                    </div>
-                    <button className="header-btn copy-btn" onClick={copyMainGo}>
+            <div className="topbar">
+                {/* 第一行：文件入口 + 题目名 + 代码操作 */}
+                <div className="topbar-row">
+                    {mainFilePath && (
+                        <button
+                            className="icon-btn"
+                            onClick={() => openFile(mainFilePath)}
+                            title={`打开 ${getFileName(mainFilePath)}`}
+                        >
+                            <i className="codicon codicon-go-to-file"></i>
+                        </button>
+                    )}
+                    {testFilePath && (
+                        <button
+                            className="icon-btn"
+                            onClick={() => openFile(testFilePath)}
+                            title={`打开 ${getFileName(testFilePath)}`}
+                        >
+                            <i className="codicon codicon-beaker"></i>
+                        </button>
+                    )}
+                    <span className="problem-name" title={problem.name}>{problem.name}</span>
+                    {compiling && <span className="spinner"></span>}
+                    <button className="btn" onClick={copyMainGo} title="复制代码 (Alt+3)">
                         <i className="codicon codicon-copy"></i> 复制
                     </button>
-                    <span className="problem-name-text-flex">
-                        {problem.name}
-                        {compiling && <span className="loader"></span>}
-                    </span>
-                    <button className="header-btn void-btn icon-only-btn" onClick={createVoid} title="创建新的 void 文件">
+                    <button className="icon-btn" onClick={createVoid} title="新建 void 文件">
                         <i className="codicon codicon-add"></i>
                     </button>
                 </div>
 
-                {/* Row 2: Execution Actions */}
-                <div className="row-2">
-                    <button className="header-btn run-btn" onClick={runAll} title="全部运行 (Alt+1)">
+                {/* 第二行：运行 / 停止 / 通过率 */}
+                <div className="topbar-row actions">
+                    <button className="btn primary run" onClick={runAll} title="全部运行 (Alt+1)">
                         <i className="codicon codicon-run-all"></i> 全部运行
                     </button>
-                    <div className="row-spacer-25"></div>
                     <button
-                        className="header-btn stop-btn"
+                        className="icon-btn stop"
                         onClick={stop}
                         title="停止运行 (Alt+2)"
                         disabled={!compiling && !executing}
                     >
-                        <i className="codicon codicon-debug-stop"></i> 停止
+                        <i className="codicon codicon-debug-stop"></i>
                     </button>
+                    <span className={`pass-rate ${numPassed === total && total > 0 ? 'all-pass' : ''}`}>
+                        <b>{numPassed}</b> / {total}
+                    </span>
                 </div>
             </div>
 
-            <div className="results-container">
-                <div className="new-test-row">
-                    <button className="header-btn new-btn" onClick={newCase}>
-                        <i className="codicon codicon-add"></i> 添加测试样例
-                    </button>
-                    <div className="row-spacer-flex"></div>
-                    <div className="header-controls-group">
-                        <i className="codicon codicon-chevron-up header-icon-label" onClick={collapseAll} title="收起来"></i>
-                        <i className="codicon codicon-chevron-down header-icon-label" onClick={expandAll} title="全部展开"></i>
-                        <div className={`pass-rate-tag ${numPassed === total && total > 0 ? 'pass-all' : ''}`}>
-                            {numPassed} / {total} 通过
-                        </div>
-                    </div>
-                </div>
+            <div className="list-toolbar">
+                <button className="btn" onClick={newCase}>
+                    <i className="codicon codicon-add"></i> 添加样例
+                </button>
+                <div className="spacer"></div>
+                <button className="icon-btn" onClick={collapseAll} title="全部收起">
+                    <i className="codicon codicon-chevron-up"></i>
+                </button>
+                <button className="icon-btn" onClick={expandAll} title="全部展开">
+                    <i className="codicon codicon-chevron-down"></i>
+                </button>
+            </div>
+
+            <div className="case-list">
                 {cases.map((c, i) => (
                     <CaseView
                         key={c.id}
@@ -352,9 +362,11 @@ function Judge(props: {
             </div>
 
             {hasTimeout && (
-                <div className="timeout-suggestion margin-10">
-                    <h5><i className="codicon codicon-warning"></i> 超时或 SIGTERM？</h5>
-                    <p>检查是否全部正确的读入所有的数据。</p>
+                <div className="hint">
+                    <div className="hint-title">
+                        <i className="codicon codicon-warning"></i> 超时或 SIGTERM
+                    </div>
+                    <p>检查是否正确读入了全部数据。</p>
                 </div>
             )}
 
@@ -449,101 +461,54 @@ function App() {
         vscodeApi.postMessage({ command: 'create-void' });
     }, []);
 
-    // 当前打开的是测试文件 - 显示跳转到 main.go 的页面
+    // 当前打开的是测试文件 - 引导跳回 main.go
     if (!problem && showFallback && fileStatus === 'is-test-file' && mainFilePath) {
         return (
-            <div className="ui p10">
-                <div className="text-center">
-                    <p style={{ marginBottom: 12, opacity: 0.8 }}>
-                        <i className="codicon codicon-beaker" style={{ marginRight: 6 }}></i>
-                        当前是测试文件
-                    </p>
-                    <button className="btn" onClick={() => openFile(mainFilePath)}>
-                        <i className="codicon codicon-go-to-file"></i> 打开 {getFileName(mainFilePath)}
-                    </button>
+            <div className="empty">
+                <div className="empty-note">
+                    <i className="codicon codicon-beaker"></i> 当前是测试文件
                 </div>
+                <button className="btn primary" onClick={() => openFile(mainFilePath)}>
+                    <i className="codicon codicon-go-to-file"></i> 打开 {getFileName(mainFilePath)}
+                </button>
             </div>
         );
     }
 
-    // 其他所有情况 - 显示创建 Void 按钮 + 最近文件列表
+    // 其他情况 - 创建 Void + 最近编辑
     if (!problem && showFallback) {
         const hasRecent = recentFiles && recentFiles.length > 0;
         return (
-            <div className="ui p10">
-                <div className="text-center">
-                    {/* 创建 Void 按钮 - 置顶居中 */}
-                    <button
-                        className="btn"
-                        onClick={createVoid}
-                        style={{
-                            marginBottom: hasRecent ? '24px' : '0',
-                            fontSize: '13px',
-                            padding: '8px 16px'
-                        }}
-                    >
-                        <i className="codicon codicon-add"></i> 创建 Void
-                    </button>
+            <div className="empty">
+                <button className="btn primary" onClick={createVoid}>
+                    <i className="codicon codicon-add"></i> 创建 Void
+                </button>
 
-                    {/* 最近文件列表 */}
-                    {hasRecent && (
-                        <div style={{ marginTop: '24px' }}>
-                            <p style={{ opacity: 0.7, fontSize: '12px', marginBottom: '12px' }}>最近编辑：</p>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                {recentFiles.map((fileInfo, i) => (
-                                    <div
-                                        key={i}
-                                        onClick={() => openFile(fileInfo.path)}
-                                        style={{
-                                            padding: '8px 10px',
-                                            cursor: 'pointer',
-                                            borderRadius: '4px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            fontSize: '12px',
-                                            background: 'var(--vscode-editor-inactiveSelectionBackground)',
-                                            color: 'var(--vscode-editor-foreground)',
-                                            transition: 'background 0.15s ease'
-                                        }}
-                                        title={fileInfo.path}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = 'var(--vscode-list-hoverBackground)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = 'var(--vscode-editor-inactiveSelectionBackground)';
-                                        }}
-                                    >
-                                        <div style={{ display: 'flex', alignItems: 'center', overflow: 'hidden', flex: 1 }}>
-                                            <i className="codicon codicon-file-code" style={{ marginRight: '8px', opacity: 0.8, flexShrink: 0 }}></i>
-                                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                {getRecentFileLabel(fileInfo.path)}
-                                            </span>
-                                        </div>
-                                        <span style={{
-                                            opacity: 0.6,
-                                            fontSize: '11px',
-                                            marginLeft: '8px',
-                                            flexShrink: 0
-                                        }}>
-                                            {formatRelativeTime(fileInfo.modifiedTime)}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
+                {hasRecent && (
+                    <div className="recent">
+                        <p className="recent-title">最近编辑</p>
+                        <div className="recent-list">
+                            {recentFiles.map((fileInfo, i) => (
+                                <div
+                                    key={i}
+                                    className="recent-item"
+                                    onClick={() => openFile(fileInfo.path)}
+                                    title={fileInfo.path}
+                                >
+                                    <i className="codicon codicon-file-code"></i>
+                                    <span className="name">{getRecentFileLabel(fileInfo.path)}</span>
+                                    <span className="time">{formatRelativeTime(fileInfo.modifiedTime)}</span>
+                                </div>
+                            ))}
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         );
     }
 
     if (!problem) {
-        return (
-            <div className="ui p10">
-                <p style={{ opacity: 0.5 }}>加载中...</p>
-            </div>
-        );
+        return <div className="empty-loading">加载中…</div>;
     }
 
     return (

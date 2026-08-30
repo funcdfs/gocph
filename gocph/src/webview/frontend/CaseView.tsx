@@ -3,69 +3,50 @@ import { useState, createRef, useEffect, useCallback } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import React from 'react';
 
-// 手绘风格 SVG 图标组件
+// 极简线性图标：统一 12px 网格、1.3 描边、圆角端点
+const stroke = {
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.3,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+};
+
 const Icons = {
-    // 下拉箭头 - 圆润手绘风格
     chevronDown: (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.5 4.5C2.5 4.5 4 6.5 6 7.5C8 6.5 9.5 4.5 9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 4.75 6 7.75 9 4.75" {...stroke} />
         </svg>
     ),
-    // 右箭头 - 圆润手绘风格
-    chevronRight: (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4.5 2.5C4.5 2.5 6.5 4 7.5 6C6.5 8 4.5 9.5 4.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    ),
-    // 播放按钮 - 圆润三角
     play: (
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 3C4 2.6 4.3 2.4 4.6 2.6L11 6.6C11.3 6.8 11.3 7.2 11 7.4L4.6 11.4C4.3 11.6 4 11.4 4 11V3Z" fill="currentColor" stroke="currentColor" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.25 2.6 9.6 6l-5.35 3.4Z" fill="currentColor" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
         </svg>
     ),
-    // 删除按钮 - 圆润垃圾桶
     trash: (
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 4H11M5.5 4V3C5.5 2.4 5.9 2 6.5 2H7.5C8.1 2 8.5 2.4 8.5 3V4M4 4L4.5 11.5C4.5 12.1 5 12.5 5.5 12.5H8.5C9 12.5 9.5 12.1 9.5 11.5L10 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.75 3.5h6.5M4.75 3.5v-1h2.5v1M3.75 3.5l.4 6h3.7l.4-6" {...stroke} />
         </svg>
     ),
-    // 复制按钮 - 圆润文档
     copy: (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="3.5" y="3.5" width="6" height="7" rx="1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-            <path d="M8.5 3.5V2.5C8.5 2 8 1.5 7.5 1.5H3C2.5 1.5 2 2 2 2.5V8C2 8.5 2.5 9 3 9H3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4.25" y="4.25" width="5.5" height="6" rx="1.2" {...stroke} />
+            <path d="M7.75 4.25v-1a1.2 1.2 0 0 0-1.2-1.2H3.45a1.2 1.2 0 0 0-1.2 1.2v3.6a1.2 1.2 0 0 0 1.2 1.2h.8" {...stroke} />
         </svg>
     ),
-    // 设为期望 - 向左箭头
     setExpected: (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6H3M3 6L5.5 3.5M3 6L5.5 8.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.5 6h-7M5 3.5 2.5 6 5 8.5" {...stroke} />
         </svg>
     ),
-    // 全屏 - 圆润扩展图标
     expand: (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1.5 4.5V2.5C1.5 2 2 1.5 2.5 1.5H4.5M7.5 1.5H9.5C10 1.5 10.5 2 10.5 2.5V4.5M10.5 7.5V9.5C10.5 10 10 10.5 9.5 10.5H7.5M4.5 10.5H2.5C2 10.5 1.5 10 1.5 9.5V7.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 4.5v-1.3c0-.66.54-1.2 1.2-1.2h1.3M7.5 2h1.3c.66 0 1.2.54 1.2 1.2v1.3M10 7.5v1.3c0 .66-.54 1.2-1.2 1.2H7.5M4.5 10H3.2A1.2 1.2 0 0 1 2 8.8V7.5" {...stroke} />
         </svg>
     ),
-    // 通过状态 - 圆润勾选
-    pass: (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.2" />
-            <path d="M3.5 6L5.5 8L8.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    ),
-    // 失败状态 - 圆润叉号
-    fail: (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.2" />
-            <path d="M4 4L8 8M8 4L4 8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-    ),
-    // 运行中 - 圆润加载
-    running: (
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="spin">
-            <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.2" strokeDasharray="20" strokeDashoffset="5" strokeLinecap="round" />
+    clear: (
+        <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3.5 3.5l5 5M8.5 3.5l-5 5" {...stroke} />
         </svg>
     ),
 };
@@ -297,20 +278,16 @@ export default function CaseView(props: {
                     <span className={`toggle-icon ${minimized ? 'collapsed' : ''}`}>
                         {Icons.chevronDown}
                     </span>
-                    <span className="case-label">
-                        <span className="case-label-text">测试 {props.num}</span>
-                    </span>
+                    <span className="case-label">测试 {props.num}</span>
                     {running && (
-                        <span className="status-label running">
-                            {Icons.running}
-                            <span>运行中</span>
+                        <span className="status running">
+                            <span className="dot"></span>运行中
                         </span>
                     )}
                     {result && !running && (
                         <>
-                            <span className={`status-label ${result.pass ? 'pass' : 'fail'}`}>
-                                {result.pass ? Icons.pass : Icons.fail}
-                                <span>{result.pass ? '通过' : '失败'}</span>
+                            <span className={`status ${result.pass ? 'pass' : 'fail'}`}>
+                                <span className="dot"></span>{result.pass ? '通过' : '失败'}
                             </span>
                             <span className="time-label">{timeText}</span>
                         </>
@@ -319,15 +296,15 @@ export default function CaseView(props: {
                 <div className="case-actions">
                     <button
                         className="icon-btn run"
-                        title="运行"
+                        title="运行此样例"
                         onClick={rerun}
                         disabled={running}
                     >
                         {Icons.play}
                     </button>
                     <button
-                        className="icon-btn delete"
-                        title="删除"
+                        className="icon-btn remove"
+                        title="删除此样例"
                         onClick={() => remove(id)}
                     >
                         {Icons.trash}
@@ -337,19 +314,17 @@ export default function CaseView(props: {
 
             {!minimized && (
                 <div className="case-body">
-                    {/* 第一行：输入 || 期望输出 || 实际输出 */}
+                    {/* 输入 / 期望输出 / 实际输出：窄栏自动堆叠 */}
                     <div className="editor-row">
-                        {/* 输入区域 - 薰衣草紫色 */}
                         <div className="editor-section input-section">
                             <div className="editor-label">
-                                <span>输入</span>
+                                <span className="name">输入</span>
                                 <div className="editor-actions">
-                                    <button className="action-btn" onClick={() => handleExpandToVoid(input, '输入')} title="展开到观察区">
+                                    <button className="mini-btn" onClick={() => handleExpandToVoid(input, '输入')} title="展开到观察区">
                                         {Icons.expand}
                                     </button>
-                                    <button className="action-btn" onClick={() => copyToClipboard(input)} title="复制">
+                                    <button className="mini-btn" onClick={() => copyToClipboard(input)} title="复制">
                                         {Icons.copy}
-                                        <span>复制</span>
                                     </button>
                                 </div>
                             </div>
@@ -363,14 +338,13 @@ export default function CaseView(props: {
 
                         <div className="editor-section expected-section">
                             <div className="editor-label">
-                                <span>期望输出</span>
+                                <span className="name">期望输出</span>
                                 <div className="editor-actions">
-                                    <button className="action-btn" onClick={() => handleExpandToVoid(output, '期望输出')} title="展开到观察区">
+                                    <button className="mini-btn" onClick={() => handleExpandToVoid(output, '期望输出')} title="展开到观察区">
                                         {Icons.expand}
                                     </button>
-                                    <button className="action-btn" onClick={() => copyToClipboard(output)} title="复制">
+                                    <button className="mini-btn" onClick={() => copyToClipboard(output)} title="复制">
                                         {Icons.copy}
-                                        <span>复制</span>
                                     </button>
                                 </div>
                             </div>
@@ -384,22 +358,23 @@ export default function CaseView(props: {
                         {result && (
                             <div className="editor-section actual-section">
                                 <div className="editor-label">
-                                    <span>实际输出</span>
-                                    <div className="editor-actions">
+                                    <span className="name">实际输出</span>
+                                    <div className="editor-actions persistent">
                                         <button
-                                            className="action-btn primary"
+                                            className="mini-btn accent"
                                             onClick={handleSetExpected}
-                                            title="设为期望"
+                                            title="把实际输出设为期望输出"
                                         >
                                             {Icons.setExpected}
                                             <span>设为期望</span>
                                         </button>
-                                        <button className="action-btn" onClick={() => handleExpandToVoid(resultText, '实际输出')} title="展开到观察区">
+                                    </div>
+                                    <div className="editor-actions">
+                                        <button className="mini-btn" onClick={() => handleExpandToVoid(resultText, '实际输出')} title="展开到观察区">
                                             {Icons.expand}
                                         </button>
-                                        <button className="action-btn" onClick={() => copyToClipboard(resultText)} title="复制">
+                                        <button className="mini-btn" onClick={() => copyToClipboard(resultText)} title="复制">
                                             {Icons.copy}
-                                            <span>复制</span>
                                         </button>
                                     </div>
                                 </div>
@@ -412,16 +387,15 @@ export default function CaseView(props: {
                         )}
                     </div>
 
-                    {/* 第二行：stderr 独占 或 void 独占 */}
+                    {/* 标准错误 或 观察区，占满整行 */}
                     {stderror && stderror.length > 0 ? (
                         <div className="editor-row-full">
                             <div className="editor-section">
                                 <div className="editor-label">
-                                    <span>标准错误</span>
+                                    <span className="name">标准错误</span>
                                     <div className="editor-actions">
-                                        <button className="action-btn" onClick={() => copyToClipboard(stderror)} title="复制">
+                                        <button className="mini-btn" onClick={() => copyToClipboard(stderror)} title="复制">
                                             {Icons.copy}
-                                            <span>复制</span>
                                         </button>
                                     </div>
                                 </div>
@@ -432,14 +406,13 @@ export default function CaseView(props: {
                         <div className="editor-row-full">
                             <div className="editor-section void-section">
                                 <div className="editor-label">
-                                    <span>{voidLabel || '观察区'}</span>
+                                    <span className="name">{voidLabel || '观察区'}</span>
                                     <div className="editor-actions">
-                                        <button className="action-btn" onClick={() => { setVoidContent(''); setVoidLabel(''); }} title="清空">
-                                            <span>清空</span>
+                                        <button className="mini-btn" onClick={() => { setVoidContent(''); setVoidLabel(''); }} title="清空">
+                                            {Icons.clear}
                                         </button>
-                                        <button className="action-btn" onClick={() => copyToClipboard(voidContent)} title="复制">
+                                        <button className="mini-btn" onClick={() => copyToClipboard(voidContent)} title="复制">
                                             {Icons.copy}
-                                            <span>复制</span>
                                         </button>
                                     </div>
                                 </div>

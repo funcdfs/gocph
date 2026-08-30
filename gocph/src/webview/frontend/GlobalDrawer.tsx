@@ -76,7 +76,6 @@ export default function GlobalDrawer({ whiteboard, onWhiteboardChange }: GlobalD
     return (
         <div className={`global-drawer ${isExpanded ? 'expanded' : 'collapsed'}`}>
             {/* 收起区域 - 点击收起抽屉 */}
-            {/* 收起区域 - 点击收起抽屉 */}
             <div
                 className={`drawer-collapse-area ${isExpanded ? '' : 'hidden'}`}
                 onClick={handleCollapseAreaClick}
@@ -85,26 +84,21 @@ export default function GlobalDrawer({ whiteboard, onWhiteboardChange }: GlobalD
 
             {/* 抽屉内容区域 */}
             <div className="drawer-content-area">
-                {/* 展开/收起按钮 */}
-                <div className="drawer-toggle" onClick={toggleExpanded}>
-                </div>
+                {/* 展开/收起手柄 */}
+                <div className="drawer-toggle" onClick={toggleExpanded} title="白板"></div>
 
-                {/* 编辑器区域 */}
                 {/* 编辑器区域 */}
                 <div className="drawer-editor-wrapper">
                     {/* 操作按钮 */}
                     <div className="drawer-actions">
-                        <button className="action-btn" onClick={handlePaste} title="粘贴">
+                        <button className="icon-btn" onClick={handlePaste} title="粘贴">
                             <i className="codicon codicon-clippy"></i>
-                            <span>粘贴</span>
                         </button>
-                        <button className="action-btn" onClick={handleClear} title="清空">
-                            <i className="codicon codicon-trash"></i>
-                            <span>清空</span>
-                        </button>
-                        <button className="action-btn" onClick={handleCopy} title="复制">
+                        <button className="icon-btn" onClick={handleCopy} title="复制">
                             <i className="codicon codicon-copy"></i>
-                            <span>复制</span>
+                        </button>
+                        <button className="icon-btn remove" onClick={handleClear} title="清空">
+                            <i className="codicon codicon-trash"></i>
                         </button>
                     </div>
 
