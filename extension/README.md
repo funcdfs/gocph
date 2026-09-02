@@ -55,6 +55,7 @@ cd extension
 npm install
 npm run watch      # 监听 src/ 增量构建到 dist/，然后在 VS Code 里按 F5 调试
 npm run check      # 类型检查 + lint + 单元测试
+npm run test:vscode # 在真实 VS Code（自动下载，独立实例，装有 golang.go）里验证 snippet 自动折叠
 ./package.sh       # 打包 gocph-<version>.vsix（加 --install 直接装进 VS Code）
 ```
 

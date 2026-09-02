@@ -1,114 +1,102 @@
 import * as vscode from 'vscode';
 import { logger } from '../logger';
 import { settings } from '../settings';
+import { SKELETON_START, skeletonInsertionLine } from './skeleton';
 
-/** 模板骨架的折叠起始标记，与 snippets/go.json 中的 `// #region main` 保持一致 */
-const REGION_START = /^[ \t]*\/\/[ \t]*#region[ \t]+main\b/;
+/**
+ * 每次折叠尝试前等待的毫秒数。折叠区域要等编辑器重新向 FoldingRangeProvider 要一遍才存在，
+ * 而 VS Code 会等所有 provider（含 gopls）都返回才更新；gopls 冷启动时这一步可能拖到好几秒，
+ * 所以尾部留了较长的重试，累计约 10 秒。
+ */
+const ATTEMPT_DELAYS = [150, 250, 400, 600, 1000, 1500, 2500, 4000];
 
-/** 骨架代码远长于此，用来在每次按键时以 O(1) 成本提前返回 */
-const MIN_SNIPPET_LENGTH = 40;
+/** 发出折叠命令后，等视图刷新再确认是否真的折上了 */
+const VERIFY_DELAY = 80;
 
-/** 折叠命令的重试节奏（毫秒）：编辑器需要时间重新计算折叠模型 */
-const FOLD_ATTEMPT_DELAYS = [120, 400, 900, 2000];
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** 在插入的文本里定位 `// #region main` 的绝对行号，找不到返回 -1 */
-function findRegionLine(change: vscode.TextDocumentContentChangeEvent): number {
-    const lines = change.text.split('\n');
-    for (let i = 0; i < lines.length; i++) {
-        if (REGION_START.test(lines[i])) {
-            return change.range.start.line + i;
-        }
-    }
-    return -1;
+/** 折叠命令只作用于当前活动编辑器；文件不在前台时返回 undefined，避免折到别的文件 */
+function activeEditorFor(uriStr: string): vscode.TextEditor | undefined {
+    const editor = vscode.window.activeTextEditor;
+    return editor && editor.document.uri.toString() === uriStr ? editor : undefined;
 }
 
-/** 折叠后 targetLine 之后的内容会被移出可见区域，以此判断是否已经折叠成功 */
+/** 折叠后 line 之后的行被藏起来，因此某个可见区间恰好在 line 结束 */
 function isFolded(editor: vscode.TextEditor, line: number): boolean {
-    return editor.visibleRanges.some((range) => range.end.line === line && line < editor.document.lineCount - 1);
+    return line < editor.document.lineCount - 1 && editor.visibleRanges.some((range) => range.end.line === line);
 }
 
 /** 目标行仍然是骨架的起始标记时才允许折叠，避免用户后续编辑导致误折叠 */
-function isStillRegionStart(doc: vscode.TextDocument, line: number): boolean {
-    return line < doc.lineCount && REGION_START.test(doc.lineAt(line).text);
+function isStillSkeletonStart(document: vscode.TextDocument, line: number): boolean {
+    return line < document.lineCount && SKELETON_START.test(document.lineAt(line).text);
 }
 
 /**
- * 折叠 targetLine 处的 region。
+ * 折叠 line 处的 region。
  *
- * 关键点：通过 `selectionLines` 参数指定折叠目标，全程不修改 editor.selection。
- * 直接移动光标会终止正在进行的 snippet 会话，导致 tabstop / $0 全部失效。
+ * 只通过 `selectionLines` 指定目标，全程不动 editor.selection：
+ * 移动光标会终止正在进行的 snippet 会话，tabstop / $0 全部失效。
+ *
+ * 每次尝试后都确认结果：折上了就结束，之后不再碰它，用户手动展开不会被折回去；
+ * 没折上说明折叠区域还没算出来，按 ATTEMPT_DELAYS 继续等。
  */
-function scheduleFold(uriStr: string, line: number, attempt: number): void {
-    if (attempt >= FOLD_ATTEMPT_DELAYS.length) {
-        return;
-    }
+async function foldSkeleton(uriStr: string, line: number): Promise<void> {
+    for (const delay of ATTEMPT_DELAYS) {
+        await sleep(delay);
 
-    setTimeout(() => {
-        const editor = vscode.window.activeTextEditor;
-
-        // 折叠命令作用于当前聚焦的编辑器，文件不在前台时跳过本次尝试
-        if (!editor || editor.document.uri.toString() !== uriStr) {
-            scheduleFold(uriStr, line, attempt + 1);
-            return;
+        const editor = activeEditorFor(uriStr);
+        if (!editor) {
+            continue;
         }
-
-        if (!isStillRegionStart(editor.document, line)) {
+        if (!isStillSkeletonStart(editor.document, line)) {
             logger.log(`[autoFold] 第 ${line} 行已不是骨架标记，放弃折叠`);
             return;
         }
-
         if (isFolded(editor, line)) {
-            logger.log(`[autoFold] 第 ${line} 行已折叠，结束重试`);
+            logger.log(`[autoFold] 第 ${line} 行已折叠`);
             return;
         }
 
-        vscode.commands.executeCommand('editor.fold', { levels: 1, selectionLines: [line] }).then(undefined, (err) => {
+        try {
+            await vscode.commands.executeCommand('editor.fold', { levels: 1, selectionLines: [line] });
+        } catch (err) {
             logger.error(`[autoFold] 折叠命令失败: ${String(err)}`);
-        });
+        }
 
-        scheduleFold(uriStr, line, attempt + 1);
-    }, FOLD_ATTEMPT_DELAYS[attempt]);
+        await sleep(VERIFY_DELAY);
+        const after = activeEditorFor(uriStr);
+        if (after && isFolded(after, line)) {
+            logger.log(`[autoFold] 第 ${line} 行折叠成功`);
+            return;
+        }
+    }
+    logger.warn(`[autoFold] 第 ${line} 行多次尝试后仍未折叠，放弃`);
 }
 
-/** 插入 cp / tt / ttna 模板后自动折叠 `// #region main` 骨架 */
+/** 插入 cp / tt / ttna 模板后自动折叠 `// #region main` 骨架，只留下 solve() */
 export function registerAutoFold(): vscode.Disposable {
-    // 每个文档只自动折叠一次，避免用户手动展开后又被折回去
-    const handledDocs = new Set<string>();
+    return vscode.workspace.onDidChangeTextDocument((event) => {
+        const document = event.document;
+        if (document.languageId !== 'go' || document.uri.scheme !== 'file') {
+            return;
+        }
 
-    return vscode.Disposable.from(
-        vscode.workspace.onDidCloseTextDocument((doc) => {
-            handledDocs.delete(doc.uri.toString());
-        }),
-        vscode.workspace.onDidChangeTextDocument((event) => {
-            const doc = event.document;
-            if (doc.languageId !== 'go' || doc.uri.scheme !== 'file') {
+        for (const change of event.contentChanges) {
+            const line = skeletonInsertionLine({
+                text: change.text,
+                rangeLength: change.rangeLength,
+                startLine: change.range.start.line,
+                endLine: change.range.end.line,
+            });
+            if (line === -1) {
+                continue;
+            }
+            if (!settings.autoFold()) {
                 return;
             }
-
-            const uriStr = doc.uri.toString();
-            if (handledDocs.has(uriStr)) {
-                return;
-            }
-
-            for (const change of event.contentChanges) {
-                if (change.text.length < MIN_SNIPPET_LENGTH) {
-                    continue;
-                }
-
-                const line = findRegionLine(change);
-                if (line === -1) {
-                    continue;
-                }
-
-                if (!settings.autoFold()) {
-                    return;
-                }
-
-                handledDocs.add(uriStr);
-                logger.log(`[autoFold] 检测到骨架插入，目标行 ${line}`);
-                scheduleFold(uriStr, line, 0);
-                return;
-            }
-        }),
-    );
+            logger.log(`[autoFold] 检测到骨架插入，目标行 ${line}`);
+            void foldSkeleton(document.uri.toString(), line);
+            return;
+        }
+    });
 }

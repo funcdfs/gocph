@@ -3,7 +3,11 @@
         "target": "ES2022",
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
         "jsx": "react-jsx",
         "strict": true,
         "noUnusedLocals": true,
@@ -12,9 +16,14 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "isolatedModules": true,
-        "noEmit": true,
-        "rootDir": "src"
+        "noEmit": true
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist"]
+    "include": [
+        "src/**/*",
+        "test/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }
