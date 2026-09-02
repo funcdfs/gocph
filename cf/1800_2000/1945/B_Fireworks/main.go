@@ -1,5 +1,5 @@
 // link: https://codeforces.com/contest/1945/problem/B
-// time: 2026-08-30 14:52:09 https://github.com/funcdfs
+// time: 2026-08-30 22:13:20 https://github.com/funcdfs
 
 // #region main
 package main
@@ -12,21 +12,21 @@ import (
 	"strings"
 )
 
-var _in, _out = new(bufio.Reader), new(bufio.Writer)
+var (
+	_in  = bufio.NewReaderSize(os.Stdin, 1<<16)
+	_out = bufio.NewWriterSize(os.Stdout, 1<<16)
+)
 
 func _github_funcdfs[T any](sep, end string, arr ...T) {
 	for idx := range arr {
-		fmt.Fprint(_out, arr[idx])
-		if idx == len(arr)-1 {
-			fmt.Fprint(_out, end)
-		} else {
+		if idx > 0 {
 			fmt.Fprint(_out, sep)
 		}
+		fmt.Fprint(_out, arr[idx])
 	}
+	fmt.Fprint(_out, end)
 }
 func main() {
-	_in = bufio.NewReader(os.Stdin)
-	_out = bufio.NewWriter(os.Stdout)
 	defer _out.Flush()
 	testCaseCnt := input[int]()
 	for i := 0; i < testCaseCnt; i++ {
@@ -41,8 +41,9 @@ func inputSlice[T any](size int) []T {
 	}
 	return data
 }
-func print[T any](arr ...T)   { _github_funcdfs("", "", arr...) }
-func println[T any](arr ...T) { _github_funcdfs(" ", "\n", arr...) }
+func print[T any](arr ...T) { _github_funcdfs("", "", arr...) }
+func pln[T any](arr ...T)   { _github_funcdfs(" ", "\n", arr...) }
+func printf(format string, args ...any) { fmt.Fprintf(_out, format, args...) }
 func dbg(args ...any) {
 	_, f, l, _ := runtime.Caller(1)
 	fmt.Fprintf(os.Stderr, "L%d: ", l)
@@ -81,12 +82,8 @@ func dbg(args ...any) {
 // ----------------------------- /* Start of useful functions */ -----------------------------
 func solve(_case int) {
 
-	a,b,m := input[int](), input[int](), input[int]()
-	// max fire count in sky 
-
-	
-
-
+	a, b, m := input[int](), input[int](), input[int]()
+	pln(m/a + m/b + 2)
 }
 
 // ----------------------------- /* End of useful functions */ -------------------------------
