@@ -1,5 +1,9 @@
+import * as path from 'path';
 import { describe, expect, it } from 'vitest';
 import { cleanName, fileStatusOf, isInAllowedDirectory, problemPathsOf, relativeDirFor, testFileOf } from './layout';
+
+/** Windows 下 path.parse/join 输出反斜杠，期望值按平台折叠分隔符 */
+const norm = (p: string): string => p.replaceAll('/', path.sep);
 
 describe('cleanName', () => {
     it('去掉题号前缀并折叠非法字符', () => {
@@ -55,11 +59,11 @@ describe('文件状态与配对', () => {
     });
 
     it('problemPathsOf 从任一文件推出配对路径', () => {
-        expect(testFileOf('/repo/cf/1/A/main.go')).toBe('/repo/cf/1/A/main_test.go');
+        expect(testFileOf('/repo/cf/1/A/main.go')).toBe(norm('/repo/cf/1/A/main_test.go'));
         expect(problemPathsOf('/repo/cf/1/A/main_test.go')).toEqual({
-            srcPath: '/repo/cf/1/A/main.go',
-            testPath: '/repo/cf/1/A/main_test.go',
+            srcPath: '/repo/cf/1/A/main.go', // sourceFileOf 只替换后缀，分隔符原样保留
+            testPath: norm('/repo/cf/1/A/main_test.go'),
         });
-        expect(problemPathsOf('/repo/cf/1/A/main.go').testPath).toBe('/repo/cf/1/A/main_test.go');
+        expect(problemPathsOf('/repo/cf/1/A/main.go').testPath).toBe(norm('/repo/cf/1/A/main_test.go'));
     });
 });
