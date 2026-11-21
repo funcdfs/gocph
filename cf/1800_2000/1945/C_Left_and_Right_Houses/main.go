@@ -14,6 +14,7 @@ import (
 )
 
 var _in, _out = new(bufio.Reader), new(bufio.Writer)
+var _readCnt int
 
 func _github_funcdfs[T any](sep, end string, arr ...T) {
 	for idx := range arr {
@@ -28,12 +29,21 @@ func main() {
 	_in = bufio.NewReaderSize(os.Stdin, 1<<16)
 	_out = bufio.NewWriterSize(os.Stdout, 1<<16)
 	defer _out.Flush()
+	defer func() { fmt.Fprintf(os.Stderr, "gocph read=%d\n", _readCnt) }()
 	testCaseCnt := input[int]()
 	for i := 0; i < testCaseCnt; i++ {
 		solve(i + 1)
 	}
 }
-func input[T any]() T { var value T; fmt.Fscan(_in, &value); return value }
+func input[T any]() T {
+	var value T
+	n, err := fmt.Fscan(_in, &value)
+	_readCnt += n
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[gocph] input 读取失败: %v\n", err)
+	}
+	return value
+}
 func inputSlice[T any](size int) []T {
 	data := make([]T, size)
 	for idx := 0; idx < size; idx++ {
