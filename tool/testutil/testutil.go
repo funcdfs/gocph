@@ -83,28 +83,14 @@ func RunTest(t *testing.T, name, input, want string, fn func()) {
 	}()
 
 	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				inputLines := strings.Split(strings.TrimSpace(input), "\n")
-				var inputStr strings.Builder
-				for i, line := range inputLines {
-					if i > 0 {
-						inputStr.WriteString("        ")
-					}
-					inputStr.WriteString(fmt.Sprintf("%s%s%s\n", colorLavender, line, colorReset))
-				}
-				t.Errorf("%s:\n%s%s%s, %sError: %v%s\nInput:  %s",
-					iconPanic,
-					colorBlue, extractLineNum(), colorReset,
-					colorRed, r, colorReset,
-					inputStr.String())
-				done <- fmt.Errorf("panic")
-				return
-			}
-			outWriter.Close()
-			done <- nil
-		}()
-		fn()
+		defer outWriter.Close()
+		report, panicked := runSolution(fn, input)
+		if panicked {
+			t.Errorf("%s", report)
+			done <- fmt.Errorf("panic")
+			return
+		}
+		done <- nil
 	}()
 
 	select {
@@ -115,16 +101,37 @@ func RunTest(t *testing.T, name, input, want string, fn func()) {
 		wg.Wait()
 		compareOutput(t, name, output.String(), want, input)
 	case <-timeout:
-		inputLines := strings.Split(strings.TrimSpace(input), "\n")
-		var inputStr strings.Builder
-		for i, line := range inputLines {
-			if i > 0 {
-				inputStr.WriteString("        ")
-			}
-			inputStr.WriteString(fmt.Sprintf("%s%s%s\n", colorLavender, line, colorReset))
-		}
-		t.Errorf("%s\nInput:  %s", iconTimeout, inputStr.String())
+		t.Errorf("%s\nInput:  %s", iconTimeout, echoInput(input))
 	}
+}
+
+// echoInput formats the input lines (lavender, indented) for error reports.
+func echoInput(input string) string {
+	inputLines := strings.Split(strings.TrimSpace(input), "\n")
+	var b strings.Builder
+	for i, line := range inputLines {
+		if i > 0 {
+			b.WriteString("        ")
+		}
+		b.WriteString(fmt.Sprintf("%s%s%s\n", colorLavender, line, colorReset))
+	}
+	return b.String()
+}
+
+// runSolution runs fn and converts a recovered panic into a formatted report.
+func runSolution(fn func(), input string) (report string, panicked bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			report = fmt.Sprintf("%s:\n%s%s%s, %sError: %v%s\nInput:  %s",
+				iconPanic,
+				colorBlue, extractLineNum(), colorReset,
+				colorRed, r, colorReset,
+				echoInput(input))
+			panicked = true
+		}
+	}()
+	fn()
+	return
 }
 
 // ================================ Output Comparison ================================

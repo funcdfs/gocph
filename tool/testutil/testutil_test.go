@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -46,7 +47,13 @@ func TestPanic(t *testing.T) {
 		var arr []int
 		fmt.Println(arr[10])
 	}
-	RunTest(t, "panic", "", "", panicFn)
+	report, panicked := runSolution(panicFn, "1 2")
+	if !panicked {
+		t.Fatalf("expected panic to be recovered and reported")
+	}
+	if !strings.Contains(report, iconPanic) || !strings.Contains(report, "index out of range") {
+		t.Errorf("unexpected panic report:\n%s", report)
+	}
 }
 
 func TestMultiline(t *testing.T) {
