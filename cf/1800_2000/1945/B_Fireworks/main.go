@@ -12,10 +12,7 @@ import (
 	"strings"
 )
 
-var (
-	_in  = bufio.NewReaderSize(os.Stdin, 1<<16)
-	_out = bufio.NewWriterSize(os.Stdout, 1<<16)
-)
+var _in, _out = new(bufio.Reader), new(bufio.Writer)
 
 func _github_funcdfs[T any](sep, end string, arr ...T) {
 	for idx := range arr {
@@ -27,6 +24,8 @@ func _github_funcdfs[T any](sep, end string, arr ...T) {
 	fmt.Fprint(_out, end)
 }
 func main() {
+	_in = bufio.NewReaderSize(os.Stdin, 1<<16)
+	_out = bufio.NewWriterSize(os.Stdout, 1<<16)
 	defer _out.Flush()
 	testCaseCnt := input[int]()
 	for i := 0; i < testCaseCnt; i++ {
