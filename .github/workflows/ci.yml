@@ -1,0 +1,23 @@
+# CI：构建全仓并运行基架（tool/）测试。
+# 各题目的测试在本地开发时运行；未完成的草稿会使全量测试永远红，故不纳入 CI。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      - name: Build
+        run: go build ./...
+      - name: Vet infrastructure
+        run: go vet ./tool/...
+      - name: Test infrastructure
+        run: go test -race ./tool/...
