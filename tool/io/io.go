@@ -12,6 +12,14 @@ var (
 	_out = bufio.NewWriterSize(os.Stdout, 1<<16)
 )
 
+// SetIO redirects the package-level input and output streams. Call it before
+// the first Input/Print use, e.g. to route the helpers through os.Pipe pairs
+// in tests.
+func SetIO(r io.Reader, w io.Writer) {
+	_in = bufio.NewReaderSize(r, 1<<16)
+	_out = bufio.NewWriterSize(w, 1<<16)
+}
+
 // Input core input function
 func Input[T any]() T {
 	var value T
