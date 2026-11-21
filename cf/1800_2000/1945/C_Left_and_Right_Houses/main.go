@@ -85,6 +85,7 @@ func solve(_case int) {
 
 	n := input[int]()
 	arr := inputSlice[int](n)
+	_ = arr // TODO: 待实现
 
 	// 从前往后记录这个0:1多的Index，然后从后往前记录这个1:0多的Index。然后从中间开始找，从中间位置向左向右找。他们两个Index距离中间最近的那一个Index就是中间的那一个Index。
 	

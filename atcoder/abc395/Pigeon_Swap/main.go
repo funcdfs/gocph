@@ -35,11 +35,12 @@ func solve() {
 	// 	}
 	// }
 	// use map to store idx value 
-	for i := range k {
+	for range k {
 		op := input[int]()
 		if op == 1 {
 			a, b := input[int](), input[int]()
 			// mvoe a to zoom b 
+			_, _ = a, b // TODO: 待实现
 			
 		} else if op == 2 {
 			a, b := input[int](), input[int]()
@@ -50,7 +51,7 @@ func solve() {
 			for i := range zoom[b] {
 				pos[zoom[b][i]] = a
 			}		} else if op == 3 {
-			val = input[int]()
+			val := input[int]()
 			println(pos[val])
 		}
 	}
