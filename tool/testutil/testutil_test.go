@@ -2,8 +2,10 @@ package testutil
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 func mockAdd() {
@@ -53,6 +55,49 @@ func TestPanic(t *testing.T) {
 	}
 	if !strings.Contains(report, iconPanic) || !strings.Contains(report, "index out of range") {
 		t.Errorf("unexpected panic report:\n%s", report)
+	}
+}
+
+func TestTimeout(t *testing.T) {
+	old := Timeout
+	Timeout = 100 * time.Millisecond
+	t.Cleanup(func() { Timeout = old })
+
+	hang := func() { time.Sleep(time.Hour) }
+	output, report := runCase("1\n", hang)
+	if !strings.Contains(report, iconTimeout) {
+		t.Errorf("expected timeout report, got: %q", report)
+	}
+	_ = output
+}
+
+func TestLargeInput(t *testing.T) {
+	const n = 50000
+	var in strings.Builder
+	var wantSum int64
+	for i := 0; i < n; i++ {
+		fmt.Fprintf(&in, "%d\n", i)
+		wantSum += int64(i)
+	}
+
+	sumFn := func() {
+		var total, x int64
+		for {
+			if _, err := fmt.Fscan(os.Stdin, &x); err != nil {
+				break
+			}
+			total += x
+		}
+		fmt.Println(total)
+	}
+	RunTest(t, "large", in.String(), fmt.Sprintf("%d\n", wantSum), sumFn)
+}
+
+func TestStdinStdoutRestored(t *testing.T) {
+	stdin, stdout := os.Stdin, os.Stdout
+	RunTest(t, "restore", "1 2\n", "3\n", mockAdd)
+	if os.Stdin != stdin || os.Stdout != stdout {
+		t.Errorf("RunTest did not restore os.Stdin/os.Stdout")
 	}
 }
 

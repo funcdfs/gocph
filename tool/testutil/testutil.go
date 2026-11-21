@@ -55,8 +55,25 @@ func Run(t *testing.T, cases []Case, fn func()) {
 
 // ================================ Core Test Runner ================================
 
+// Timeout is the per-case execution limit. A solution exceeding it is reported
+// as a timeout; its goroutines cannot be killed but the pipes are closed so
+// the harness itself never leaks or blocks.
+var Timeout = 5 * time.Second
+
 // RunTest runs a single test case by simulating stdin/stdout
 func RunTest(t *testing.T, name, input, want string, fn func()) {
+	output, report := runCase(input, fn)
+	if report != "" {
+		t.Errorf("%s", report)
+		return
+	}
+	compareOutput(t, name, output, want, input)
+}
+
+// runCase pipes input into fn's stdin, captures fn's stdout and runs fn once.
+// A non-empty report describes a recovered panic or a timeout; otherwise
+// output holds everything fn printed.
+func runCase(input string, fn func()) (output, report string) {
 	oldStdin, oldStdout := os.Stdin, os.Stdout
 	defer func() {
 		os.Stdin, os.Stdout = oldStdin, oldStdout
@@ -66,28 +83,28 @@ func RunTest(t *testing.T, name, input, want string, fn func()) {
 	outReader, outWriter, _ := os.Pipe()
 	os.Stdin, os.Stdout = inReader, outWriter
 
-	done := make(chan error)
-	timeout := time.After(5 * time.Second)
+	// Buffered so the solution goroutine never blocks, even if the main
+	// select has already taken the timeout branch.
+	done := make(chan error, 1)
 
 	go func() {
 		defer inWriter.Close()
 		io.Copy(inWriter, strings.NewReader(input))
 	}()
 
-	var output bytes.Buffer
+	var out bytes.Buffer
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		io.Copy(&output, outReader)
+		io.Copy(&out, outReader)
 	}()
 
 	go func() {
 		defer outWriter.Close()
-		report, panicked := runSolution(fn, input)
+		rep, panicked := runSolution(fn, input)
 		if panicked {
-			t.Errorf("%s", report)
-			done <- fmt.Errorf("panic")
+			done <- fmt.Errorf("%s", rep)
 			return
 		}
 		done <- nil
@@ -95,13 +112,18 @@ func RunTest(t *testing.T, name, input, want string, fn func()) {
 
 	select {
 	case err := <-done:
-		if err != nil {
-			return
-		}
 		wg.Wait()
-		compareOutput(t, name, output.String(), want, input)
-	case <-timeout:
-		t.Errorf("%s\nInput:  %s", iconTimeout, echoInput(input))
+		if err != nil {
+			return out.String(), err.Error()
+		}
+		return out.String(), ""
+	case <-time.After(Timeout):
+		// Unblock the pipes so the copy goroutines can finish even if fn is
+		// stuck forever (goroutines cannot be killed in Go).
+		inReader.Close()
+		outWriter.Close()
+		wg.Wait()
+		return out.String(), fmt.Sprintf("%s\nInput:  %s", iconTimeout, echoInput(input))
 	}
 }
 
