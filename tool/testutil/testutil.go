@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -62,26 +63,35 @@ var Timeout = 5 * time.Second
 
 // RunTest runs a single test case by simulating stdin/stdout
 func RunTest(t *testing.T, name, input, want string, fn func()) {
-	output, report := runCase(input, fn)
+	output, stderr, report := runCase(input, fn)
 	if report != "" {
-		t.Errorf("%s", report)
+		t.Errorf("%s%s", report, stderrReport(stderr))
 		return
 	}
-	compareOutput(t, name, output, want, input)
+	msg, ok := compareOutput(name, output, want, input)
+	if !ok {
+		t.Errorf("%s%s%s", msg, checkInputConsumed(input, stderr), stderrReport(stderr))
+		return
+	}
+	if stderr != "" {
+		t.Logf("stderr:\n%s", stderr)
+	}
+	t.Logf("%s", msg)
 }
 
-// runCase pipes input into fn's stdin, captures fn's stdout and runs fn once.
-// A non-empty report describes a recovered panic or a timeout; otherwise
-// output holds everything fn printed.
-func runCase(input string, fn func()) (output, report string) {
-	oldStdin, oldStdout := os.Stdin, os.Stdout
+// runCase pipes input into fn's stdin, captures fn's stdout/stderr and runs
+// fn once. A non-empty report describes a recovered panic or a timeout;
+// otherwise output holds everything fn printed.
+func runCase(input string, fn func()) (output, stderr, report string) {
+	oldStdin, oldStdout, oldStderr := os.Stdin, os.Stdout, os.Stderr
 	defer func() {
-		os.Stdin, os.Stdout = oldStdin, oldStdout
+		os.Stdin, os.Stdout, os.Stderr = oldStdin, oldStdout, oldStderr
 	}()
 
 	inReader, inWriter, _ := os.Pipe()
 	outReader, outWriter, _ := os.Pipe()
-	os.Stdin, os.Stdout = inReader, outWriter
+	errReader, errWriter, _ := os.Pipe()
+	os.Stdin, os.Stdout, os.Stderr = inReader, outWriter, errWriter
 
 	// Buffered so the solution goroutine never blocks, even if the main
 	// select has already taken the timeout branch.
@@ -92,16 +102,21 @@ func runCase(input string, fn func()) (output, report string) {
 		io.Copy(inWriter, strings.NewReader(input))
 	}()
 
-	var out bytes.Buffer
+	var out, errOut bytes.Buffer
 	var wg sync.WaitGroup
-	wg.Add(1)
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		io.Copy(&out, outReader)
 	}()
+	go func() {
+		defer wg.Done()
+		io.Copy(&errOut, errReader)
+	}()
 
 	go func() {
 		defer outWriter.Close()
+		defer errWriter.Close()
 		rep, panicked := runSolution(fn, input)
 		if panicked {
 			done <- fmt.Errorf("%s", rep)
@@ -114,16 +129,17 @@ func runCase(input string, fn func()) (output, report string) {
 	case err := <-done:
 		wg.Wait()
 		if err != nil {
-			return out.String(), err.Error()
+			return out.String(), errOut.String(), err.Error()
 		}
-		return out.String(), ""
+		return out.String(), errOut.String(), ""
 	case <-time.After(Timeout):
 		// Unblock the pipes so the copy goroutines can finish even if fn is
 		// stuck forever (goroutines cannot be killed in Go).
 		inReader.Close()
 		outWriter.Close()
+		errWriter.Close()
 		wg.Wait()
-		return out.String(), fmt.Sprintf("%s\nInput:  %s", iconTimeout, echoInput(input))
+		return out.String(), errOut.String(), fmt.Sprintf("%s\nInput:  %s", iconTimeout, echoInput(input))
 	}
 }
 
@@ -158,12 +174,13 @@ func runSolution(fn func(), input string) (report string, panicked bool) {
 
 // ================================ Output Comparison ================================
 
-func compareOutput(t *testing.T, name, got, want, input string) {
+// compareOutput builds the pass/fail result for one case. ok reports whether
+// got matches want; msg is the accept log line or the failure report.
+func compareOutput(name, got, want, input string) (msg string, ok bool) {
 	got, want = strings.TrimSpace(got), strings.TrimSpace(want)
 
 	if got == want {
-		t.Logf("%s: %s%s !%s", name, colorGreen, iconAccept, colorReset)
-		return
+		return fmt.Sprintf("%s: %s%s !%s", name, colorGreen, iconAccept, colorReset), true
 	}
 
 	gotLines, wantLines := strings.Split(got, "\n"), strings.Split(want, "\n")
@@ -171,16 +188,53 @@ func compareOutput(t *testing.T, name, got, want, input string) {
 
 	if len(gotLines) > 1 || len(wantLines) > 1 {
 		mismatch := findMismatchLine(gotLines, wantLines)
-		t.Errorf("%s (first mismatch at line %d):\n%s",
+		return fmt.Sprintf("%s (first mismatch at line %d):\n%s",
 			iconWrong, mismatch,
-			formatSideBySide(gotLines, wantLines, inputLines))
-		return
+			formatSideBySide(gotLines, wantLines, inputLines)), false
 	}
 
 	mismatch, formattedGot := formatGotChars(got, want)
-	t.Errorf("%s (first mismatch at index %d):\n%s",
+	return fmt.Sprintf("%s (first mismatch at index %d):\n%s",
 		iconWrong, mismatch,
-		formatSingleLine(formattedGot, want, inputLines))
+		formatSingleLine(formattedGot, want, inputLines)), false
+}
+
+// stderrReport formats captured stderr for inclusion in a failure report.
+func stderrReport(stderr string) string {
+	if stderr == "" {
+		return ""
+	}
+	return "\n──── stderr ────\n" + stderr
+}
+
+// checkInputConsumed compares the "gocph read=N" marker the solution writes to
+// stderr against the number of whitespace-separated items in input. Fewer
+// reads than items usually means some input was missed (a forgotten read, a
+// misaligned multi-case loop, or an unexpected EOF).
+func checkInputConsumed(input, stderr string) string {
+	const marker = "gocph read="
+	idx := strings.LastIndex(stderr, marker)
+	if idx == -1 {
+		return ""
+	}
+	digits := stderr[idx+len(marker):]
+	if end := strings.IndexFunc(digits, func(r rune) bool { return r < '0' || r > '9' }); end != -1 {
+		digits = digits[:end]
+	}
+	read, err := strconv.Atoi(digits)
+	if err != nil {
+		return ""
+	}
+	fields := strings.Fields(input)
+	if read >= len(fields) {
+		return ""
+	}
+	preview := strings.Join(fields[read:min(read+10, len(fields))], " ")
+	if len(fields)-read > 10 {
+		preview += " …"
+	}
+	return fmt.Sprintf("\n⚠️ 输入未读取完整: 输入共 %d 个数据项, 实际读取 %d 个, 未读取: %s\n",
+		len(fields), read, preview)
 }
 
 // ================================ Formatting Helpers ================================

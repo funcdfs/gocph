@@ -64,7 +64,7 @@ func TestTimeout(t *testing.T) {
 	t.Cleanup(func() { Timeout = old })
 
 	hang := func() { time.Sleep(time.Hour) }
-	output, report := runCase("1\n", hang)
+	output, _, report := runCase("1\n", hang)
 	if !strings.Contains(report, iconTimeout) {
 		t.Errorf("expected timeout report, got: %q", report)
 	}
@@ -98,6 +98,62 @@ func TestStdinStdoutRestored(t *testing.T) {
 	RunTest(t, "restore", "1 2\n", "3\n", mockAdd)
 	if os.Stdin != stdin || os.Stdout != stdout {
 		t.Errorf("RunTest did not restore os.Stdin/os.Stdout")
+	}
+}
+
+func TestStderrCaptured(t *testing.T) {
+	fn := func() {
+		fmt.Fprintln(os.Stderr, "dbg-hello")
+		fmt.Println("ok")
+	}
+	output, stderr, report := runCase("", fn)
+	if report != "" {
+		t.Fatalf("unexpected report: %s", report)
+	}
+	if output != "ok\n" {
+		t.Errorf("output = %q, want %q", output, "ok\n")
+	}
+	if !strings.Contains(stderr, "dbg-hello") {
+		t.Errorf("stderr = %q, want it to contain %q", stderr, "dbg-hello")
+	}
+}
+
+func TestInputConsumedWarning(t *testing.T) {
+	fn := func() {
+		var x int
+		fmt.Fscan(os.Stdin, &x)
+		fmt.Fprintln(os.Stderr, "gocph read=1")
+		fmt.Println(x)
+	}
+	output, stderr, report := runCase("1 2 3\n", fn)
+	if report != "" {
+		t.Fatalf("unexpected report: %s", report)
+	}
+	if output != "1\n" {
+		t.Errorf("output = %q, want %q", output, "1\n")
+	}
+	warn := checkInputConsumed("1 2 3\n", stderr)
+	if !strings.Contains(warn, "输入未读取完整") || !strings.Contains(warn, "2 3") {
+		t.Errorf("expected leftover-input warning, got: %q", warn)
+	}
+}
+
+func TestInputFullyConsumed(t *testing.T) {
+	fn := func() {
+		var a, b, c int
+		fmt.Fscan(os.Stdin, &a, &b, &c)
+		fmt.Fprintln(os.Stderr, "gocph read=3")
+		fmt.Println(a + b + c)
+	}
+	output, stderr, report := runCase("1 2 3\n", fn)
+	if report != "" {
+		t.Fatalf("unexpected report: %s", report)
+	}
+	if output != "6\n" {
+		t.Errorf("output = %q, want %q", output, "6\n")
+	}
+	if warn := checkInputConsumed("1 2 3\n", stderr); warn != "" {
+		t.Errorf("unexpected warning for fully consumed input: %q", warn)
 	}
 }
 
